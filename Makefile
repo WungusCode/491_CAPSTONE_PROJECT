@@ -55,7 +55,7 @@ obj_dir:
 
 %.o: %.c
 	echo ".c to .o  GENERIC"
-  $(CC) $(C_FLAGS) -c $^ -o $(OBJ_DIR)/$@
+	$(CC) $(C_FLAGS) -c $^ -o $(OBJ_DIR)/$@
 
 sekai: $(OBJ1)
 	echo " LINK cam filter "
