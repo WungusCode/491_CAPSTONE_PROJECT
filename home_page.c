@@ -7,7 +7,7 @@
 int create_home_screen ( phdl_grp all_hdls ) {
 
   GtkWidget *vbox, *hbox , *hbox2 , *hbox3, *hbox_spc;
-  GtkWidget *label;
+  GtkWidget *label, *blnk_label;
   GtkWidget *button;
 
   int rc = 0;
@@ -36,9 +36,6 @@ int create_home_screen ( phdl_grp all_hdls ) {
 
   gtk_container_add (GTK_CONTAINER ( vbox ), hbox );
 
-  hbox_spc = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox_spc );
-
   hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
   // simple button , TODO make a text_view
@@ -47,6 +44,18 @@ int create_home_screen ( phdl_grp all_hdls ) {
   gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
 
   gtk_container_add (GTK_CONTAINER ( vbox ), hbox2 );
+
+  hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+  blnk_label = gtk_label_new ("");
+  gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
+
+  gtk_container_add (GTK_CONTAINER ( vbox ), hbox_spc );
+
+  hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+  blnk_label = gtk_label_new ("");
+  gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
+
+  gtk_container_add (GTK_CONTAINER ( vbox ), hbox_spc );
 
   hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
