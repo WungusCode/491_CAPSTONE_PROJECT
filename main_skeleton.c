@@ -5,6 +5,7 @@
 #include "data_types.h"
 
 #include "params.h"
+#include "home_page.h"
 
 static app_flags flgs;
 
@@ -23,7 +24,7 @@ int main(int argc, char* argv[]) {
 
     pall_hdls->flg = &flgs;
 
-    gtk_init(&argc, &argv);
+		gtk_init(&argc, &argv);
 
     // code
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -36,6 +37,9 @@ int main(int argc, char* argv[]) {
       printf( "  window = %p \n" , window );
     }
     g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
+
+    create_home_screen(  pall_hdls );
+
     gtk_widget_show_all ( window );
 
     gtk_main();  // blocks until GTK terminates
