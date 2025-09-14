@@ -10,7 +10,7 @@
 #include "../data_types.h"
 #include "../link_list.h"
 
-#define DB_FILE_0 "/stock_data/data/dev_sekai_1.db"
+#define DB_FILE_0 "./dev_sekai_1.db"
 
 void set_log_sql_access ( int logit );
 int  get_log_sql_access ( void );
