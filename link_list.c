@@ -17,23 +17,23 @@ int get_okane_grp_list_len( pokane_grp head ) {
 
 pokane_grp linked_list_add_okane_grp( pokane_grp head, pokane_grp newP) {
 
-	if ( ll_dbg ) printf( "  >> E %s \n" , __FUNCTION__ );
+  if ( ll_dbg ) printf( "  >> E %s \n" , __FUNCTION__ );
 
-	if (head == NULL) {
+  if (head == NULL) {
     head = newP;
-	  if ( ll_dbg ) printf( "    set head = newP = %p \n" , newP );
+    if ( ll_dbg ) printf( "    set head = newP = %p \n" , newP );
   } else {
     pokane_grp tmp = head;
     while (tmp->next != NULL) {
       tmp = tmp->next;
     }
     tmp->next = newP;
-	  if ( ll_dbg ) printf( "    head = %p newP = %p \n" , head , newP );
+    if ( ll_dbg ) printf( "    head = %p newP = %p \n" , head , newP );
   }
 
-	if ( ll_dbg ) printf( "  << Lv %s \n" , __FUNCTION__ );
+  if ( ll_dbg ) printf( "  << Lv %s \n" , __FUNCTION__ );
 
-	return head;
+  return head;
 }
 
 pokane_grp linked_list_empty_okane_grp( pokane_grp head) {
@@ -54,8 +54,8 @@ void linked_list_print_okane_grp( pokane_grp head) {
 
   if ( ll_dbg ) printf( "  >> E %s \n" , __FUNCTION__ );
 
-	printf("  printing list...\n");
-	printf("  entry_ts \t   entry_nr is_inc \tamount  \tdescription \n");
+  printf("  printing list...\n");
+  printf("  entry_ts \t   entry_nr is_inc \tamount  \tdescription \n");
   while (tmp != NULL) {
     printf("  %u\t    %d \t%d \t%4.2f \t%s \n", tmp->entry_ts, tmp->entry_nr, tmp->is_income, tmp->amount, tmp->description );
     tmp = tmp->next;
