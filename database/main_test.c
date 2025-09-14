@@ -53,6 +53,14 @@ int create_dummy_data( pokane_grp *head ) {
   tmp.amount    = 30.0;
   strcpy( tmp.description , "cellphone" );
   add_transaction( head , &tmp , 1 );
+  lst_len++;
+
+  tmp.is_income = 0;
+  tmp.entry_nr  = lst_len;
+  tmp.entry_ts  = 0;
+  tmp.amount    = 15.0;
+  strcpy( tmp.description , "school supplies" );
+  add_transaction( head , &tmp , 1 );
 
   lst_len = get_okane_grp_list_len( *head );
   if ( dbg ) printf( "      list len = %3d  \n" , lst_len );
