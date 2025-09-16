@@ -13,30 +13,25 @@ PACKAGE = `pkg-config --cflags $(TGT_GTK)`
 
 # Libraries
 LIBS = `pkg-config --libs $(TGT_GTK)` `pkg-config --libs libcurl`
+LIBS += -lm -lsqlite3
 
 C_FLAGS = -Wall -g -Wno-deprecated-declarations ${PACKAGE} -DIS_GTK_3=1
 
-CPP_FILES=$(shell find . -name "*.c")
+C_FILES=$(shell find . -name "*.c")
 
-S_OBJ=$(patsubst %.c, %.o, $(CPP_FILES))
+S_OBJ=$(patsubst %.c, %.o, $(C_FILES))
 
 LDFLAGS := `pkg-config --libs ${TGT_GTK}`
 
-#CPPFLAGS := ...
-#CXXFLAGS := ...
-
-CPPFLAGS := -g `pkg-config --cflags opencv4`
-#CXXFLAGS =
-
 SRCDIR = ./
 
-SRC1 = main_skeleton.c home_page.c params.c my_time.c link_list.c
+SRC1 = main_test.c my_sql.c ../link_list.c ../my_time.c ../transactions.c
 
 OBJ_DIR = ./obj
 
 OBJ11_FILES = $(patsubst $(SRC1),$(OBJ_DIR)/%.o,$(SRC1))
 
-OBJ1_FILES = obj/main_skeleton.o obj/home_page.o obj/params.o obj/my_time.o obj/link_list.o
+OBJ1_FILES = obj/main_test.o obj/my_sql.o link_list.o my_time.o transactions.o
 
 OBJ11_RULE = $(SRC11:.c
 
@@ -48,7 +43,7 @@ $(warning OBJ1=${OBJ1} )
 
 $(warning OBJ11_FILES=${OBJ11_FILES} )
 
-all: buildrepo sekai
+all: buildrepo db_test
 
 obj_dir:
 	@mkdir -p $(OBJ_DIR)
@@ -57,21 +52,19 @@ obj_dir:
 	echo ".c to .o  GENERIC"
 	$(CC) $(C_FLAGS) -c $^ -o $(OBJ_DIR)/$@
 
-sekai: $(OBJ1)
+db_test: $(OBJ1)
 	echo " LINK sekai "
-	$(CC) -o $@ $(OBJ1_FILES) $(LDFLAGS)
+	$(CC) -o $@ $(OBJ1_FILES) $(LDFLAGS) $(LIBS)
 
 
 clean:
-	rm -fr $(OBJ_DIR)/*.o sekai
+	rm -fr $(OBJ_DIR)/*.o db_test *.o
 
 tags: FORCE
 	${RM} -f tags
 	${CTAGS} -R $(SRCDIR)
 
 FORCE: ;
-
-.PHONY: all sekai
 
 buildrepo:
 	$(info -->buildrepo: objdir=$(OBJDIR) srcdir=$(SRCDIRS)  )
@@ -85,3 +78,6 @@ define make-repo
 		mkdir -p $(OBJDIR)/$$dir; \
 	done
 endef
+
+.PHONY: all buildrepo  clean
+
