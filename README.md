@@ -7,3 +7,7 @@ Lizbeth Anaya-Morales
 Timothy Hulse
 Dylan Tran
 
+
+
+setting pages is going to have 
+email file in the blank 

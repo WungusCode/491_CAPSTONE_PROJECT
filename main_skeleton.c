@@ -3,6 +3,8 @@
 
 #include "base_defs.h"
 #include "data_types.h"
+#include "home_page.h"
+#include "setting_page.h"
 
 #include "params.h"
 
