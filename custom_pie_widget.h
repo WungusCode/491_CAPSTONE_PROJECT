@@ -132,12 +132,9 @@ void pie_widget_set_min_value(PieWidget *widget, gdouble minValue);
 //get min value
 gdouble pie_widget_get_min_value(PieWidget *widget);
 
-
 // ADDED
-extern gboolean glg_line_graph_chart_set_text (PieWidget *graph, GLGElementID element, const gchar *pch_text);
+extern gboolean pie_widget_set_text (PieWidget *graph, GLGElementID element, const gchar *pch_text);
 extern gboolean pie_widget_add_slice_to_pie ( PieWidget *graph  , double value, const char *color, const char *label);
-
-
 
 G_END_DECLS
 

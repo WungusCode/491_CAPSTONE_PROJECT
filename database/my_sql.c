@@ -275,6 +275,7 @@ int db_read_in_all_transactions( sqlite3 *db_hdl , pokane_grp *data_lst, int dbg
     newP->is_income   = is_income;
     newP->entry_ts    = transact_ts;
     newP->amount      = amount;
+    newP->in_dB       = 1;
     strcpy( newP->description, descrip );
 
     if ( no_data ) printf( "\n" );

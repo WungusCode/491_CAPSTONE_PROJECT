@@ -58,10 +58,6 @@ uninstall: clean
 
 FORCE: ;
 
-tags: FORCE
-	${RM} -f tags
-	${CTAGS} -R $(SRCS_FOLDER)
-
 clean:
 	rm -f $(NAME)
 	rm -rf $(OBJS_FOLDER)

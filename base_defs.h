@@ -35,6 +35,7 @@ typedef struct _okane_grp {
   float               amount;                       // how much money was received ( income ) or spent ( debit )
   char                description[DB_DESCRIP_LEN];  // text to describe transaction, eg 'wages' etc if income, 'gas', 'food' etc if debit
                                                     // fixed alloc for now, use malloc later ??
+  int                 in_dB;                        // flag to indicate this entry already exists in database
 } okane_grp, * pokane_grp;
 
 // keep at bottom

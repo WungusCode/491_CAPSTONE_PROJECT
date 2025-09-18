@@ -136,7 +136,7 @@ static void pie_widget_set_property(GObject *object, guint prop_id, const GValue
         break;
     // ADDED
     case PROP_GRAPH_TITLE:
-      glg_line_graph_chart_set_text ( widget, GLG_TITLE_T, g_value_get_string(value) );
+      pie_widget_set_text ( widget, GLG_TITLE_T, g_value_get_string(value) );
       break;
 
     default:
@@ -420,13 +420,13 @@ gdouble pie_widget_get_min_value(PieWidget *widget)
 
 
 // ADDED
-gboolean glg_line_graph_chart_set_text (PieWidget *graph, GLGElementID element, const gchar *pch_text)
+gboolean pie_widget_set_text (PieWidget *graph, GLGElementID element, const gchar *pch_text)
 {
   PieWidgetPrivate *priv;
   gchar      *pch = NULL;
   gboolean   rc = TRUE;
 
-  g_debug ("    ===> glg_line_graph_chart_set_text(entered)");
+  g_debug ("    ===> pie_widget_set_text(entered)");
   printf( " >> E %s \n" , __FUNCTION__ );
 
   if ( PIE_IS_WIDGET ( graph ) ) {
@@ -451,13 +451,13 @@ gboolean glg_line_graph_chart_set_text (PieWidget *graph, GLGElementID element, 
      priv->page_title_text = pch;
      break;
    default:
-      g_message ("glg_line_graph_chart_set_text(): Invalid Element ID = %2d " , element );
+      g_message ("pie_widget_set_text(): Invalid Element ID = %2d " , element );
       g_free ( pch );
       rc = FALSE;
     break;
 	} // switch element
 
-  //g_debug ("    ===> glg_line_graph_chart_set_text(exited)");
+  //g_debug ("    ===> pie_widget_set_text(exited)");
   printf( " << Lv  %s  , rc = %d\n" , __FUNCTION__ , rc );
   return rc;
 }
@@ -467,7 +467,7 @@ gboolean pie_widget_add_slice_to_pie ( PieWidget *graph  , double value, const c
   PieWidgetPrivate *priv;
   gboolean   rc = TRUE;
 
-  g_debug ("    ===> glg_line_graph_chart_set_text(entered)");
+  g_debug ("    ===> pie_widget_add_slice_to_pie(entered)");
   if ( dbg ) printf( " >> E %s \n" , __FUNCTION__ );
 
   if ( PIE_IS_WIDGET ( graph ) ) {
