@@ -37,7 +37,7 @@ static void on_theme_light_clicked(GtkToggleButton *toggle, gpointer user_data) 
         apply_dark_preference(FALSE);
     }
 }
-
+// used to report a problem 
 static void on_reportProblem_clicked(GtkButton *btn, gpointer user_data) {
     g_print("[Settings] Report Problem clicked\n");
     // Placeholder for actual report problem functionality
@@ -49,6 +49,12 @@ static void on_reportProblem_clicked(GtkButton *btn, gpointer user_data) {
     gtk_dialog_run(GTK_DIALOG(report_dialog));
     gtk_widget_destroy(report_dialog);
 }
+ // used for the log out buttion 
+
+ static void on_LogOut_clicked(GtkButton *button, gpointer user_data) {
+    g_print("[Settings] Log Out clicked\n");
+    // Placeholder for actual log out functionality
+ }
 
 // --- Public API ---
 
@@ -132,7 +138,22 @@ GtkWidget* create_setting_page(void) {
     // add to main box
     gtk_box_pack_start(GTK_BOX(vbox), frame_account, FALSE, FALSE, 0);
 
+    // Screen time 
+    GtkWidget *frame_screentime = gtk_frame_new("Screen Time ");
+    GtkWidget *label_screentime = gtk_label_new("You have used the app for 2H 15m  hours this week.");
+    gtk_container_set_border_width(GTK_CONTAINER(frame_screentime), label_screentime, 8);
+    gtk_box_pack_start(GTK_BOX(vbox), frame_screentime, FALSE, FALSE, 0);
 
+    // Report a problem button
+    GtkWidget *btn_report = gtk_button_new_with_label("Report a Problem with the web applciation");
+    g_signal_connect(btn_report, "clicked", G_CALLBACK(on_reportProblem_clicked), window);
+    gtk_box_pack_start(GTK_BOX(vbox), btn_report, FALSE, FALSE, 0);
+
+
+    // Log out button
+    GtkWidget *btn_logout = gtk_button_new_with_label("sign out of your account");
+    g_signal_connect(btn_logout, "clicked", G_CALLBACK(on_LogOut_clicked), NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), btn_logout, FALSE, FALSE, 0);
 
 
     // Close button at bottom
