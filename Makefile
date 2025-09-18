@@ -20,7 +20,7 @@ CPP_FILES=$(shell find . -name "*.c")
 
 S_OBJ=$(patsubst %.c, %.o, $(CPP_FILES))
 
-LDFLAGS := `pkg-config --libs ${TGT_GTK}`
+LDFLAGS := `pkg-config --libs ${TGT_GTK}` -lm
 
 #CPPFLAGS := ...
 #CXXFLAGS := ...
@@ -30,15 +30,15 @@ CPPFLAGS := -g `pkg-config --cflags opencv4`
 
 SRCDIR = ./
 
-SRC1 = main_skeleton.c home_page.c params.c my_time.c link_list.c
+SRC1 = main_skeleton.c home_page.c params.c my_time.c link_list.c custom_pie_widget.c
 
 OBJ_DIR = ./obj
 
 OBJ11_FILES = $(patsubst $(SRC1),$(OBJ_DIR)/%.o,$(SRC1))
 
-OBJ1_FILES = obj/main_skeleton.o obj/home_page.o obj/params.o obj/my_time.o obj/link_list.o
+OBJ1_FILES = obj/main_skeleton.o obj/home_page.o obj/params.o obj/my_time.o obj/link_list.o obj/custom_pie_widget.o
 
-OBJ11_RULE = $(SRC11:.c
+OBJ11_RULE = $(SRC11:.c)
 
 OBJ1 =$(SRC1:.c=.o)
 
@@ -53,11 +53,17 @@ all: buildrepo sekai
 obj_dir:
 	@mkdir -p $(OBJ_DIR)
 
-%.o: %.c
-	echo ".c to .o  GENERIC"
-	$(CC) $(C_FLAGS) -c $^ -o $(OBJ_DIR)/$@
+# %.o: %.c
+# 	echo ".c to .o  GENERIC"
+# 	$(CC) $(C_FLAGS) -c $^ -o $(OBJ_DIR)/$@
 
-sekai: $(OBJ1)
+# Had to update this code block to ensure the target matched the output
+$(OBJ_DIR)/%.o: %.c | obj_dir		# update: added "| obj_dir"
+	echo ".c to .o GENERIC"
+	$(CC) $(C_FLAGS) -c $< -o $@
+
+
+sekai: $(OBJ1_FILES)		# update: Added "_FILES"
 	echo " LINK sekai "
 	$(CC) -o $@ $(OBJ1_FILES) $(LDFLAGS)
 
