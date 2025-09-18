@@ -86,7 +86,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
   gtk_widget_show_all ( pall_hdls->vbox_four );
 
-  if ( all_hdls->flg->dbg ) {
+  if ( pall_hdls->flg->dbg ) {
     printf( "  << Lv %s \n" , __FUNCTION__ );
   }
 

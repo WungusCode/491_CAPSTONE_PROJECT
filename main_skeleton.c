@@ -6,6 +6,9 @@
 
 #include "params.h"
 #include "home_page.h"
+#include "login_screen.h"
+#include "create_screen.h"
+#include "start_screen.h"
 
 static app_flags flgs;
 
