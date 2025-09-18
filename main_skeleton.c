@@ -3,9 +3,17 @@
 
 #include "base_defs.h"
 #include "data_types.h"
+#include "link_list.h"
 
 #include "params.h"
 #include "home_page.h"
+#include "transact_page.h"
+#include "custom_pie_widget.h"
+//#include "pie_page.h"
+
+#include "database/my_sql.h"
+#include "transactions.h"
+#include "transaction_list_page.h"
 
 static app_flags flgs;
 
@@ -24,9 +32,17 @@ int main(int argc, char* argv[]) {
 
     pall_hdls->flg = &flgs;
 
-		gtk_init(&argc, &argv);
+    pall_hdls->t_lst = NULL;
+
+    gtk_init(&argc, &argv);
 
     // code
+    pall_hdls->vbox_active         = NULL;
+    pall_hdls->vbox_home_page      = NULL;
+    pall_hdls->vbox_transact_page  = NULL;
+    pall_hdls->vbox_chart_page     = NULL;
+    pall_hdls->vbox_t_history_page = NULL;
+
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     pall_hdls->parentWin = window;
 
@@ -38,7 +54,16 @@ int main(int argc, char* argv[]) {
     }
     g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
-    create_home_screen(  pall_hdls );
+    get_data_from_db ( &pall_hdls );
+
+    create_home_screen                  (  &pall_hdls );
+    create_transaction_page_rtn         (  &pall_hdls );
+    //create_pie_chart_page_rtn           (  &pall_hdls );
+
+    printf( "  pall_hdls = %p pall_hdls->flg = %p pall_hdls->flg->dbg = %d \n" , pall_hdls, pall_hdls->flg, pall_hdls->flg->dbg );
+    create_transaction_history_page_rtn (  &pall_hdls );
+
+    //set_all_hdls_from ( &all_hdls, __FUNCTION__ , __LINE__  );
 
     gtk_widget_show_all ( window );
 

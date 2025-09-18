@@ -1,77 +1,72 @@
-CC  = gcc
-CXX = g++
-RM  = rm
-
-# Directories
-OBJDIR = obj
+NAME = sekai
 
 CTAGS=ctags
 
-TGT_GTK = gtk+-3.0
+OBJS_FOLDER = obj
+INCS_FOLDER = ./
+SRCS_FOLDER = ./
 
-PACKAGE = `pkg-config --cflags $(TGT_GTK)`
+DB_SRCS_FOLDER = $(SRCS_FOLDER)/database
+#GUI_SRCS_FOLDER = $(SRCS_FOLDER)/gui
+INCS := $(wildcard $(INCS_FOLDER)/*.h)
 
-# Libraries
-LIBS = `pkg-config --libs $(TGT_GTK)` `pkg-config --libs libcurl`
+DB_SRC = $(DB_SRCS_FOLDER)/my_sql.c
 
-C_FLAGS = -Wall -g -Wno-deprecated-declarations ${PACKAGE} -DIS_GTK_3=1
+SRCS := $(notdir $(wildcard $(SRCS_FOLDER)/*.c $(DB_SRC) $(GUI_SRCS_FOLDER)/*.c))
 
-CPP_FILES=$(shell find . -name "*.c")
+OBJS := $(patsubst %.c, $(OBJS_FOLDER)/%.o, $(SRCS))
 
-S_OBJ=$(patsubst %.c, %.o, $(CPP_FILES))
+CC = gcc
 
-LDFLAGS := `pkg-config --libs ${TGT_GTK}`
+CFLAGS = -Wall -g -Wno-deprecated-declarations
 
-#CPPFLAGS := ...
-#CXXFLAGS := ...
+GTK_FLAGS = `pkg-config --cflags gtk+-3.0`
+GTK_LIBS_FLAGS = `pkg-config --libs gtk+-3.0`
 
-CPPFLAGS := -g `pkg-config --cflags opencv4`
-#CXXFLAGS =
+LIB_FLAGS = -lm -lsqlite3
 
-SRCDIR = ./
+.PHONY: all tags install clean uninstall reinstall
 
-SRC1 = main_skeleton.c home_page.c params.c my_time.c link_list.c
+all: install
 
-OBJ_DIR = ./obj
+install: $(NAME)
 
-OBJ11_FILES = $(patsubst $(SRC1),$(OBJ_DIR)/%.o,$(SRC1))
+$(NAME): $(OBJS_FOLDER) $(OBJS)
+	echo " LINK object files "
+	$(CC) $(CFLAGS) $(OBJS) $(LIB_FLAGS) $(GTK_LIBS_FLAGS) -o $@
 
-OBJ1_FILES = obj/main_skeleton.o obj/home_page.o obj/params.o obj/my_time.o obj/link_list.o
+$(OBJS_FOLDER):
+	mkdir $(OBJS_FOLDER)
 
-OBJ11_RULE = $(SRC11:.c
+$(OBJS_FOLDER)/%.o:$(SRCS_FOLDER)/%.c $(INCS)
+	@$(CC) $(CFLAGS) $(GTK_FLAGS) \
+					-I $(INCS_FOLDER) \
+					-c $< -o $@
 
-OBJ1 =$(SRC1:.c=.o)
+$(OBJS_FOLDER)/%.o:$(DB_SRCS_FOLDER)/%.c $(INCS)
+	@$(CC) $(CFLAGS) $(GTK_FLAGS) \
+					-I $(INCS_FOLDER) \
+					-c $< -o $@
 
-$(warning SRC1=${SRC1} )
+$(OBJS_FOLDER)/%.o:$(GUI_SRCS_FOLDER)/%.c $(INCS)
+	@$(CC) $(CFLAGS) $(GTK_FLAGS) \
+					-I $(INCS_FOLDER) \
+					-c $< -o $@
 
-$(warning OBJ1=${OBJ1} )
-
-$(warning OBJ11_FILES=${OBJ11_FILES} )
-
-all: buildrepo sekai
-
-obj_dir:
-	@mkdir -p $(OBJ_DIR)
-
-%.o: %.c
-	echo ".c to .o  GENERIC"
-	$(CC) $(C_FLAGS) -c $^ -o $(OBJ_DIR)/$@
-
-sekai: $(OBJ1)
-	echo " LINK sekai "
-	$(CC) -o $@ $(OBJ1_FILES) $(LDFLAGS)
-
-
-clean:
-	rm -fr $(OBJ_DIR)/*.o sekai
-
-tags: FORCE
-	${RM} -f tags
-	${CTAGS} -R $(SRCDIR)
+uninstall: clean
+	rm -f $(OBJS_FOLDER)/*.o
 
 FORCE: ;
 
-.PHONY: all sekai
+tags: FORCE
+	${RM} -f tags
+	${CTAGS} -R $(SRCS_FOLDER)
+
+clean:
+	rm -f $(NAME)
+	rm -rf $(OBJS_FOLDER)
+
+reinstall: uninstall all
 
 buildrepo:
 	$(info -->buildrepo: objdir=$(OBJDIR) srcdir=$(SRCDIRS)  )
@@ -80,8 +75,8 @@ buildrepo:
 # Create obj directory structure
 define make-repo
 	mkdir -p $(OBJDIR)
-	for dir in $(SRCDIRS); \
-	do \
-		mkdir -p $(OBJDIR)/$$dir; \
-	done
+		for dir in $(SRCDIRS); \
+		do \
+			mkdir -p $(OBJDIR)/$$dir; \
+		done
 endef

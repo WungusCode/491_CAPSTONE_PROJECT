@@ -3,83 +3,136 @@
 
 #include "base_defs.h"
 
+#include "transact_page.h"
+//#include "pie_page.h"
 
-int create_home_screen ( phdl_grp all_hdls ) {
+#include "transaction_list_page.h"
 
-  GtkWidget *vbox, *hbox , *hbox2 , *hbox3, *hbox_spc;
+static void hide_home_page( phdl_grp all_hdls ) {
+  gtk_widget_hide( all_hdls->vbox_home_page );
+
+  gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_home_page );
+
+}
+
+static void chart_clicked ( GtkButton *button , gpointer data ) {
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  hide_home_page( all_hdls );
+
+  //create_pie_chart_page( all_hdls );
+}
+
+static void transact_clicked ( GtkButton *button , gpointer data ) {
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  hide_home_page( all_hdls );
+
+  create_transaction_page( all_hdls );
+}
+
+static void list_transact_clicked ( GtkButton *button , gpointer data ) {
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  hide_home_page( all_hdls );
+
+  create_transaction_history_page ( all_hdls );
+}
+
+int create_home_screen ( phdl_grp *all_hdls ) {
+
+  GtkWidget *hbox , *hbox2 , *hbox3, *hbox_spc;
   GtkWidget *label, *blnk_label;
   GtkWidget *button;
 
   int rc = 0;
 
-  printf( "  >> E %s \n" , __FUNCTION__ );
+  phdl_grp pall_hdls = *all_hdls;
 
-  if ( all_hdls->flg->dbg ) {
-    printf( "  >> E %s \n" , __FUNCTION__ );
-    printf( "    flgs->dbg = %d \n" , all_hdls->flg->dbg );
-    printf( "    parentWin = %p \n" , all_hdls->parentWin );
+  if ( all_hdls != NULL ) {
+    if ( pall_hdls->flg->dbg ) {
+      printf( "  >> E %s \n" , __FUNCTION__ );
+      printf( "    flgs->dbg = %d \n" , pall_hdls->flg->dbg );
+      printf( "    parentWin = %p \n" , pall_hdls->parentWin );
+    }
   }
-  //actions = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+  else {
+     printf( "  >> E %s  , all_hdls = NULL !!! \n" , __FUNCTION__ );
+  }
 
-  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-  gtk_container_add (GTK_CONTAINER ( all_hdls->parentWin ), vbox);
+  if ( pall_hdls->vbox_home_page == NULL ) {
+    pall_hdls->vbox_home_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
 
-  printf( "    vbox = %p \n" , vbox );
+    printf( "    vbox = %p  , %s L%4d \n" , pall_hdls->vbox_home_page , __FILE__ , __LINE__  );
 
-  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-  label = gtk_label_new (" $3,261 ");
+    label = gtk_label_new (" $3,261 ");
 
-  gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
 
-  gtk_widget_show_all (hbox);
+    gtk_widget_show_all (hbox);
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox );
 
-  hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-  // simple button , TODO make a text_view
-  button = gtk_button_new_with_label ("Show more details");
-  gtk_widget_set_valign ( button, GTK_ALIGN_CENTER);
-  gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
+    // simple button , TODO make a text_view
+    button = gtk_button_new_with_label ("Show more details");
+    gtk_widget_set_valign ( button, GTK_ALIGN_CENTER);
+    gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox2 );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox2 );
 
-  hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  blnk_label = gtk_label_new ("");
-  gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
+    hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    blnk_label = gtk_label_new ("");
+    gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox_spc );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox_spc );
 
-  hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  blnk_label = gtk_label_new ("");
-  gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
+    hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    blnk_label = gtk_label_new ("");
+    gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox_spc );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox_spc );
 
-  hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-  button = gtk_button_new_with_label ("Calendar");
+    button = gtk_button_new_with_label ("Pie CHart");
+    g_object_set ( button , "tooltip-text", "Click to display Pie Chart", NULL);
+    g_signal_connect (button, "clicked",  G_CALLBACK ( chart_clicked ), (gpointer) pall_hdls );
 
-  gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-  button = gtk_button_new_with_label ("Chart");
+    button = gtk_button_new_with_label ("+/- Trans");
+    g_object_set ( button , "tooltip-text", "Click to add or delete a transaction", NULL);
+    g_signal_connect (button, "clicked",  G_CALLBACK ( transact_clicked ), (gpointer) pall_hdls );
 
-  gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-  button = gtk_button_new_with_label ("Calculate");
+    button = gtk_button_new_with_label ("List Trans");
+    g_object_set ( button , "tooltip-text", "Click to show all transactions", NULL);
+    g_signal_connect (button, "clicked",  G_CALLBACK ( list_transact_clicked ), (gpointer) pall_hdls );
 
-  gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox3 );
+    button = gtk_button_new_with_label ("Config");
 
-  gtk_widget_show_all ( vbox );
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-  if ( all_hdls->flg->dbg ) {
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox3 );
+
+  }  // if !all_hdls->vbox_home_page
+
+  g_object_ref ( pall_hdls->vbox_home_page );
+  gtk_widget_show_all ( pall_hdls->vbox_home_page );
+
+  *all_hdls = pall_hdls;
+
+  if ( pall_hdls->flg->dbg ) {
     printf( "  << Lv %s \n" , __FUNCTION__ );
   }
-
-  printf( "  << Lv %s \n" , __FUNCTION__ );
 
   return rc;
 }
