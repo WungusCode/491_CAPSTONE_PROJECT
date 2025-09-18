@@ -9,44 +9,44 @@
 
 static app_flags flgs;
 
-static void destroy( GtkWidget *widget,    gpointer   data );
+static void destroy( GtkWidget *widget,    gpointer   data ) {
+  gtk_main_quit ();
+}
 
 int main(int argc, char* argv[]) {
   int rc = 0;
 
-  rc = parse_cmdline( argc, argv , &flgs );
-  if ( rc == 0 ) {
-    GtkWidget* window;
-    hdl_grp   all_hdls;
-    phdl_grp  pall_hdls = NULL;
+  GtkWidget* window;
+  hdl_grp   all_hdls;
+  phdl_grp  pall_hdls = NULL;
 
-    pall_hdls = &all_hdls;
+  pall_hdls = &all_hdls;
 
-    pall_hdls->flg = &flgs;
+  gtk_init(&argc, &argv);
 
-		gtk_init(&argc, &argv);
+  // init screen containers
+  pall_hdls->vbox_one   = NULL;  // Start
+  pall_hdls->vbox_two   = NULL;  // Login
+  pall_hdls->vbox_three = NULL;  // Create
+  pall_hdls->vbox_four  = NULL;  // Home
 
-    // code
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    pall_hdls->parentWin = window;
+  // window
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  pall_hdls->parentWin = window;
 
-    gtk_window_set_title (GTK_WINDOW (window), "Window");
-    gtk_window_set_default_size (GTK_WINDOW (window), WIN_W, WIN_H );
+  gtk_window_set_title (GTK_WINDOW (window), "Window");
+  gtk_window_set_default_size (GTK_WINDOW (window), WIN_W, WIN_H );
 
-    if ( pall_hdls->flg->dbg ) {
-      printf( "  window = %p \n" , window );
-    }
-    g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
+  g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
-    create_home_screen(  pall_hdls );
+  // Start on the Start Screen
+  create_start_screen_rtn(  &pall_hdls );
+  create_login_screen_rtn(  &pall_hdls );
+  create_create_screen_rtn(  &pall_hdls );
 
-    gtk_widget_show_all ( window );
+  gtk_widget_show_all ( window );
 
-    gtk_main();  // blocks until GTK terminates
-  }
+  gtk_main();  // blocks until GTK terminates
   return rc;
 }
 
-static void destroy( GtkWidget *widget, gpointer   data ) {
-  gtk_main_quit ();
-}
