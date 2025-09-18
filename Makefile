@@ -30,13 +30,13 @@ CPPFLAGS := -g `pkg-config --cflags opencv4`
 
 SRCDIR = ./
 
-SRC1 = main_skeleton.c home_page.c params.c my_time.c link_list.c
+SRC1 = main_skeleton.c home_page.c params.c my_time.c link_list.c login_screen.c create_screen.c start_screen.c
 
 OBJ_DIR = ./obj
 
 OBJ11_FILES = $(patsubst $(SRC1),$(OBJ_DIR)/%.o,$(SRC1))
 
-OBJ1_FILES = obj/main_skeleton.o obj/home_page.o obj/params.o obj/my_time.o obj/link_list.o
+OBJ1_FILES = obj/main_skeleton.o obj/home_page.o obj/params.o obj/my_time.o obj/link_list.o obj/login_screen.o obj/create_screen.o obj/start_screen.o
 
 OBJ11_RULE = $(SRC11:.c
 
