@@ -10,8 +10,8 @@
 int three_dbg=0;
 
 static void hide_create_screen ( phdl_grp all_hdls ) {
-  gtk_widget_hide( all_hdls->vbox_three );
-  gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_three );
+  gtk_widget_hide( all_hdls->vbox_create_page );
+  gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_create_page );
 }
 
 static void back_to_start ( GtkButton *button , gpointer data ) {
@@ -29,7 +29,7 @@ static void goto_login ( GtkButton *button , gpointer data ) {
 static void c_goto_home( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_create_screen( all_hdls );
-  create_home_screen ( all_hdls );
+  create_home_screen ( &all_hdls );
 }
 
 static void on_submit_create ( GtkButton *button , gpointer data ) {
@@ -55,15 +55,15 @@ int create_create_screen ( phdl_grp pall_hdls ) {
     printf( "    parentWin = %p \n" , pall_hdls->parentWin );
   }
 
-  if ( pall_hdls->vbox_three == NULL ) {
-    pall_hdls->vbox_three = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+  if ( pall_hdls->vbox_create_page == NULL ) {
+    pall_hdls->vbox_create_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
     // Title row
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
     label = gtk_label_new (" CREATE ACCOUNT ");
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
     gtk_widget_show_all (hbox);
-    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_three ), hbox );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_create_page ), hbox );
 
     // Inputs
     GtkWidget *v = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
@@ -79,7 +79,7 @@ int create_create_screen ( phdl_grp pall_hdls ) {
     gtk_entry_set_invisible_char(GTK_ENTRY(pass_entry), 0x2022);
     gtk_box_pack_start(GTK_BOX(v), pass_entry, FALSE, FALSE, 0);
 
-    gtk_container_add(GTK_CONTAINER(pall_hdls->vbox_three), v);
+    gtk_container_add(GTK_CONTAINER(pall_hdls->vbox_create_page), v);
 
     // Buttons
     hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
@@ -101,13 +101,13 @@ int create_create_screen ( phdl_grp pall_hdls ) {
     g_signal_connect (button, "clicked",  G_CALLBACK ( c_goto_home ), (gpointer) pall_hdls );
     gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
 
-    g_object_ref ( pall_hdls->vbox_three );
-    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_three ), hbox2 );
+    g_object_ref ( pall_hdls->vbox_create_page );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_create_page ), hbox2 );
   } else {
-    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_three );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_create_page );
   }
 
-  gtk_widget_show_all ( pall_hdls->vbox_three );
+  gtk_widget_show_all ( pall_hdls->vbox_create_page );
   return 0;
 }
 

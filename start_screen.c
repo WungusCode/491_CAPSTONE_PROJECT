@@ -10,8 +10,8 @@
 int start_dbg = 0;
 
 static void hide_start_screen ( phdl_grp all_hdls ) {
-  gtk_widget_hide( all_hdls->vbox_one );
-  gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_one );
+  gtk_widget_hide( all_hdls->vbox_start_page );
+  gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_start_page );
 }
 
 static void end_program ( GtkButton *button , gpointer data ) {
@@ -47,15 +47,15 @@ int create_start_screen ( phdl_grp pall_hdls ) {
     printf( "    parentWin = %p \n" , pall_hdls->parentWin );
   }
 
-  if ( pall_hdls->vbox_one == NULL ) {
-    pall_hdls->vbox_one = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_one );
+  if ( pall_hdls->vbox_start_page == NULL ) {
+    pall_hdls->vbox_start_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_start_page );
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
     label = gtk_label_new (" START SCREEN ");
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
     gtk_widget_show_all (hbox);
-    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_one ), hbox );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_start_page ), hbox );
 
     hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
@@ -80,13 +80,13 @@ int create_start_screen ( phdl_grp pall_hdls ) {
     g_signal_connect (button, "clicked",  G_CALLBACK ( goto_create ), (gpointer) pall_hdls );
     gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
 
-    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_one ), hbox2 );
-    g_object_ref ( pall_hdls->vbox_one );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_start_page ), hbox2 );
+    g_object_ref ( pall_hdls->vbox_start_page );
   } else {
-    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_one );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_start_page );
   }
 
-  gtk_widget_show_all ( pall_hdls->vbox_one );
+  gtk_widget_show_all ( pall_hdls->vbox_start_page );
   return 0;
 }
 

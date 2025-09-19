@@ -43,6 +43,9 @@ typedef struct _hdl_grp {
   GtkWidget *parentWin;
   GtkWidget *vbox_active;         // current vbox attached to parentWin, can only be ONE at any time !
   GtkWidget *vbox_home_page;      // vbox container for 'home_page'
+  GtkWidget *vbox_start_page;      // vbox container for 'start_page'
+  GtkWidget *vbox_create_page;      // vbox container for 'create_page'
+  GtkWidget *vbox_login_page;      // vbox container for 'login_page'
   GtkWidget *vbox_transact_page;  // vbox container for 'transact_page'
   GtkWidget *vbox_chart_page;     // vbox container for 'pie_page'
   GtkWidget *vbox_t_history_page; // vbox container for 'transaction_history_page'

@@ -3,12 +3,20 @@
 
 #include "base_defs.h"
 #include "data_types.h"
+#include "link_list.h"
 
 #include "params.h"
 #include "home_page.h"
-#include "login_screen.h"
-#include "create_screen.h"
 #include "start_screen.h"
+#include "create_screen.h"
+#include "login_screen.h"
+#include "transact_page.h"
+#include "custom_pie_widget.h"
+//#include "pie_page.h"
+
+#include "database/my_sql.h"
+#include "transactions.h"
+#include "transaction_list_page.h"
 
 static app_flags flgs;
 
@@ -27,25 +35,41 @@ int main(int argc, char* argv[]) {
 
   gtk_init(&argc, &argv);
 
-  // init screen containers
-  pall_hdls->vbox_one   = NULL;  // Start
-  pall_hdls->vbox_two   = NULL;  // Login
-  pall_hdls->vbox_three = NULL;  // Create
-  pall_hdls->vbox_four  = NULL;  // Home
+    pall_hdls->t_lst = NULL;
 
-  // window
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  pall_hdls->parentWin = window;
+    gtk_init(&argc, &argv);
+
+    // code
+    pall_hdls->vbox_active         = NULL;
+    pall_hdls->vbox_home_page      = NULL;
+    pall_hdls->vbox_start_page     = NULL;
+    pall_hdls->vbox_create_page    = NULL;
+    pall_hdls->vbox_login_page     = NULL;
+    pall_hdls->vbox_transact_page  = NULL;
+    pall_hdls->vbox_chart_page     = NULL;
+    pall_hdls->vbox_t_history_page = NULL;
+
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    pall_hdls->parentWin = window;
 
   gtk_window_set_title (GTK_WINDOW (window), "Window");
   gtk_window_set_default_size (GTK_WINDOW (window), WIN_W, WIN_H );
 
   g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
-  // Start on the Start Screen
-  create_start_screen_rtn(  &pall_hdls );
-  create_login_screen_rtn(  &pall_hdls );
-  create_create_screen_rtn(  &pall_hdls );
+    get_data_from_db ( &pall_hdls );
+
+    create_start_screen_rtn             (  &pall_hdls );
+    create_login_screen_rtn             (  &pall_hdls );
+    create_create_screen_rtn            (  &pall_hdls );
+    // create_home_screen                  (  &pall_hdls );
+    create_transaction_page_rtn         (  &pall_hdls );
+    //create_pie_chart_page_rtn           (  &pall_hdls );
+
+    printf( "  pall_hdls = %p pall_hdls->flg = %p pall_hdls->flg->dbg = %d \n" , pall_hdls, pall_hdls->flg, pall_hdls->flg->dbg );
+    create_transaction_history_page_rtn (  &pall_hdls );
+
+    //set_all_hdls_from ( &all_hdls, __FUNCTION__ , __LINE__  );
 
   gtk_widget_show_all ( window );
 
