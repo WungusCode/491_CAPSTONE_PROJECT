@@ -75,14 +75,12 @@ GtkWidget* create_setting_page(void) {
     gtk_container_set_border_width(GTK_CONTAINER(box_notify), 8);
     gtk_container_add(GTK_CONTAINER(frame_notify), box_notify);
 
-    // add to main box
-    gtk_box_pack_start(GTK_BOX(vbox), frame_login, FALSE, FALSE, 0);
+    // add to main box (only once)
+    gtk_box_pack_start(GTK_BOX(vbox), frame_notify, FALSE, FALSE, 0);
 
     GtkWidget *check_notify = gtk_check_button_new_with_label("Enable Notifications");
     g_signal_connect(check_notify, "toggled", G_CALLBACK(on_notify_toggled), NULL);
     gtk_box_pack_start(GTK_BOX(box_notify), check_notify, FALSE, FALSE, 0);
-
-    gtk_box_pack_start(GTK_BOX(vbox), frame_notify, FALSE, FALSE, 0);
 
     // ===== Appearance (Light / Dark) =====
     GtkWidget *frame_theme = gtk_frame_new("Appearance");
@@ -94,7 +92,6 @@ GtkWidget* create_setting_page(void) {
     GtkWidget *radio_light = gtk_radio_button_new_with_label(NULL, "Light mode");
     GtkWidget *radio_dark  = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(radio_light), "Dark mode");
 
-    // Connect both so you can switch either way
     g_signal_connect(radio_dark,  "toggled", G_CALLBACK(on_theme_toggled), NULL);
     g_signal_connect(radio_light, "toggled", G_CALLBACK(on_theme_light_clicked), NULL);
 
@@ -112,49 +109,44 @@ GtkWidget* create_setting_page(void) {
 
     gtk_box_pack_start(GTK_BOX(box_theme), radio_light, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(box_theme), radio_dark,  FALSE, FALSE, 0);
-
     gtk_box_pack_start(GTK_BOX(vbox), frame_theme, FALSE, FALSE, 0);
 
-    // Account information email + password 
+    // ===== Account information (email + password) =====
     GtkWidget *frame_account = gtk_frame_new("Account");
-    GtkWdiget *box_account = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-    Gtk_container_set_border_width(GTK_CONTAINER(box_account), 10);
-    Gtk_container_add(GTK_CONTAINER(frame_account), box_account);
+    GtkWidget *box_account = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_container_set_border_width(GTK_CONTAINER(box_account), 10);
+    gtk_container_add(GTK_CONTAINER(frame_account), box_account);
 
-    // where the Email will be entered
-    GtkWidget *enter_email = gtk_enter_new();
+    // Email entry
+    GtkWidget *enter_email = gtk_entry_new();  // was gtk_enter_new()
     gtk_entry_set_placeholder_text(GTK_ENTRY(enter_email), "Email");
     gtk_box_pack_start(GTK_BOX(box_account), enter_email, FALSE, FALSE, 0);
 
-    //eneter the password box 
+    // Password entry
     GtkWidget *enter_password = gtk_entry_new();
     gtk_entry_set_placeholder_text(GTK_ENTRY(enter_password), "Password");
-    //  Makes sure that the password is visible so that you know what you typed in.
-    // if somone gets into the account it's likely the already know the password is there
-    // not point in hiding it
-    gtk_entry_set_visibility(GTK_ENTRY(enter_password), TRUE); 
-    gtk_box_pack_start(GTK_BOX(box_account), enter_password, FALSE, FALSE, 0)
+    gtk_entry_set_visibility(GTK_ENTRY(enter_password), TRUE);
+    gtk_box_pack_start(GTK_BOX(box_account), enter_password, FALSE, FALSE, 0); // missing ';' fixed
 
     // add to main box
     gtk_box_pack_start(GTK_BOX(vbox), frame_account, FALSE, FALSE, 0);
 
-    // Screen time 
-    GtkWidget *frame_screentime = gtk_frame_new("Screen Time ");
-    GtkWidget *label_screentime = gtk_label_new("You have used the app for 2H 15m  hours this week.");
-    gtk_container_set_border_width(GTK_CONTAINER(frame_screentime), label_screentime, 8);
+    // ===== Screen time =====
+    GtkWidget *frame_screentime = gtk_frame_new("Screen Time");
+    gtk_container_set_border_width(GTK_CONTAINER(frame_screentime), 8); // correct signature
+    GtkWidget *label_screentime = gtk_label_new("You have used the app for 2h 15m this week.");
+    gtk_container_add(GTK_CONTAINER(frame_screentime), label_screentime);
     gtk_box_pack_start(GTK_BOX(vbox), frame_screentime, FALSE, FALSE, 0);
 
     // Report a problem button
-    GtkWidget *btn_report = gtk_button_new_with_label("Report a Problem with the web applciation");
+    GtkWidget *btn_report = gtk_button_new_with_label("Report a problem with the web application");
     g_signal_connect(btn_report, "clicked", G_CALLBACK(on_reportProblem_clicked), window);
     gtk_box_pack_start(GTK_BOX(vbox), btn_report, FALSE, FALSE, 0);
 
-
     // Log out button
-    GtkWidget *btn_logout = gtk_button_new_with_label("sign out of your account");
+    GtkWidget *btn_logout = gtk_button_new_with_label("Sign out of your account");
     g_signal_connect(btn_logout, "clicked", G_CALLBACK(on_LogOut_clicked), NULL);
     gtk_box_pack_start(GTK_BOX(vbox), btn_logout, FALSE, FALSE, 0);
-
 
     // Close button at bottom
     GtkWidget *btn_close = gtk_button_new_with_label("Close");
