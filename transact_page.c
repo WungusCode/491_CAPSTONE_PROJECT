@@ -3,9 +3,19 @@
 #include<gtk/gtk.h>
 
 #include "base_defs.h"
+#include "my_time.h"
+#include "link_list.h"
+#include "transact_page.h"
+#include "transactions.h"
+#include "transaction_list_page.h"
 
-static GtkWidget *entry1 = NULL;
+static GtkWidget *entry1 = NULL;                 // TODO make stack passed
 static GtkWidget *entry2 = NULL;
+
+GtkTreeStore  *g_transact_list_treestore=NULL;   // TODO make stack passed
+GtkWidget     *g_transact_list_treeview=NULL;    // TODO make stack passed
+
+GtkWidget     *g_addTodB=NULL;                   // TODO make stack passed
 
 void check_button_clicked (GtkWidget *widget, gpointer *data) {
   phdl_grp all_hdls = (phdl_grp)data;
@@ -38,6 +48,59 @@ static void message_dialog_clicked (GtkButton *button, gpointer user_data) {
   i++;
 }
 
+static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
+  // ALWAYS called from home_page, so go back to it !
+  const gchar *amount_txt;
+  const gchar *description_txt;
+  int   is_income=0;
+  float amount = 0.0;
+  static okane_grp this_entry;
+
+  phdl_grp all_hdls = (phdl_grp)user_data;
+  pokane_grp head  = (all_hdls->t_lst);
+
+  printf( "  >> E    all_hdls =%p \n" , all_hdls );
+
+  // get the data
+  amount_txt      = gtk_entry_get_text( GTK_ENTRY( all_hdls->vbx_hdls->tp_w_amount ) );
+  description_txt = gtk_entry_get_text( GTK_ENTRY( all_hdls->vbx_hdls->tp_w_description ) );
+
+  is_income       = gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON( all_hdls->vbx_hdls->tp_w_is_income ) );
+  printf( "   is_income = %d \n" , is_income );
+
+  amount = atof ( amount_txt );
+
+  this_entry.entry_nr  = -1;
+  this_entry.is_income = is_income;
+  this_entry.entry_ts  = get_unix_time_now();
+  this_entry.amount    = amount;
+  this_entry.in_dB     = 0;
+
+  strcpy( this_entry.description , description_txt );
+
+  printf( "   Got from entry boxes : \n" );
+  printf( "     is_INCOME = %d  \n" , is_income );
+  printf( "     amount    = %f  \n" , amount );
+  printf( "     descr     = %s  \n" , description_txt );
+
+  add_transaction ( &head , &this_entry, 1 );
+
+  if ( 1 ) {
+    linked_list_print_okane_grp ( head );
+    //getchar();
+  }
+  // call update list transactions
+
+#ifdef TODO
+  add_to_trans_list_treestore( all_hdls->t_lst );
+#else
+  printf( "      %sNEED to implement function 'add_to_trans_list_treestore' in transaction_list_page.c ! %s, %s L%4d \n" , COLOR_YELLOW, COLOR_RESET , __func__, __LINE__ );
+#endif
+  gtk_widget_show ( g_addTodB );  // TODO make stack passed var !
+
+  printf( "  << Lv   pall_hdls =%p \n" , all_hdls );
+} // add_record_clicked
+
 static void cancel_clicked ( GtkButton *button,  gpointer   user_data) {
   // ALWAYS called from home_page, so go back to it !
   phdl_grp all_hdls = (phdl_grp)user_data;
@@ -48,6 +111,17 @@ static void cancel_clicked ( GtkButton *button,  gpointer   user_data) {
   gtk_container_add ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_home_page );
   gtk_widget_show_all ( all_hdls->parentWin );
 }
+
+static void save_db_clicked ( GtkButton *button,  gpointer   user_data) {
+  // ALWAYS called from home_page, so go back to it !
+  phdl_grp all_hdls = (phdl_grp)user_data;
+  pokane_grp head  = (all_hdls->t_lst);
+
+  printf( "  >> E %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
+  // SAVE TO DB !
+  save_to_dB_transaction( head , 1 );
+}
+
 
 static void interactive_dialog_clicked (GtkButton *button,  gpointer   user_data) {
   GtkWidget *content_area;
@@ -189,6 +263,8 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, FALSE, 0);
 
     check_btn = gtk_check_button_new_with_label ( "Is Income");
+    pall_hdls->vbx_hdls->tp_w_is_income = check_btn;
+
     gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON ( check_btn), FALSE );
 
     g_object_set ( check_btn, "tooltip-text", "Click if item is moeny you RECEIVED", NULL);
@@ -199,6 +275,8 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
 
     entry1 = gtk_entry_new ();
+    pall_hdls->vbx_hdls->tp_w_amount = entry1;
+
     gtk_grid_attach (GTK_GRID (table), entry1, 1, 1, 1, 1);
     gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry1);
 
@@ -207,19 +285,24 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
     entry2 = gtk_entry_new ();
     gtk_grid_attach (GTK_GRID (table), entry2, 1, 2, 1, 1);
+    pall_hdls->vbx_hdls->tp_w_description = entry2;
 
     // final buttons
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_box_pack_end (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
-    button = gtk_button_new_with_mnemonic ("_Done");
-    g_signal_connect (button, "clicked", G_CALLBACK ( cancel_clicked ), (gpointer) pall_hdls  );
+    button = gtk_button_new_with_mnemonic ("_Add Record");
+    g_signal_connect (button, "clicked", G_CALLBACK ( add_record_clicked ), (gpointer) pall_hdls  );
 
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
 
-    button = gtk_button_new_with_mnemonic ("_Cancel");
+    button = gtk_button_new_with_mnemonic ("C_ancel");
     g_signal_connect (button, "clicked", G_CALLBACK ( cancel_clicked ), (gpointer) pall_hdls  );
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+
+    g_addTodB = gtk_button_new_with_mnemonic ("SAVE to dB");
+    g_signal_connect ( g_addTodB, "clicked", G_CALLBACK ( save_db_clicked ), (gpointer) pall_hdls  );
+    gtk_box_pack_start (GTK_BOX (hbox), g_addTodB, FALSE, FALSE, 0);
 
      // add ref to widget so it doesn't get destroyed on container_remove !
      g_object_ref ( pall_hdls->vbox_transact_page );
@@ -228,6 +311,8 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_transact_page );
   }
   gtk_widget_show_all ( pall_hdls->vbox_transact_page );
+
+  if ( g_addTodB != NULL ) gtk_widget_hide ( g_addTodB ); // Hidden until have added a record
 
   if ( pall_hdls->flg->dbg ) {
     printf( "  << Lv %s \n" , __FUNCTION__ );

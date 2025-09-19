@@ -38,14 +38,35 @@ typedef struct _okane_grp {
   int                 in_dB;                        // flag to indicate this entry already exists in database
 } okane_grp, * pokane_grp;
 
+typedef struct _uiHdl {
+  // home page widgets
+  GtkWidget *hp_xx;
+
+  // transaction_page widgets
+  GtkWidget *tp_w_is_income;
+  GtkWidget *tp_w_amount;
+  GtkWidget *tp_w_description;
+
+  // transaction history_page widgets
+  GtkWidget *thp_xx;
+
+  // chart_page widgets
+  GtkWidget *cp_xx;
+
+} uiHdl, *puiHdl;
+
 // keep at bottom
 typedef struct _hdl_grp {
   GtkWidget *parentWin;
+  // Keep vbox handles here for easy reference
   GtkWidget *vbox_active;         // current vbox attached to parentWin, can only be ONE at any time !
   GtkWidget *vbox_home_page;      // vbox container for 'home_page'
   GtkWidget *vbox_transact_page;  // vbox container for 'transact_page'
   GtkWidget *vbox_chart_page;     // vbox container for 'pie_page'
   GtkWidget *vbox_t_history_page; // vbox container for 'transaction_history_page'
+
+  // collect hdls to widgets of vboxes here
+  puiHdl vbx_hdls;
 
   papp_flags flg;
 

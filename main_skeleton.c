@@ -25,13 +25,14 @@ int main(int argc, char* argv[]) {
   rc = parse_cmdline( argc, argv , &flgs );
   if ( rc == 0 ) {
     GtkWidget* window;
-    hdl_grp   all_hdls;
+    static hdl_grp   all_hdls;
     phdl_grp  pall_hdls = NULL;
 
     pall_hdls = &all_hdls;
 
     pall_hdls->flg = &flgs;
 
+    // init t_lst
     pall_hdls->t_lst = NULL;
 
     gtk_init(&argc, &argv);
@@ -42,6 +43,20 @@ int main(int argc, char* argv[]) {
     pall_hdls->vbox_transact_page  = NULL;
     pall_hdls->vbox_chart_page     = NULL;
     pall_hdls->vbox_t_history_page = NULL;
+
+    pall_hdls->vbx_hdls = malloc ( sizeof ( uiHdl ) );
+    printf( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls );  // RM
+    memset( pall_hdls->vbx_hdls, 0 , sizeof ( uiHdl ) );
+    printf( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls ); // RM
+
+    pall_hdls->vbx_hdls->hp_xx = NULL;
+
+    pall_hdls->vbx_hdls->tp_w_is_income   = NULL;
+    pall_hdls->vbx_hdls->tp_w_amount      = NULL;
+    pall_hdls->vbx_hdls->tp_w_description = NULL;
+
+    pall_hdls->vbx_hdls->thp_xx = NULL;
+    pall_hdls->vbx_hdls->cp_xx  = NULL;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     pall_hdls->parentWin = window;

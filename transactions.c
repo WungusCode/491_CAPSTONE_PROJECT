@@ -119,8 +119,20 @@ int del_transaction ( pokane_grp *t_lst , pokane_grp data_in, int dbg ) {
 
 int add_transaction ( pokane_grp *t_lst , pokane_grp data_in, int dbg ) {
 
-  int rc = 0;
-  pokane_grp tmp = NULL;
+  int rc          = 0;
+  int lst_len     = 0;
+  pokane_grp tmp  = NULL;
+
+  if ( data_in->entry_nr == -1 ) {
+    // find nr of existing entries and +1 it !
+    pokane_grp head = NULL;
+    head = *t_lst;
+    // find nr entries
+    lst_len       = get_okane_grp_list_len( head );
+    if ( dbg ) printf( "      list len = %3d  \n" , lst_len );
+
+    data_in->entry_nr = lst_len;
+  }
 
   tmp = malloc( sizeof( okane_grp ) );
   tmp->next      = NULL;
@@ -128,9 +140,27 @@ int add_transaction ( pokane_grp *t_lst , pokane_grp data_in, int dbg ) {
   tmp->is_income = data_in->is_income;
   tmp->entry_ts  = get_unix_time_now();
   tmp->amount    = data_in->amount;
+  tmp->in_dB     = data_in->in_dB;
   strcpy( tmp->description , data_in->description );
 
   *t_lst = linked_list_add_okane_grp( *t_lst, tmp );
+
+  return rc;
+}
+
+// if pass in a full list it will go through every entry
+//   best to pass in pointer from where entries haven't been added to the dB
+//   TODO, always pass in head ??
+int save_to_dB_transaction ( pokane_grp t_lst , int dbg ) {
+  int rc = 0;
+  sqlite3 *db_hdl;
+
+  db_hdl = db_open( DB_FILE_0 , __func__ , 0 ,dbg );
+  if ( db_hdl != NULL ) {
+    if ( dbg ) printf( "    %s  , L%4d   db_hdl=%p , call db_add_entry() !  \n" , __func__ , __LINE__ , db_hdl );
+    db_add_entry( db_hdl , t_lst , dbg );
+    db_close( db_hdl, __FUNCTION__ , dbg  );
+  }
 
   return rc;
 }

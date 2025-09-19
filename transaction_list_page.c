@@ -34,7 +34,7 @@ transact_lst_store *g_trans_liststore      = NULL;
 GtkTreeStore       *g_trans_list_treestore = NULL;
 GtkWidget          *g_trans_listview       = NULL;
 
-transact_lst_store * create_trans_liststore ( pokane_grp kane_lst , int dbg );
+transact_lst_store * create_trans_liststore ( pokane_grp stk_lst , int dbg );
 
 void set_trans_liststore( transact_lst_store *local_store ) {
   g_trans_liststore = local_store;
@@ -205,7 +205,7 @@ static gboolean transact_list_row_visible (GtkTreeModel *model, GtkTreeIter *ite
   return rc;
 }  // transact_list_row_visible
 
-void create_and_fill_trans_list ( pokane_grp kane_lst ) {
+void create_and_fill_trans_list ( pokane_grp stk_lst ) {
 
   GtkTreeIter    toplevel;
 #ifdef COPIED_FROM_HEADER_TODO_REMOVE
@@ -213,7 +213,7 @@ void create_and_fill_trans_list ( pokane_grp kane_lst ) {
 #endif
   GtkTreeStore *treestore=NULL;
 
-  pokane_grp list = kane_lst;
+  pokane_grp list = stk_lst;
 
   //int dbg = get_debug();
   int dbg = 1;
@@ -222,12 +222,11 @@ void create_and_fill_trans_list ( pokane_grp kane_lst ) {
 
   treestore = get_trans_listtreestore( );
 
-  if ( dbg && list != NULL ) printf( "        In %s lnk lst entry_nr=%d amount=%f descrip=%s \n" , __FUNCTION__ , list->entry_nr, list->amount, list->description );
-  else {
-    printf( "   list = %p \n", list );
-  }
   if ( dbg ) {
-    linked_list_print_okane_grp ( kane_lst );
+    if ( list != NULL )  printf( "        In %s lnk lst entry_nr=%d amount=%f descrip=%s \n" , __FUNCTION__ , list->entry_nr, list->amount, list->description );
+    else printf( "       list is NULL !!! \n" );
+
+		linked_list_print_okane_grp ( stk_lst );
   }
 
   /* Append a top level row and leave it empty */
@@ -489,7 +488,7 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
   return view;
 } // create_trans_listview
 
-transact_lst_store * create_trans_liststore ( pokane_grp kane_lst , int dbg ) {
+transact_lst_store * create_trans_liststore ( pokane_grp stk_lst , int dbg ) {
 
   transact_lst_store *store = NULL;
   GtkWidget        *view;
@@ -519,11 +518,11 @@ transact_lst_store * create_trans_liststore ( pokane_grp kane_lst , int dbg ) {
   }
   set_trans_list_treestore( store->t_act );
   if ( dbg ) {
-    linked_list_print_okane_grp ( kane_lst );
+    linked_list_print_okane_grp ( stk_lst );
   }
 
   // model is actually GTK_TREE_MODEL(treestore)
-  create_and_fill_trans_list ( kane_lst );
+  create_and_fill_trans_list ( stk_lst );
 
   // store->t_act is the base model, order is :
   //  t_act
