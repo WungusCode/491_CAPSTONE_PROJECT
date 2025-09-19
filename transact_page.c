@@ -91,11 +91,7 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
   }
   // call update list transactions
 
-#ifdef TODO
   add_to_trans_list_treestore( all_hdls->t_lst );
-#else
-  printf( "      %sNEED to implement function 'add_to_trans_list_treestore' in transaction_list_page.c ! %s, %s L%4d \n" , COLOR_YELLOW, COLOR_RESET , __func__, __LINE__ );
-#endif
   gtk_widget_show ( g_addTodB );  // TODO make stack passed var !
 
   printf( "  << Lv   pall_hdls =%p \n" , all_hdls );
