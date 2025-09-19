@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include<gtk/gtk.h>
+#include <gtk/gtk.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include "base_defs.h"
 
@@ -99,25 +100,54 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
     hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-    button = gtk_button_new_with_label ("Pie CHart");
+    button = gtk_button_new_with_label ("");
+
+    GtkWidget *image_one = gtk_image_new_from_file("./resources/libreoffice-chart.png");
+    //printf("   Image_one = %p   \n", image_one);
+    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
+    gtk_button_set_image( GTK_BUTTON( button ) , image_one);
+
+    pall_hdls->vbx_hdls->hp_chart_btn = button;
     g_object_set ( button , "tooltip-text", "Click to display Pie Chart", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( chart_clicked ), (gpointer) pall_hdls );
 
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-    button = gtk_button_new_with_label ("+/- Trans");
+    button = gtk_button_new_with_label ("");
+    GtkWidget *image_two = gtk_image_new_from_file("./resources/transaction_64x64.png");
+    //printf("   Image_two = %p   \n", image_two);
+    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
+    gtk_button_set_image( GTK_BUTTON( button ) , image_two);
+
+    pall_hdls->vbx_hdls->hp_plus_trans_btn = button;
+
     g_object_set ( button , "tooltip-text", "Click to add or delete a transaction", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( transact_clicked ), (gpointer) pall_hdls );
 
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-    button = gtk_button_new_with_label ("List Trans");
+    button = gtk_button_new_with_label ("");
+    GtkWidget *image_three = gtk_image_new_from_file("./resources/list_transactions_64x64.png");
+    //printf("   Image_three = %p   \n", image_three);
+    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
+    gtk_button_set_image( GTK_BUTTON( button ) , image_three);
+    gtk_widget_show ( button );
+
+    pall_hdls->vbx_hdls->hp_list_trans_btn = button;
+
     g_object_set ( button , "tooltip-text", "Click to show all transactions", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( list_transact_clicked ), (gpointer) pall_hdls );
 
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-    button = gtk_button_new_with_label ("Config");
+    //button = gtk_button_new_with_label ("Config");
+    button = gtk_button_new_with_label ("");
+    GtkWidget *image_four = gtk_image_new_from_file("./resources/settings.png");
+    //printf("   Image_four = %p   \n", image_four);
+    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
+    gtk_button_set_image( GTK_BUTTON( button ) , image_four);
+
+    g_object_set ( button , "tooltip-text", "Click to change app settings", NULL);
 
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 

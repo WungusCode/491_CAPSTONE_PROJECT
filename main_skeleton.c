@@ -49,7 +49,10 @@ int main(int argc, char* argv[]) {
     memset( pall_hdls->vbx_hdls, 0 , sizeof ( uiHdl ) );
     printf( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls ); // RM
 
-    pall_hdls->vbx_hdls->hp_xx = NULL;
+    pall_hdls->vbx_hdls->hp_chart_btn      = NULL;
+    pall_hdls->vbx_hdls->hp_plus_trans_btn = NULL;
+    pall_hdls->vbx_hdls->hp_list_trans_btn = NULL;
+    pall_hdls->vbx_hdls->thp_xx = NULL;
 
     pall_hdls->vbx_hdls->tp_w_is_income   = NULL;
     pall_hdls->vbx_hdls->tp_w_amount      = NULL;
