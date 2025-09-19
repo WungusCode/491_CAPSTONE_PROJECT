@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include<gtk/gtk.h>
+#include <gtk/gtk.h>
 
 #include "base_defs.h"
 
@@ -99,7 +99,7 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
     hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-    button = gtk_button_new_with_label ("Pie CHart");
+    button = gtk_button_new_with_label ("Pie Chart");
     g_object_set ( button , "tooltip-text", "Click to display Pie Chart", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( chart_clicked ), (gpointer) pall_hdls );
 
