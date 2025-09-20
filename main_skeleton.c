@@ -10,6 +10,9 @@
 #include "create_screen.h"
 #include "login_screen.h"
 #include "home_page.h"
+#include "start_screen.h"
+#include "create_screen.h"
+#include "login_screen.h"
 #include "transact_page.h"
 #include "custom_pie_widget.h"
 //#include "pie_page.h"
@@ -20,7 +23,9 @@
 
 static app_flags flgs;
 
-static void destroy( GtkWidget *widget,    gpointer   data );
+static void destroy( GtkWidget *widget,    gpointer   data ) {
+  gtk_main_quit ();
+}
 
 int main(int argc, char* argv[]) {
   int rc = 0;
@@ -30,10 +35,13 @@ int main(int argc, char* argv[]) {
     GtkWidget* window;
     static hdl_grp   all_hdls;
     phdl_grp  pall_hdls = NULL;
+    GtkWidget* window;
+    hdl_grp   all_hdls;
+    phdl_grp  pall_hdls = NULL;
 
     pall_hdls = &all_hdls;
 
-    pall_hdls->flg = &flgs;
+    gtk_init(&argc, &argv);
 
     // init t_lst
     pall_hdls->t_lst = NULL;
@@ -46,6 +54,9 @@ int main(int argc, char* argv[]) {
     pall_hdls->vbox_create_page    = NULL;
     pall_hdls->vbox_login_page     = NULL;
     pall_hdls->vbox_home_page      = NULL;
+    pall_hdls->vbox_start_page     = NULL;
+    pall_hdls->vbox_create_page    = NULL;
+    pall_hdls->vbox_login_page     = NULL;
     pall_hdls->vbox_transact_page  = NULL;
     pall_hdls->vbox_chart_page     = NULL;
     pall_hdls->vbox_t_history_page = NULL;
@@ -73,9 +84,6 @@ int main(int argc, char* argv[]) {
     gtk_window_set_title (GTK_WINDOW (window), "Window");
     gtk_window_set_default_size (GTK_WINDOW (window), WIN_W, WIN_H );
 
-    if ( pall_hdls->flg->dbg ) {
-      printf( "  window = %p \n" , window );
-    }
     g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
     get_data_from_db ( &pall_hdls );
@@ -92,13 +100,9 @@ int main(int argc, char* argv[]) {
 
     //set_all_hdls_from ( &all_hdls, __FUNCTION__ , __LINE__  );
 
-    gtk_widget_show_all ( window );
+  gtk_widget_show_all ( window );
 
-    gtk_main();  // blocks until GTK terminates
-  }
+  gtk_main();  // blocks until GTK terminates
   return rc;
 }
 
-static void destroy( GtkWidget *widget, gpointer   data ) {
-  gtk_main_quit ();
-}

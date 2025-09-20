@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include "base_defs.h"
 
@@ -117,6 +116,7 @@ int create_home_screen ( phdl_grp *all_hdls ) {
     gtk_button_set_image( GTK_BUTTON( button ) , image_one);
 
     pall_hdls->vbx_hdls->hp_chart_btn = button;
+    button = gtk_button_new_with_label ("Pie Chart");
     g_object_set ( button , "tooltip-text", "Click to display Pie Chart", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( chart_clicked ), (gpointer) pall_hdls );
 
