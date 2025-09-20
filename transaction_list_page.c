@@ -34,23 +34,23 @@ transact_lst_store *g_trans_liststore      = NULL;
 GtkTreeStore       *g_trans_list_treestore = NULL;
 GtkWidget          *g_trans_listview       = NULL;
 
-transact_lst_store * create_trans_liststore ( pokane_grp kane_lst , int dbg );
+transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg );
 
-void set_trans_liststore( transact_lst_store *local_store ) {
+void set_trans_list_store( transact_lst_store *local_store ) {
   g_trans_liststore = local_store;
 }
 
-transact_lst_store  * get_trans_liststore( void ) {
+transact_lst_store  * get_trans_list_store( void ) {
   // g_print( "  %s store=%p \n" , __FUNCTION__ , g_trans_liststore );
   return g_trans_liststore;
 }
 
-void set_trans_listtreeview( GtkWidget *local_view ) {
+void set_trans_list_treeview( GtkWidget *local_view ) {
   g_trans_listview = local_view;
   if ( g_dbg_trans_listtree ) g_print( "  %s treeview=%p \n" , __FUNCTION__ , g_trans_listview );
 }
 
-GtkWidget  * get_trans_listtreeview( void ) {
+GtkWidget  * get_trans_list_treeview( void ) {
   if( g_dbg_trans_listtree ) g_print( "  %s treeview=%p \n" , __FUNCTION__ , g_trans_listview );
   return g_trans_listview;
 }
@@ -61,7 +61,7 @@ void set_trans_list_treestore( GtkTreeStore *local_treestore ) {
   // g_print( "  %s NOW treestore=%p \n" , __FUNCTION__ , g_trans_listtreestore );
 }
 
-GtkTreeStore  * get_trans_listtreestore( void ) {
+GtkTreeStore  * get_trans_list_treestore( void ) {
   // g_print( "  %s treestore=%p \n" , __FUNCTION__ , g_trans_listtreestore );
   return g_trans_list_treestore;
 }
@@ -116,7 +116,19 @@ void gen_renderer_func_trans_list ( GtkTreeViewColumn *col,
     if ( !g_TODO_Warning ) printf( "    %sTODO: %sconvert uint32_ts to date time string ! , %s L%d \n" , COLOR_YELLOW, COLOR_RESET , __func__ , __LINE__ );
    g_TODO_Warning = 1;
   }
+  if ( u_dat == MODEL_AMOUNT ) {
+    float amount;
+    gchar  buf[64];
 
+    gtk_tree_model_get(model, iter, MODEL_AMOUNT , &amount, -1);
+
+    g_snprintf(buf, sizeof(buf), "%7.2f", amount );
+
+    g_object_set(renderer, "foreground-set", FALSE, NULL); /* print this normal */
+
+    g_object_set(renderer, "text", buf, NULL);
+
+  }
   paint_background_trans_list ( renderer, model, iter, u_dat );
 
 } // gen_renderer_func_trans_list
@@ -146,16 +158,27 @@ gboolean update_prices_foreach_trans_list (GtkTreeModel *model,
                 GtkTreeIter  *iter,
                 gpointer      user_data)
 {
-  int       entry_nr, is_income;
-  uint32_t	entry_ts;
+  int       entry_nr, is_income, is_in_dB;
+  uint32_t  entry_ts;
   float     amount;
   gchar    *description;
+  gchar    *tree_path_str;
 
+  int   ii, chgd = 0;
   int 	dbg = 1;
+  pokane_grp tmp = NULL;
+  pokane_grp head = ( gpointer) user_data;
+
   transact_lst_store  *store = NULL;
 
-  printf( "   TODO - add code to %s L%4d   store=%p \n" , __func__ , __LINE__ , store );
-  store = get_trans_liststore();
+  printf( "   >> E %s  TODO - add code to it ! L%4d   store=%p \n" , __func__ , __LINE__ , store );
+
+  printf( "    head-> entry_nr=%4d is_income=%2d entry_ts=%08x amount=%6.2f descrip=%s in_dB=%d \n" , head->entry_nr, head->is_income
+                                                                                           , head->entry_ts, head->amount
+                                                                                           , head->description , head->in_dB );
+  tree_path_str = gtk_tree_path_to_string(path);
+  printf( "      tree_path=%s \n" , tree_path_str );
+  store         = get_trans_list_store();
 //dbg=1;
 
   if ( dbg ) {
@@ -167,14 +190,56 @@ gboolean update_prices_foreach_trans_list (GtkTreeModel *model,
   gtk_tree_model_get (model, iter, MODEL_ENTRY_TS            , &entry_ts    , -1 );
   gtk_tree_model_get (model, iter, MODEL_AMOUNT              , &amount      , -1 );
   gtk_tree_model_get (model, iter, MODEL_DESCRIPTION         , &description , -1 );
+  gtk_tree_model_get (model, iter, MODEL_IS_IN_DB            , &is_in_dB    , -1 );
+
+  printf( "  MODEL_ENTRY_NR = %4d , find in okane list !! \n" , entry_nr );
+  tmp = head;
+  for ( ii=0; ii < entry_nr && head != NULL ; ii++ ) {
+    tmp = tmp->next;
+  }
+  printf( "  FOUND: \n" );
+  printf( "    tmp-> entry_nr=%4d is_income=%2d entry_ts=%08x amount=%6.2f descrip=%s in_db=%d \n" , tmp->entry_nr, tmp->is_income
+                                                                                           , tmp->entry_ts, tmp->amount
+                                                                                           , tmp->description , tmp->in_dB );
+
+
+  if ( tmp->is_income != is_income ) { is_income  = tmp->is_income;  chgd=1; }
+  if ( tmp->amount    != amount    ) { amount     = tmp->amount;     chgd=1; }
+
+  if ( chgd == 1 ) {
+    gtk_tree_store_set ( GTK_TREE_STORE (model), iter,
+                         MODEL_IS_INCOME , is_income,
+                         MODEL_AMOUNT    , amount,
+                        -1);
+
+  }
+  getchar();
 
   printf( "  THIS NEEDS CODING !!! %s L%4d   store=%p \n" , __func__ , __LINE__ , store );
+  g_free( tree_path_str);
+  g_free( description );
+
+  printf( "   << Lv %s  L%4d   \n" , __func__ , __LINE__ );
   return FALSE;
 } // update_trans_listprices_foreach
 
 // end render funcs
 
 // callbacks
+
+void update_trans_list_treeview( pokane_grp head ) {
+
+  GtkWidget           *view;
+  int dbg = 1 /* get_debug() */ ;
+  if ( dbg ) printf( "\n  %s file %s L%d , print updated list :\n" , __FUNCTION__ , __FILE__ , __LINE__ );
+
+  gtk_tree_model_foreach( GTK_TREE_MODEL( get_trans_list_treestore() ), update_prices_foreach_trans_list , (gpointer)head );
+
+  view = get_trans_list_treeview();
+  gtk_widget_queue_draw( GTK_WIDGET( view ) ); // refresh treeview
+
+  if ( dbg ) printf( "  Lv %s file %s , L%d \n" , __FUNCTION__ , __FILE__, __LINE__ );
+}
 
 static void done_clicked ( GtkButton *button,  gpointer   user_data) {
   // ALWAYS called from home_page, so go back to it !
@@ -186,6 +251,41 @@ static void done_clicked ( GtkButton *button,  gpointer   user_data) {
   gtk_container_add ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_home_page );
   gtk_widget_show_all ( all_hdls->parentWin );
 }
+
+int add_to_trans_list_treestore ( pokane_grp head ) {
+
+  GtkTreeIter iter;
+  pokane_grp tmp = NULL;
+
+  GtkTreeStore *treestore=NULL;
+
+  treestore = get_trans_list_treestore( );
+
+  tmp = head;
+  // goto end of list, only works for add one at a time ! TODO, allow multiple
+  while( tmp->next != NULL ) {
+    tmp = tmp->next;
+  }
+
+  printf( "  FOUND: \n" );
+  printf( "    tmp-> entry_nr=%4d is_income=%2d entry_ts=%08x amount=%6.2f descrip=%s \n" , tmp->entry_nr, tmp->is_income
+                                                                                           , tmp->entry_ts, tmp->amount
+                                                                                           , tmp->description );
+  gtk_tree_store_append( treestore, &iter, NULL);
+
+  gtk_tree_store_set ( treestore, &iter,
+                      MODEL_ENTRY_NR    , tmp->entry_nr ,
+                      MODEL_IS_INCOME   , tmp->is_income ,
+                      MODEL_ENTRY_TS    , tmp->entry_ts ,
+                      MODEL_AMOUNT      , tmp->amount,
+                      MODEL_DESCRIPTION , tmp->description,
+                      MODEL_IS_IN_DB    , tmp->in_dB,
+                      MODEL_SHARE_END_LIST);
+  printf( "   %s  , L%4d    added new entry ! \n" , __func__, __LINE__ );
+  //getchar();
+
+  return 0;
+}  // add_to_trans_list_treestore
 
 // end callbacks
 
@@ -205,7 +305,7 @@ static gboolean transact_list_row_visible (GtkTreeModel *model, GtkTreeIter *ite
   return rc;
 }  // transact_list_row_visible
 
-void create_and_fill_trans_list ( pokane_grp kane_lst ) {
+void create_and_fill_trans_list ( pokane_grp stk_lst ) {
 
   GtkTreeIter    toplevel;
 #ifdef COPIED_FROM_HEADER_TODO_REMOVE
@@ -213,21 +313,19 @@ void create_and_fill_trans_list ( pokane_grp kane_lst ) {
 #endif
   GtkTreeStore *treestore=NULL;
 
-  pokane_grp list = kane_lst;
+  pokane_grp list = stk_lst;
 
   //int dbg = get_debug();
   int dbg = 1;
 //dbg=1;
   if ( dbg ) printf( "    >> E  %s L%d \n" , __FUNCTION__ , __LINE__ );
 
-  treestore = get_trans_listtreestore( );
+  treestore = get_trans_list_treestore( );
 
-  if ( dbg && list != NULL ) printf( "        In %s lnk lst entry_nr=%d amount=%f descrip=%s \n" , __FUNCTION__ , list->entry_nr, list->amount, list->description );
-  else {
-    printf( "   list = %p \n", list );
-  }
+  if ( dbg ) printf( "        In %s lnk lst entry_nr=%d amount=%f descrip=%s \n" , __FUNCTION__ , list->entry_nr, list->amount, list->description );
+
   if ( dbg ) {
-    linked_list_print_okane_grp ( kane_lst );
+    linked_list_print_okane_grp ( stk_lst );
   }
 
   /* Append a top level row and leave it empty */
@@ -240,8 +338,13 @@ void create_and_fill_trans_list ( pokane_grp kane_lst ) {
                       MODEL_ENTRY_TS    , list->entry_ts ,
                       MODEL_AMOUNT      , list->amount,
                       MODEL_DESCRIPTION , list->description,
+                      MODEL_IS_IN_DB    , list->in_dB,
                       MODEL_SHARE_END_LIST);
 
+    if ( dbg ) {
+      printf( "    Nr=%3d is_income=%d entry_ts=%8x amnt=%6.2f desc=%s in_dB=%d \n" , list->entry_nr, list->is_income, list->entry_ts
+                                                                                    , list->amount  , list->description, list->in_dB );
+    }
     list = list->next;
     if ( list ) {
       gtk_tree_store_append ( treestore, &toplevel, NULL );
@@ -269,7 +372,7 @@ void toggle_row(GtkCellRendererToggle *cell_renderer, gchar *path,  GtkTreeStore
   //int  dbg = get_debug();
   int  dbg = 1;
 
-  store = get_trans_liststore();
+  store = get_trans_list_store();
 
   if ( dbg ) printf( " E  %s path=%s orig_path=%p \n" , __FUNCTION__ , path , orig_path );
 
@@ -293,11 +396,11 @@ void toggle_row(GtkCellRendererToggle *cell_renderer, gchar *path,  GtkTreeStore
 
   if ( dbg ) printf( "\n  %s file %s L%d , toggle_row , 1st call to update_prices_foreach_trans_list \n" , __FUNCTION__ , __FILE__ , __LINE__ );
 
-  gtk_tree_model_foreach( GTK_TREE_MODEL( get_trans_listtreestore() ) , update_prices_foreach_trans_list , NULL /* (gpointer)one_stk */ );
+  gtk_tree_model_foreach( GTK_TREE_MODEL( get_trans_list_treestore() ) , update_prices_foreach_trans_list , NULL /* (gpointer)one_stk */ );
 
   // Need to do twice to update the average
   if ( dbg ) printf( "\n  %s file %s L%d , toggle_row , 2nd call to update_parent_only_trans_list \n" , __FUNCTION__ , __FILE__ , __LINE__ );
-  gtk_tree_model_foreach( GTK_TREE_MODEL( get_trans_listtreestore() ) , update_parent_only_trans_list , NULL );
+  gtk_tree_model_foreach( GTK_TREE_MODEL( get_trans_list_treestore() ) , update_parent_only_trans_list , NULL );
 
   if ( dbg ) printf( "\n  %s file %s L%d , DONE gtk_tree_model_foreach() \n" , __FUNCTION__ , __FILE__ , __LINE__ );
 
@@ -333,7 +436,7 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
 #ifdef HAVE_RENDER_DEFINED
   GtkTreeSelection    *selection;
 #endif
-  view = get_trans_listtreeview( );
+  view = get_trans_list_treeview( );
 
   if ( dbg ) printf( "  >> E %s L%d \n" , __FUNCTION__ , __LINE__ );
 
@@ -467,7 +570,7 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
   /* --- Column #5 --- */
   col = gtk_tree_view_column_new();
   if ( col == NULL ) printf( "Oh my !\n" );
-  gtk_tree_view_column_set_max_width ( col, 30);
+  gtk_tree_view_column_set_max_width ( col, 250);
 
   gtk_tree_view_column_set_title(col, "Description");
   g_object_set ( gtk_tree_view_column_get_button (col), "tooltip-text", "Description, eg wages if a credit, gasoline if a debit", NULL);
@@ -486,10 +589,33 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
   user_dat = MODEL_DESCRIPTION;
   gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list,  (void *)(intptr_t)user_dat , NULL /* GtkDestroyNotify destroy */ );
 
+  /* --- Column #6 --- */
+
+  col = gtk_tree_view_column_new();
+  if ( col == NULL ) printf( "Oh my !\n" );
+  gtk_tree_view_column_set_max_width ( col, 50);
+
+  gtk_tree_view_column_set_title(col, "in dB");
+  g_object_set ( gtk_tree_view_column_get_button (col), "tooltip-text", "Does record exist in database ? ( has data been saved )", NULL);
+
+  /* pack tree view column into tree view */
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+
+  renderer = gtk_cell_renderer_text_new();
+
+  /* pack cell renderer into tree view column */
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+
+  /* connect 'text' property of the cell renderer to
+   *  model column that contains the first name */
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_IS_IN_DB );
+  user_dat = MODEL_IS_IN_DB;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list,  (void *)(intptr_t)user_dat , NULL /* GtkDestroyNotify destroy */ );
+
   return view;
 } // create_trans_listview
 
-transact_lst_store * create_trans_liststore ( pokane_grp kane_lst , int dbg ) {
+transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg ) {
 
   transact_lst_store *store = NULL;
   GtkWidget        *view;
@@ -504,12 +630,13 @@ transact_lst_store * create_trans_liststore ( pokane_grp kane_lst , int dbg ) {
        G_TYPE_INT,        // MODEL_IS_INCOME
        G_TYPE_INT,        // MODEL_ENTRY_TS
        G_TYPE_FLOAT,      // MODEL_AMOUNT
-       G_TYPE_STRING      // MODEL_DESCRIPTION
+       G_TYPE_STRING,     // MODEL_DESCRIPTION
+       G_TYPE_INT         // IS_IN_DB
   );
 
   if ( dbg ) g_print( "  NR_COLS=%d done gtk_tree_store_new \n" , MODEL_SHARE_NUM_COLS );
 
-  set_trans_liststore( store );
+  set_trans_list_store( store );
 
   g_print( "  NR_COLS=%d done gtk_tree_store_new \n" , MODEL_SHARE_NUM_COLS );
 
@@ -519,11 +646,11 @@ transact_lst_store * create_trans_liststore ( pokane_grp kane_lst , int dbg ) {
   }
   set_trans_list_treestore( store->t_act );
   if ( dbg ) {
-    linked_list_print_okane_grp ( kane_lst );
+    linked_list_print_okane_grp ( stk_lst );
   }
 
   // model is actually GTK_TREE_MODEL(treestore)
-  create_and_fill_trans_list ( kane_lst );
+  create_and_fill_trans_list ( stk_lst );
 
   // store->t_act is the base model, order is :
   //  t_act
@@ -539,12 +666,12 @@ transact_lst_store * create_trans_liststore ( pokane_grp kane_lst , int dbg ) {
   // ALSO GTK_TREE_VIEW_GRID_LINES_NONE ,GTK_TREE_VIEW_GRID_LINES_HORIZONTAL, GTK_TREE_VIEW_GRID_LINES_VERTICAL
   gtk_tree_view_set_grid_lines( GTK_TREE_VIEW ( view ), GTK_TREE_VIEW_GRID_LINES_BOTH );
 
-  set_trans_listtreeview( view );
+  set_trans_list_treeview( view );
 
   if ( dbg ) g_print( "  << Lv %s L%d  \n" , __FUNCTION__ , __LINE__ );
 
   return store;
-} // create_trans_liststore
+} // create_trans_list_store
 
 int create_transaction_history_page( phdl_grp pall_hdls ) {
 
@@ -614,10 +741,10 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
     gtk_table_attach(GTK_TABLE(table), scrolledwindow, 0,2,0,12, GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL ,0,0 );
 
     // make the tree list
-    store = create_trans_liststore ( one_tkr_lst , pall_hdls->flg->dbg );
+    store = create_trans_list_store ( one_tkr_lst , pall_hdls->flg->dbg );
 
     view = GTK_WIDGET ( create_trans_listview ( store , pall_hdls->flg->dbg ) );
-    set_trans_listtreeview( view );
+    set_trans_list_treeview( view );
     gtk_container_add(GTK_CONTAINER(scrolledwindow), view );      // add view to scrolled window
 
 		hbox   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);

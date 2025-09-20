@@ -137,43 +137,51 @@ int db_add_entry( sqlite3 *db_hdl , pokane_grp data_lst , int dbg ) {
 
   strcpy( db_string , sql_end );
 
+  if ( dbg ) printf( "   >> E %s dbHdl=%p dbStr=%s  \n" , __func__ , db_hdl , db_string );
+
   ii  = 0;
   while( data_lst ) {
-    strcpy( db_string , sql_end );
+    if ( dbg ) printf( "      entry_nr = %3d , amnt=%6.2f desc=%20s indB=%d \n" , data_lst->entry_nr, data_lst->amount, data_lst->description, data_lst->in_dB );
 
-    sprintf( t_id , "%d, "         , data_lst->entry_nr    );
-    strcat( db_string , t_id );
+    if ( data_lst->in_dB == 0 ) {
+      // for now DON'T try to re-add entries already known to be in the database
+      strcpy( db_string , sql_end );
 
-    sprintf( is_income , "%d, "    , data_lst->is_income   );
-    strcat( db_string , is_income );
+      sprintf( t_id , "%d, "         , data_lst->entry_nr    );
+      strcat( db_string , t_id );
 
-    sprintf( entry_ts  , "%u, "    , data_lst->entry_ts    );
-    strcat( db_string , entry_ts );
+      sprintf( is_income , "%d, "    , data_lst->is_income   );
+      strcat( db_string , is_income );
 
-    sprintf( amount    , "%7.2f, " , data_lst->amount      );
-    strcat( db_string , amount );
+      sprintf( entry_ts  , "%u, "    , data_lst->entry_ts    );
+      strcat( db_string , entry_ts );
 
-    sprintf( descrip   , "'%s' );"   , data_lst->description );
-    strcat( db_string , descrip );
+      sprintf( amount    , "%7.2f, " , data_lst->amount      );
+      strcat( db_string , amount );
 
-    if ( dbg ) {
-      printf( " db_str=%3u , ->%s<- \n" , (unsigned)strlen( db_string ), db_string );
-    }
-    rc = sqlite3_exec( db_hdl, db_string , NULL /* sql_callback */ , 0, &errmsg);
+      sprintf( descrip   , "'%s' );"   , data_lst->description );
+      strcat( db_string , descrip );
 
-    if ( log_sql_access ) {
-      printf( "          query = %s \n" , db_string );
-      printf( "     SQL_LOG: %s L%d called sqlite3_exec rc=%d \n" , __FUNCTION__ , __LINE__ , rc );
-    }
-
-    if (rc != SQLITE_OK) {
-      fprintf(stderr, "SQL error [%d]: %s\n", rc, errmsg);
-      insert_errors++;
-      if ( insert_errors > 10 && !(insert_errors % 50) ) {
-        printf( "  insert errors %d idx=%d ! %s %s %d \n", insert_errors, ii, __FUNCTION__ , __FILE__ , __LINE__  );
-        getchar();
+      if ( dbg ) {
+        printf( " db_str=%3u , ->%s<- \n" , (unsigned)strlen( db_string ), db_string );
       }
-    }
+      rc = sqlite3_exec( db_hdl, db_string , NULL /* sql_callback */ , 0, &errmsg);
+
+      if ( log_sql_access ) {
+        printf( "          query = %s \n" , db_string );
+        printf( "     SQL_LOG: %s L%d called sqlite3_exec rc=%d \n" , __FUNCTION__ , __LINE__ , rc );
+      }
+
+      if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error [%d]: %s\n", rc, errmsg);
+        insert_errors++;
+        if ( insert_errors > 10 && !(insert_errors % 50) ) {
+          printf( "  insert errors %d idx=%d ! %s %s %d \n", insert_errors, ii, __FUNCTION__ , __FILE__ , __LINE__  );
+          getchar();
+        }
+      }
+    }  // if NOT in_db
+
     data_lst = data_lst->next;
     ii++;
     memset ( db_string, 0 , sizeof( db_string ) );

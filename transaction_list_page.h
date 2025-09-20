@@ -14,13 +14,14 @@ enum
   MODEL_ENTRY_TS,      // INT
   MODEL_AMOUNT,        // FLOAT
   MODEL_DESCRIPTION,   // STRING
+  MODEL_IS_IN_DB,      // INT
   MODEL_SHARE_NUM_COLS
 } ;
 
 #define MODEL_SHARE_END_LIST -1
 
-extern void   set_ticker_to_model( char *ticker );
-extern char * get_ticker_to_model( void );
+extern int  add_to_trans_list_treestore ( pokane_grp head );
+extern void update_trans_list_treeview( pokane_grp head );
 
 extern int create_transaction_history_page ( phdl_grp pall_hdls );
 extern int create_transaction_history_page_rtn( phdl_grp *all_hdls );
