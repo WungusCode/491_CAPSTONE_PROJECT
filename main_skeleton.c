@@ -6,6 +6,9 @@
 #include "link_list.h"
 
 #include "params.h"
+#include "start_screen.h"
+#include "create_screen.h"
+#include "login_screen.h"
 #include "home_page.h"
 #include "transact_page.h"
 #include "custom_pie_widget.h"
@@ -39,6 +42,9 @@ int main(int argc, char* argv[]) {
 
     // code
     pall_hdls->vbox_active         = NULL;
+    pall_hdls->vbox_start_page     = NULL;
+    pall_hdls->vbox_create_page    = NULL;
+    pall_hdls->vbox_login_page     = NULL;
     pall_hdls->vbox_home_page      = NULL;
     pall_hdls->vbox_transact_page  = NULL;
     pall_hdls->vbox_chart_page     = NULL;
@@ -74,6 +80,9 @@ int main(int argc, char* argv[]) {
 
     get_data_from_db ( &pall_hdls );
 
+    create_start_screen_rtn             (  &pall_hdls );
+    create_login_screen_rtn             (  &pall_hdls );
+    create_create_screen_rtn            (  &pall_hdls );
     create_home_screen                  (  &pall_hdls );
     create_transaction_page_rtn         (  &pall_hdls );
     //create_pie_chart_page_rtn           (  &pall_hdls );

@@ -50,6 +50,15 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
   phdl_grp pall_hdls = *all_hdls;
 
+  if (!pall_hdls->vbx_hdls) {
+    pall_hdls->vbx_hdls = g_new0(uiHdl, 1);
+  }
+
+  // Only read dbg if flg exists
+  if (pall_hdls->flg && pall_hdls->flg->dbg) {
+    printf("  >> E %s\n", __FUNCTION__);
+  }
+
   if ( all_hdls != NULL ) {
     if ( pall_hdls->flg->dbg ) {
       printf( "  >> E %s \n" , __FUNCTION__ );
@@ -153,8 +162,9 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox3 );
 
-  }  // if !all_hdls->vbox_home_page
-
+  } else { // if !all_hdls->vbox_home_page
+    gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_home_page);
+  }
   g_object_ref ( pall_hdls->vbox_home_page );
   gtk_widget_show_all ( pall_hdls->vbox_home_page );
 
