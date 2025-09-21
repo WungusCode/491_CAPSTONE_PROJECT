@@ -12,6 +12,7 @@
 #include "home_page.h"
 #include "transact_page.h"
 #include "custom_pie_widget.h"
+#include "setting_page.h"
 //#include "pie_page.h"
 
 #include "database/my_sql.h"

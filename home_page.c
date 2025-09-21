@@ -8,6 +8,8 @@
 
 #include "transaction_list_page.h"
 
+#include "setting_page.h"
+
 static void hide_home_page( phdl_grp all_hdls ) {
   gtk_widget_hide( all_hdls->vbox_home_page );
 
@@ -37,6 +39,11 @@ static void list_transact_clicked ( GtkButton *button , gpointer data ) {
   hide_home_page( all_hdls );
 
   create_transaction_history_page ( all_hdls );
+}
+
+static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
+    (void)btn; (void)user_data; // unused
+    create_setting_page();
 }
 
 int create_home_screen ( phdl_grp *all_hdls ) {
@@ -156,6 +163,7 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
     g_object_set ( button , "tooltip-text", "Click to change app settings", NULL);
 
+    g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), NULL);
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox3 );
