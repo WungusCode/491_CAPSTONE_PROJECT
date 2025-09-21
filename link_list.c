@@ -39,7 +39,7 @@ int get_okane_grp_list_len( pokane_grp head ) {
 
    if ( head != NULL ) {
      for(current = head; current != NULL; current = current->next) {
-        length++;
+       length++;
      }
    }
    return length;

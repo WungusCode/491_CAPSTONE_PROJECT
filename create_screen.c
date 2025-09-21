@@ -57,6 +57,7 @@ int create_create_screen ( phdl_grp pall_hdls ) {
 
   if ( pall_hdls->vbox_create_page == NULL ) {
     pall_hdls->vbox_create_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_create_page);
 
     // Title row
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
