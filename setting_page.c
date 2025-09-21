@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include "settings_page.h"
+#include "setting_page.h"
 #include "base_defs.h"
 
 // --- Callbacks ---
