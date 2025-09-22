@@ -27,6 +27,7 @@ int create_dummy_data( pokane_grp *head ) {
   tmp.entry_nr  = lst_len;
   tmp.entry_ts  = 0;
   tmp.amount    = 100.0;
+  tmp.in_dB     = 0;
   strcpy( tmp.description , "wages" );
   add_transaction( head , &tmp , 1 );
   lst_len++;
@@ -35,6 +36,7 @@ int create_dummy_data( pokane_grp *head ) {
   tmp.entry_nr  = lst_len;
   tmp.entry_ts  = 0;
   tmp.amount    = 20.0;
+  tmp.in_dB     = 0;
   strcpy( tmp.description , "gas" );
   add_transaction( head , &tmp , 1 );
   lst_len++;
@@ -43,6 +45,7 @@ int create_dummy_data( pokane_grp *head ) {
   tmp.entry_nr  = lst_len;
   tmp.entry_ts  = 0;
   tmp.amount    = 40.0;
+  tmp.in_dB     = 0;
   strcpy( tmp.description , "food" );
   add_transaction( head , &tmp , 1 );
   lst_len++;
@@ -51,6 +54,7 @@ int create_dummy_data( pokane_grp *head ) {
   tmp.entry_nr  = lst_len;
   tmp.entry_ts  = 0;
   tmp.amount    = 30.0;
+  tmp.in_dB     = 0;
   strcpy( tmp.description , "cellphone" );
   add_transaction( head , &tmp , 1 );
   lst_len++;
@@ -59,6 +63,7 @@ int create_dummy_data( pokane_grp *head ) {
   tmp.entry_nr  = lst_len;
   tmp.entry_ts  = 0;
   tmp.amount    = 15.0;
+  tmp.in_dB     = 0;
   strcpy( tmp.description , "school supplies" );
   add_transaction( head , &tmp , 1 );
   lst_len = get_okane_grp_list_len( *head );
