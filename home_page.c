@@ -2,9 +2,10 @@
 #include <gtk/gtk.h>
 
 #include "base_defs.h"
+#include "custom_pie_widget.h"
 
 #include "transact_page.h"
-//#include "pie_page.h"
+#include "pie_page.h"
 
 #include "transaction_list_page.h"
 
@@ -22,7 +23,7 @@ static void chart_clicked ( GtkButton *button , gpointer data ) {
 
   hide_home_page( all_hdls );
 
-  //create_pie_chart_page( all_hdls );
+  create_pie_chart_page( all_hdls );
 }
 
 static void transact_clicked ( GtkButton *button , gpointer data ) {

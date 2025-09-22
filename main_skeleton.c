@@ -13,7 +13,7 @@
 #include "transact_page.h"
 #include "custom_pie_widget.h"
 #include "setting_page.h"
-//#include "pie_page.h"
+#include "pie_page.h"
 
 #include "database/my_sql.h"
 #include "transactions.h"
@@ -77,13 +77,14 @@ int main(int argc, char* argv[]) {
     g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
     get_data_from_db ( &pall_hdls );
+    printf("    pall_hdls->t_list = %p , %s , L%4d \n", pall_hdls->t_lst, __func__, __LINE__);
 
     create_start_screen_rtn             (  &pall_hdls );
     create_login_screen_rtn             (  &pall_hdls );
     create_create_screen_rtn            (  &pall_hdls );
     create_home_screen                  (  &pall_hdls );
     create_transaction_page_rtn         (  &pall_hdls );
-    //create_pie_chart_page_rtn           (  &pall_hdls );
+    create_pie_chart_page_rtn           (  &pall_hdls );
 
     printf( "  pall_hdls = %p pall_hdls->flg = %p pall_hdls->flg->dbg = %d \n" , pall_hdls, pall_hdls->flg, pall_hdls->flg->dbg );
     create_transaction_history_page_rtn (  &pall_hdls );

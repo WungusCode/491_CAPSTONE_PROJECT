@@ -322,7 +322,14 @@ void create_and_fill_trans_list ( pokane_grp stk_lst ) {
 
   treestore = get_trans_list_treestore( );
 
-  if ( dbg ) printf( "        In %s lnk lst entry_nr=%d amount=%f descrip=%s \n" , __FUNCTION__ , list->entry_nr, list->amount, list->description );
+  if ( dbg) {
+    if (  list != NULL ) {
+      printf( "        In %s lnk lst entry_nr=%d amount=%f descrip=%s \n" , __FUNCTION__ , list->entry_nr, list->amount, list->description );
+    }
+    else {
+      printf("    stk_lst = %p \n", stk_lst);
+    }
+  }
 
   if ( dbg ) {
     linked_list_print_okane_grp ( stk_lst );
