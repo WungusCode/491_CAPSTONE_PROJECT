@@ -1,148 +1,185 @@
 #include <stdio.h>
-#include<gtk/gtk.h>
+#include <gtk/gtk.h>
 
 #include "base_defs.h"
 #include "custom_pie_widget.h"
 
-// "Close" button
-// Destroys the window that's passed in (closes it when button is clicked)
-static void on_chart_close(GtkButton *btn, gpointer win) {
-  gtk_widget_destroy(GTK_WIDGET(win));
+#include "transact_page.h"
+#include "pie_page.h"
+
+#include "transaction_list_page.h"
+
+#include "setting_page.h"
+
+static void hide_home_page( phdl_grp all_hdls ) {
+  gtk_widget_hide( all_hdls->vbox_home_page );
+
+  gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_home_page );
+
 }
 
-// "Spending Chart" window
-static void on_show_chart(GtkButton *btn, gpointer data) {
-  phdl_grp h = (phdl_grp)data;
+static void chart_clicked ( GtkButton *button , gpointer data ) {
+  phdl_grp all_hdls = (phdl_grp)data;
 
-  GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title(GTK_WINDOW(win), "Spending Chart");
-  gtk_window_set_default_size(GTK_WINDOW(win), 900, 700);
-  gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(h->parentWin));
-  gtk_window_set_modal(GTK_WINDOW(win), TRUE);
+  hide_home_page( all_hdls );
 
-  GtkWidget *root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
-  gtk_container_set_border_width(GTK_CONTAINER(root), 24);
-  gtk_container_add(GTK_CONTAINER(win), root);
-
-  // Hard top spacer (prevents any clipping under the window decoration)
-  GtkWidget *top_spacer = gtk_label_new("");
-  gtk_widget_set_size_request(top_spacer, -1, 16);
-  gtk_box_pack_start(GTK_BOX(root), top_spacer, FALSE, FALSE, 0);
-
-  // Title label OUTSIDE the pie widget
-  GtkWidget *title = gtk_label_new("Spending by Category");
-  gtk_widget_set_margin_top(title, 10);
-  gtk_widget_set_margin_bottom(title, 10);
-  PangoFontDescription *font_desc = pango_font_description_from_string("Sans Bold 18");
-  gtk_widget_override_font(title, font_desc);
-  pango_font_description_free(font_desc);
-  gtk_box_pack_start(GTK_BOX(root), title, FALSE, FALSE, 0);
-
-  // Custom pie widget
-  GtkWidget *pie = pie_widget_new();
-
-  // IMPORTANT: clear the widget's INTERNAL title so it can't overlap the top
-  pie_widget_set_text((PieWidget*)pie, PIE_TITLE_T, "");
-
-  // Demo slices (will replace with real data later)
-  pie_widget_add_slice_to_pie((PieWidget*)pie, 40, "#3478F6", "Housing");
-  pie_widget_add_slice_to_pie((PieWidget*)pie, 20, "#34C759", "Groceries");
-  pie_widget_add_slice_to_pie((PieWidget*)pie, 15, "#FF9500", "Transport");
-  pie_widget_add_slice_to_pie((PieWidget*)pie, 10, "#AF52DE", "Utilities");
-  pie_widget_add_slice_to_pie((PieWidget*)pie, 15, "#FF3B30", "Dining");
-
-  // Let the pie expand and push it down a bit more
-  gtk_widget_set_hexpand(pie, TRUE);
-  gtk_widget_set_vexpand(pie, TRUE);
-  gtk_widget_set_margin_top(pie, 20);
-  gtk_box_pack_start(GTK_BOX(root), pie, TRUE, TRUE, 0);
-
-  // Bottom row with Close
-  GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-  GtkWidget *close_btn = gtk_button_new_with_label("Close");
-  g_signal_connect(close_btn, "clicked", G_CALLBACK(on_chart_close), win);
-  gtk_box_pack_end(GTK_BOX(row), close_btn, FALSE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(root), row, FALSE, FALSE, 0);
-
-  gtk_widget_show_all(win);
+  create_pie_chart_page( all_hdls );
 }
 
-int create_home_screen ( phdl_grp all_hdls ) {
+static void transact_clicked ( GtkButton *button , gpointer data ) {
+  phdl_grp all_hdls = (phdl_grp)data;
 
-  GtkWidget *vbox, *hbox , *hbox2 , *hbox3, *hbox_spc;
+  hide_home_page( all_hdls );
+
+  create_transaction_page( all_hdls );
+}
+
+static void list_transact_clicked ( GtkButton *button , gpointer data ) {
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  hide_home_page( all_hdls );
+
+  create_transaction_history_page ( all_hdls );
+}
+
+static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
+    (void)btn; (void)user_data; // unused
+    create_setting_page();
+}
+
+int create_home_screen ( phdl_grp *all_hdls ) {
+
+  GtkWidget *hbox , *hbox2 , *hbox3, *hbox_spc;
   GtkWidget *label, *blnk_label;
   GtkWidget *button;
 
   int rc = 0;
 
-  printf( "  >> E %s \n" , __FUNCTION__ );
+  phdl_grp pall_hdls = *all_hdls;
 
-  if ( all_hdls->flg->dbg ) {
-    printf( "  >> E %s \n" , __FUNCTION__ );
-    printf( "    flgs->dbg = %d \n" , all_hdls->flg->dbg );
-    printf( "    parentWin = %p \n" , all_hdls->parentWin );
+  if (!pall_hdls->vbx_hdls) {
+    pall_hdls->vbx_hdls = g_new0(uiHdl, 1);
   }
-  //actions = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
-  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-  gtk_container_add (GTK_CONTAINER ( all_hdls->parentWin ), vbox);
+  // Only read dbg if flg exists
+  if (pall_hdls->flg && pall_hdls->flg->dbg) {
+    printf("  >> E %s\n", __FUNCTION__);
+  }
 
-  printf( "    vbox = %p \n" , vbox );
+  if ( all_hdls != NULL ) {
+    if ( pall_hdls->flg->dbg ) {
+      printf( "  >> E %s \n" , __FUNCTION__ );
+      printf( "    flgs->dbg = %d \n" , pall_hdls->flg->dbg );
+      printf( "    parentWin = %p \n" , pall_hdls->parentWin );
+    }
+  }
+  else {
+     printf( "  >> E %s  , all_hdls = NULL !!! \n" , __FUNCTION__ );
+  }
 
-  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+  if ( pall_hdls->vbox_home_page == NULL ) {
+    pall_hdls->vbox_home_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
 
-  label = gtk_label_new (" $3,261 ");
+    printf( "    vbox = %p  , %s L%4d \n" , pall_hdls->vbox_home_page , __FILE__ , __LINE__  );
 
-  gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
+    hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-  gtk_widget_show_all (hbox);
+    label = gtk_label_new (" $3,261 ");
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox );
+    gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
 
-  hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    gtk_widget_show_all (hbox);
 
-  // simple button , TODO make a text_view
-  button = gtk_button_new_with_label ("Show more details");
-  gtk_widget_set_valign ( button, GTK_ALIGN_CENTER);
-  gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox );
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox2 );
+    hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-  hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  blnk_label = gtk_label_new ("");
-  gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
+    // simple button , TODO make a text_view
+    button = gtk_button_new_with_label ("Show more details");
+    gtk_widget_set_valign ( button, GTK_ALIGN_CENTER);
+    gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox_spc );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox2 );
 
-  hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
-  blnk_label = gtk_label_new ("");
-  gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
+    hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    blnk_label = gtk_label_new ("");
+    gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox_spc );
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox_spc );
 
-  hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    hbox_spc   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    blnk_label = gtk_label_new ("");
+    gtk_box_pack_start (GTK_BOX (hbox_spc), blnk_label, TRUE, FALSE, 0);
 
-  button = gtk_button_new_with_label ("Calendar");
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox_spc );
 
-  gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+    hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-  button = gtk_button_new_with_label ("Chart");
+    button = gtk_button_new_with_label ("");
 
-  gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+    GtkWidget *image_one = gtk_image_new_from_file("./resources/libreoffice-chart.png");
+    //printf("   Image_one = %p   \n", image_one);
+    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
+    gtk_button_set_image( GTK_BUTTON( button ) , image_one);
 
-  button = gtk_button_new_with_label ("Calculate");
+    g_object_set ( button , "tooltip-text", "Click to display Pie Chart", NULL);
+    g_signal_connect (button, "clicked",  G_CALLBACK ( chart_clicked ), (gpointer) pall_hdls );
 
-  gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-  gtk_container_add (GTK_CONTAINER ( vbox ), hbox3 );
+    button = gtk_button_new_with_label ("");
+    GtkWidget *image_two = gtk_image_new_from_file("./resources/transaction_64x64.png");
+    //printf("   Image_two = %p   \n", image_two);
+    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
+    gtk_button_set_image( GTK_BUTTON( button ) , image_two);
 
-  gtk_widget_show_all ( vbox );
+    pall_hdls->vbx_hdls->hp_plus_trans_btn = button;
 
-  if ( all_hdls->flg->dbg ) {
+    g_object_set ( button , "tooltip-text", "Click to add or delete a transaction", NULL);
+    g_signal_connect (button, "clicked",  G_CALLBACK ( transact_clicked ), (gpointer) pall_hdls );
+
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+
+    button = gtk_button_new_with_label ("");
+    GtkWidget *image_three = gtk_image_new_from_file("./resources/list_transactions_64x64.png");
+    //printf("   Image_three = %p   \n", image_three);
+    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
+    gtk_button_set_image( GTK_BUTTON( button ) , image_three);
+    gtk_widget_show ( button );
+
+    pall_hdls->vbx_hdls->hp_list_trans_btn = button;
+
+    g_object_set ( button , "tooltip-text", "Click to show all transactions", NULL);
+    g_signal_connect (button, "clicked",  G_CALLBACK ( list_transact_clicked ), (gpointer) pall_hdls );
+
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+
+    //button = gtk_button_new_with_label ("Config");
+    button = gtk_button_new_with_label ("");
+    GtkWidget *image_four = gtk_image_new_from_file("./resources/settings.png");
+    //printf("   Image_four = %p   \n", image_four);
+    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
+    gtk_button_set_image( GTK_BUTTON( button ) , image_four);
+
+    g_object_set ( button , "tooltip-text", "Click to change app settings", NULL);
+
+    g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), NULL);
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox3 );
+
+  } else { // if !all_hdls->vbox_home_page
+    gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_home_page);
+  }
+  g_object_ref ( pall_hdls->vbox_home_page );
+  gtk_widget_show_all ( pall_hdls->vbox_home_page );
+
+  *all_hdls = pall_hdls;
+
+  if ( pall_hdls->flg->dbg ) {
     printf( "  << Lv %s \n" , __FUNCTION__ );
   }
-
-  printf( "  << Lv %s \n" , __FUNCTION__ );
 
   return rc;
 }

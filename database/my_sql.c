@@ -28,7 +28,7 @@ sqlite3 *dbInit(int create_db, char *dbName ) {
   sqlite3 *db;
   int rt = sqlite3_open( dbName, &db);
 
-  printf ( "  E %s \n" , __FUNCTION__ );
+  printf ( "    >> E %s \n" , __FUNCTION__ );
   if ( log_sql_access ) printf( "     SQL_LOG: %s L%d called sqlite3_open rc=%d \n" , __FUNCTION__ , __LINE__ , rt );
 
   if (rt != SQLITE_OK) {
@@ -55,7 +55,7 @@ sqlite3 *dbInit(int create_db, char *dbName ) {
     }
 
   }
-  printf( "  Lv %s , db=%p \n" , __FUNCTION__ , db );
+  printf( "    << Lv %s , db=%p \n" , __FUNCTION__ , db );
   return db;
 }
 
@@ -80,12 +80,12 @@ int db_close( sqlite3 *db , const char * from_where , int dbg ) {
 
   dbg |= sql_log_dbg;
 
-  if ( dbg ) printf( "  << E %s \n" , __FUNCTION__ );
+  if ( dbg ) printf( "    >> E %s , called from %s \n" , __FUNCTION__ , from_where );
 
   if ( db ) sqlite3_close( db );
   sqlite3_shutdown( ); // needed ??
 
-  if ( dbg ) printf( "  << Lv %s \n" , __FUNCTION__ );
+  if ( dbg ) printf( "    << Lv %s \n" , __FUNCTION__ );
   return 0;
 }
 
@@ -97,7 +97,7 @@ sqlite3 *db_open( const char * dbName , const char * from_where, int db_nr , int
 
   dbg |= sql_log_dbg;
 
-  if ( dbg ) printf( "      E %s called dbName=%s from %s db_nr=%2d \n" , __FUNCTION__ , dbName , from_where , db_nr );
+  if ( dbg ) printf( "   >> E %s called dbName=%s from %s db_nr=%2d \n" , __FUNCTION__ , dbName , from_where , db_nr );
 
   if (access( dbName, F_OK) != 0) {
     printf( "      db file %s DOESN'T exist ! ent to cont ( %s L%d ) :" , dbName , __FILE__ , __LINE__ );
@@ -112,7 +112,7 @@ sqlite3 *db_open( const char * dbName , const char * from_where, int db_nr , int
     return NULL;
   }
 
-  if ( dbg ) printf( "      %s called from %s , db now OPEN !\n", __FUNCTION__  , from_where );
+  if ( dbg ) printf( "   << Lv %s called from %s , db now OPEN !\n", __FUNCTION__  , from_where );
 
   return db;
 }
@@ -126,54 +126,62 @@ int db_add_entry( sqlite3 *db_hdl , pokane_grp data_lst , int dbg ) {
 
   char t_id[11];
   char is_income[11];
-  char entry_ts[11];
+  char entry_ts[21];
   char amount[11];
-  char descrip[255];
+  char descrip[ DB_DESCRIP_LEN + 5 ];
 
-	char error_str[255];
+  char error_str[255];
   char db_string[512];
 
   char *errmsg = error_str;
 
   strcpy( db_string , sql_end );
 
+  if ( dbg ) printf( "   >> E %s dbHdl=%p dbStr=%s  \n" , __func__ , db_hdl , db_string );
+
   ii  = 0;
   while( data_lst ) {
-	  strcpy( db_string , sql_end );
+    if ( dbg ) printf( "      entry_nr = %3d , amnt=%6.2f desc=%20s indB=%d \n" , data_lst->entry_nr, data_lst->amount, data_lst->description, data_lst->in_dB );
 
-    sprintf( t_id , "%d, "         , data_lst->entry_nr    );
-    strcat( db_string , t_id );
+    if ( data_lst->in_dB == 0 ) {
+      // for now DON'T try to re-add entries already known to be in the database
+      strcpy( db_string , sql_end );
 
-    sprintf( is_income , "%d, "    , data_lst->is_income   );
-    strcat( db_string , is_income );
+      sprintf( t_id , "%d, "         , data_lst->entry_nr    );
+      strcat( db_string , t_id );
 
-    sprintf( entry_ts  , "%u, "    , data_lst->entry_ts    );
-    strcat( db_string , entry_ts );
+      sprintf( is_income , "%d, "    , data_lst->is_income   );
+      strcat( db_string , is_income );
 
-    sprintf( amount    , "%7.2f, " , data_lst->amount      );
-    strcat( db_string , amount );
+      sprintf( entry_ts  , "%u, "    , data_lst->entry_ts    );
+      strcat( db_string , entry_ts );
 
-    sprintf( descrip   , "'%s' );"   , data_lst->description );
-    strcat( db_string , descrip );
+      sprintf( amount    , "%7.2f, " , data_lst->amount      );
+      strcat( db_string , amount );
 
-    if ( dbg ) {
-      printf( " db_str=%3u , ->%s<- \n" , (unsigned)strlen( db_string ), db_string );
-    }
-    rc = sqlite3_exec( db_hdl, db_string , NULL /* sql_callback */ , 0, &errmsg);
+      sprintf( descrip   , "'%s' );"   , data_lst->description );
+      strcat( db_string , descrip );
 
-    if ( log_sql_access ) {
-      printf( "          query = %s \n" , db_string );
-      printf( "     SQL_LOG: %s L%d called sqlite3_exec rc=%d \n" , __FUNCTION__ , __LINE__ , rc );
-    }
-
-    if (rc != SQLITE_OK) {
-      fprintf(stderr, "SQL error [%d]: %s\n", rc, errmsg);
-      insert_errors++;
-      if ( insert_errors > 10 && !(insert_errors % 50) ) {
-        printf( "  insert errors %d idx=%d ! %s %s %d \n", insert_errors, ii, __FUNCTION__ , __FILE__ , __LINE__  );
-        getchar();
+      if ( dbg ) {
+        printf( " db_str=%3u , ->%s<- \n" , (unsigned)strlen( db_string ), db_string );
       }
-    }
+      rc = sqlite3_exec( db_hdl, db_string , NULL /* sql_callback */ , 0, &errmsg);
+
+      if ( log_sql_access ) {
+        printf( "          query = %s \n" , db_string );
+        printf( "     SQL_LOG: %s L%d called sqlite3_exec rc=%d \n" , __FUNCTION__ , __LINE__ , rc );
+      }
+
+      if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error [%d]: %s\n", rc, errmsg);
+        insert_errors++;
+        if ( insert_errors > 10 && !(insert_errors % 50) ) {
+          printf( "  insert errors %d idx=%d ! %s %s %d \n", insert_errors, ii, __FUNCTION__ , __FILE__ , __LINE__  );
+          getchar();
+        }
+      }
+    }  // if NOT in_db
+
     data_lst = data_lst->next;
     ii++;
     memset ( db_string, 0 , sizeof( db_string ) );
@@ -182,3 +190,129 @@ int db_add_entry( sqlite3 *db_hdl , pokane_grp data_lst , int dbg ) {
 
   return rc;
 }
+
+int db_read_in_all_transactions( sqlite3 *db_hdl , pokane_grp *data_lst, int dbg ) {
+  int rc = 0;
+
+  int nrTkr=0;  // rename to nrRecords
+
+  int idx;
+  sqlite3_stmt *stmt;
+  int row_limit = 1;
+  int val_i     = 0;
+  double val_d  = 0;
+
+  char sql_query[128] = "";
+  char sql_base[] = "SELECT * FROM okane_record;" ;  // get all data
+
+  char *sql_str;
+
+  pokane_grp head = NULL;
+
+  dbg |= sql_log_dbg;
+
+  if ( dbg ) printf( "  E %s L%d file %s , *data_lst=%p head=%p dbg=%u  \n" , __FUNCTION__ , __LINE__ , __FILE__ , *data_lst , head , dbg );
+
+  strcpy( sql_query, sql_base );
+  sql_str = sql_query;
+
+  if ( dbg ) {
+    printf( "  sql_str = ->%s<- \n" , sql_str );
+    // getchar();
+  }
+
+  if ( row_limit == 0 ) row_limit = 10000;
+
+  rc = sqlite3_prepare_v2( db_hdl , sql_str , -1, &stmt, NULL);
+  if ( log_sql_access ) printf( "     SQL_LOG: %s L%d called sqlite3_prepare_v2 rc=%d\n" , __FUNCTION__ , __LINE__  , rc );
+
+  if ( dbg ) printf("  %s L%d Got results:\n" , __FUNCTION__ , __LINE__ );
+  idx = 0;
+
+  while (sqlite3_step(stmt) != SQLITE_DONE) {
+    int      ii;
+    int      no_data     = 0;
+    int      is_income   = 0;
+    uint32_t transact_ts = 0;
+    float    amount      = 0.0;
+
+    int num_cols = sqlite3_column_count(stmt);
+
+    char descrip [ DB_DESCRIP_LEN + 1 ];
+
+    val_d =0; val_i=0;
+
+    if ( dbg ) printf( "  idx=%d " , idx );
+
+    for ( ii = 0; ii < num_cols; ii++)  {
+
+      switch (sqlite3_column_type(stmt, ii ))
+      {
+      case (SQLITE3_TEXT):
+        strcpy( descrip , (const char *)sqlite3_column_text(stmt, ii) );
+        if ( dbg ) printf("%s, ", descrip) ;
+        break;
+      case (SQLITE_INTEGER):
+        val_i = sqlite3_column_int(stmt, ii);
+        if ( dbg ) printf("%d, ", val_i );
+
+        if ( ii == 1 ) is_income = val_i;
+        else if ( ii == 2 ) transact_ts = (uint32_t)val_i;
+
+        break;
+      case (SQLITE_FLOAT):
+        val_d = sqlite3_column_double(stmt, ii);
+        if ( dbg ) printf("%g, ", val_d );
+        amount = val_d;
+
+        break;
+      default:
+        printf( " i=%d SQLITE_UNKNOWN = %d \n" , ii, (int)sqlite3_column_type(stmt, ii) );
+        break;
+      }
+      if ( dbg ) {
+        printf("\n");
+        // getchar();
+      }
+
+    } // for
+
+    pokane_grp newP = malloc( sizeof( okane_grp ) );
+    memset( newP, 0 , sizeof( okane_grp) );
+    newP->entry_nr    = nrTkr;
+    newP->is_income   = is_income;
+    newP->entry_ts    = transact_ts;
+    newP->amount      = amount;
+    newP->in_dB       = 1;
+    strcpy( newP->description, descrip );
+
+    if ( no_data ) printf( "\n" );
+
+    if ( dbg ) printf( "  nr=%3d descrip=%s amount=%5.2f  ,head=%p \n" , newP->entry_nr , newP->description, newP->amount , head );
+
+    head = linked_list_add_okane_grp( head, newP );
+    nrTkr++;
+
+    if ( no_data == 0 )   idx++;
+
+    if ( idx && !(idx%10) ) {
+#if 0
+      if ( getchar_stop ) {
+        printf( " idx = %d \n" , idx );
+//        getchar();
+      }
+#endif
+    }
+
+  } // while
+  if ( dbg ) printf( "  val_i=%d val_d=%g  ( %s L%d ) \n" , val_i, val_d , __FILE__ , __LINE__ );
+//  if ( dbg ) getchar();
+
+  rc = sqlite3_finalize( stmt );
+  if ( log_sql_access || rc ) printf( "     SQL_LOG: %s L%d called sqlite3_finalize rc=%d\n" , __FUNCTION__ , __LINE__  , rc );
+
+  *data_lst = head;
+
+// end
+  return nrTkr;
+}  // db_read_in_all_transactions

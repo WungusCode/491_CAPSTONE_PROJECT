@@ -1,64 +1,60 @@
-// Custom Pie Chart Widget
-// This header is to define Pie Widget, a custom GTK3 widget that's built with Cairo drawing.
-// API functions used to create it, set its values, add or remove slices, & change its visual featurs.
-
-
 #ifndef __CUSTOM_PIE_WIDGET_H__
 #define __CUSTOM_PIE_WIDGET_H__
 
 #include <gtk/gtk.h>
 
-#include <cairo.h> // For drawing the pie
+#include <cairo.h> //for drawing
 
-G_BEGIN_DECLS       // To be C++ friendly
+G_BEGIN_DECLS
 
+// ADDED
 #define PIE_WIDGET_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), PIE_WIDGET, _PieWidgetPrivate ) )
 
-typedef enum _PIE_Graph_Elements {
+typedef enum _GLG_Graph_Elements {
   /* enable chart flags and title keys */
-  PIE_ELEMENT_NONE = 1 << 0,
-  PIE_TITLE_X      = 1 << 1,
-  PIE_NO_TITLE_X   = 0 << 1,
-  PIE_TITLE_Y      = 1 << 2,
-  PIE_NO_TITLE_Y   = 0 << 2,
-  PIE_TITLE_T      = 1 << 3,
-  PIE_NO_TITLE_T   = 0 << 3,
+  GLG_ELEMENT_NONE = 1 << 0,
+  GLG_TITLE_X      = 1 << 1,
+  GLG_NO_TITLE_X   = 0 << 1,
+  GLG_TITLE_Y      = 1 << 2,
+  GLG_NO_TITLE_Y   = 0 << 2,
+  GLG_TITLE_T      = 1 << 3,
+  GLG_NO_TITLE_T   = 0 << 3,
 
   /* enable chart attributes flag */
-  PIE_GRID_LABELS_X    = 1 << 4,
-  PIE_NO_GRID_LABELS_X = 0 << 4,
-  PIE_GRID_LABELS_Y    = 1 << 5,
-  PIE_NO_GRID_LABELS_Y = 0 << 5,
+  GLG_GRID_LABELS_X    = 1 << 4,
+  GLG_NO_GRID_LABELS_X = 0 << 4,
+  GLG_GRID_LABELS_Y    = 1 << 5,
+  GLG_NO_GRID_LABELS_Y = 0 << 5,
 
   /* enable tooltip flag */
-  PIE_TOOLTIP    = 1 << 6,
-  PIE_NO_TOOLTIP = 0 << 6,
+  GLG_TOOLTIP    = 1 << 6,
+  GLG_NO_TOOLTIP = 0 << 6,
 
   /* enabled chart attributes */
-  PIE_GRID_LINES      = 1 << 7,
-  PIE_NO_GRID_LINES   = 0 << 7,
-  PIE_GRID_MINOR_X    = 1 << 8,
-  PIE_NO_GRID_MINOR_X = 0 << 8,
-  PIE_GRID_MAJOR_X    = 1 << 9,
-  PIE_NO_GRID_MAJOR_X = 0 << 9,
-  PIE_GRID_MINOR_Y    = 1 << 10,
-  PIE_NO_GRID_MINOR_Y = 0 << 10,
-  PIE_GRID_MAJOR_Y    = 1 << 11,
-  PIE_NO_GRID_MAJOR_Y = 0 << 11,
+  GLG_GRID_LINES      = 1 << 7,
+  GLG_NO_GRID_LINES   = 0 << 7,
+  GLG_GRID_MINOR_X    = 1 << 8,
+  GLG_NO_GRID_MINOR_X = 0 << 8,
+  GLG_GRID_MAJOR_X    = 1 << 9,
+  GLG_NO_GRID_MAJOR_X = 0 << 9,
+  GLG_GRID_MINOR_Y    = 1 << 10,
+  GLG_NO_GRID_MINOR_Y = 0 << 10,
+  GLG_GRID_MAJOR_Y    = 1 << 11,
+  GLG_NO_GRID_MAJOR_Y = 0 << 11,
 
   /* chart color key -- used to change window color only */
-  PIE_SCALE   = 1 << 12,
-  PIE_TITLE   = 1 << 13,
-  PIE_WINDOW  = 1 << 14,
-  PIE_CHART   = 1 << 15,
+  GLG_SCALE   = 1 << 12,
+  GLG_TITLE   = 1 << 13,
+  GLG_WINDOW  = 1 << 14,
+  GLG_CHART   = 1 << 15,
 
   /* Reserved */
-  PIE_RESERVED_OFF = 0 << 16,
-  PIE_RESERVED_ON  = 1 << 16
-} PIE_ElementID;
+  GLG_RESERVED_OFF = 0 << 16,
+  GLG_RESERVED_ON  = 1 << 16
+} GLGElementID;
 
 /* Properties enum*/
-typedef enum _PIE_PROPERTY_ID {
+typedef enum _GLG_PROPERTY_ID {
   P_0,     // for padding
   P_VALUE, // for value
   P_MAX_VALUE,
@@ -86,7 +82,11 @@ typedef enum _PIE_PROPERTY_ID {
   PROP_SCALE_MINOR_Y,
   PROP_SCALE_MAJOR_Y
 
-} PIE_PROPERTY_ID;
+} GLG_PROPERTY_ID;
+
+//extern enum GLG_PROPERTY_ID;
+
+// end ADDED
 
 /* Standart GObject macros */
 #define PIE_TYPE_WIDGET ( pie_widget_get_type())
@@ -113,28 +113,29 @@ struct _PieWidgetClass
     GtkWidgetClass parent_class;
 };
 
-/* Public API */
+/* public API */
 GType pie_widget_get_type(void) G_GNUC_CONST;
 GtkWidget *pie_widget_new(void);
 
-// Set value widget
+//set value widget
 void pie_widget_set_value(PieWidget *widget, gdouble value);
-// Get value widget
+//get value widget
 gdouble pie_widget_get_value(PieWidget *widget);
 
-// Set max value
+//set max value
 void pie_widget_set_max_value(PieWidget *widget, gdouble maxValue);
-// Get max value
+//get max value
 gdouble pie_widget_get_max_value(PieWidget *widget);
 
-// Set min value
+//set min value
 void pie_widget_set_min_value(PieWidget *widget, gdouble minValue);
-// Get min value
+//get min value
 gdouble pie_widget_get_min_value(PieWidget *widget);
 
-extern gboolean pie_widget_set_text (PieWidget *graph, PIE_ElementID element, const gchar *pch_text);
+// ADDED
+extern gboolean pie_widget_set_text (PieWidget *graph, GLGElementID element, const gchar *pch_text);
 extern gboolean pie_widget_add_slice_to_pie ( PieWidget *graph  , double value, const char *color, const char *label);
 
 G_END_DECLS
 
-#endif /* __CUSTOME_PIE_WIDGET_H_ */
+#endif /*__GISAGAUGE_H__*/

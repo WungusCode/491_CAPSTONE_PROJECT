@@ -2,8 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-// Based on Zetcode's custom widget ( which doesn't compile under GTK+3 :(
-
+// ADDED
 int dbg = 0;
 
 struct chart_slice_t
@@ -13,16 +12,22 @@ struct chart_slice_t
  gchar   *label;  // what label to apply to slice
 };
 
+// this probably needs refining taken out LATER
+
+// end of ADDED
+
 /* Private data structure */
 struct _PieWidgetPrivate
 {
+  // orig
   gdouble    value;
   gdouble    maxValue;
   gdouble    minValue;
   GdkWindow *window;
 
+  // added
   gchar      *page_title_text;   // rename to chart_title_text later !
-
+  //
   GSList     *slice_list;
 };
 
@@ -36,6 +41,7 @@ static void     pie_widget_get_preferred_height(GtkWidget *widget, gint *minimum
 static void     pie_widget_get_preferred_width(GtkWidget *widget, gint *minimum_width, gint *natural_width);
 
 /* Define type */
+// G_DEFINE_TYPE(PieWidget, pie_widget, GTK_TYPE_WIDGET);//deprecated
 G_DEFINE_TYPE_WITH_PRIVATE(PieWidget, pie_widget, GTK_TYPE_WIDGET);
 
 /* Initialization */
@@ -84,6 +90,7 @@ static void pie_widget_class_init(PieWidgetClass *klass)
     gtk_widget_class_install_style_property(w_class, colorstyle);
     gtk_widget_class_set_css_name(w_class, "pie-gauge");
 
+// Added
     pspec =  g_param_spec_string ("text-title-main", "Graph Top Title", "Title at top of graph on the X axis",
                                                    "<big><b>Top Title</b></big>",  G_PARAM_WRITABLE);
     g_object_class_install_property ( g_class,  PROP_GRAPH_TITLE, pspec );
@@ -127,8 +134,9 @@ static void pie_widget_set_property(GObject *object, guint prop_id, const GValue
     case P_MIN_VALUE:
         pie_widget_set_min_value(widget, g_value_get_double(value));
         break;
+    // ADDED
     case PROP_GRAPH_TITLE:
-      pie_widget_set_text ( widget, PIE_TITLE_T, g_value_get_string(value) );
+      pie_widget_set_text ( widget, GLG_TITLE_T, g_value_get_string(value) );
       break;
 
     default:
@@ -266,6 +274,7 @@ static gboolean pie_widget_draw(GtkWidget *widget, cairo_t *cr) {
 
       cairo_set_source_rgba(cr, slice->color.red, slice->color.green, slice->color.blue, slice->color.alpha);
 
+      //cairo_select_font_face(cr, self->font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       cairo_select_font_face(cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 
       cairo_set_font_size(cr, 12);
@@ -301,12 +310,19 @@ static gboolean pie_widget_draw(GtkWidget *widget, cairo_t *cr) {
 
   cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
+  // Move coordinate system to bottom left
+  //   cairo_translate(cr, 0, h);
+
+  // Invert y-axis
+  //cairo_scale(cr, 1, -1);
+
+  // draw TITLE     ADDED
   if ( priv->page_title_text != NULL ) {
     // cairo_text_extents_t extent;
     char *val;
     int lngth = strlen( priv->page_title_text );
 
-    if ( dbg ) printf( "  Title len = %3d ... " , lngth );
+		if ( dbg ) printf( "  Title len = %3d ... " , lngth );
     val = (char *)malloc(sizeof(char) * lngth+1 );
     strcpy( val , priv->page_title_text );
 
@@ -318,6 +334,7 @@ static gboolean pie_widget_draw(GtkWidget *widget, cairo_t *cr) {
     free(val);
     if ( dbg ) printf( " done draw title \n" );
   }
+  // end ADDED
 
   //draw text value
   gtk_widget_style_get_property(widget, "value-text-color", &styleVal);
@@ -401,7 +418,9 @@ gdouble pie_widget_get_min_value(PieWidget *widget)
     return (widget->priv->minValue);
 }
 
-gboolean pie_widget_set_text (PieWidget *graph, PIE_ElementID element, const gchar *pch_text)
+
+// ADDED
+gboolean pie_widget_set_text (PieWidget *graph, GLGElementID element, const gchar *pch_text)
 {
   PieWidgetPrivate *priv;
   gchar      *pch = NULL;
@@ -425,7 +444,7 @@ gboolean pie_widget_set_text (PieWidget *graph, PIE_ElementID element, const gch
   printf( " pch = %s !\n" , pch );
 
   switch ( element ) {
-   case PIE_TITLE_T :
+   case GLG_TITLE_T :
      if (priv->page_title_text != NULL) {
        g_free (priv->page_title_text);
      }
@@ -436,7 +455,7 @@ gboolean pie_widget_set_text (PieWidget *graph, PIE_ElementID element, const gch
       g_free ( pch );
       rc = FALSE;
     break;
-  } // switch element
+	} // switch element
 
   //g_debug ("    ===> pie_widget_set_text(exited)");
   printf( " << Lv  %s  , rc = %d\n" , __FUNCTION__ , rc );
@@ -457,7 +476,7 @@ gboolean pie_widget_add_slice_to_pie ( PieWidget *graph  , double value, const c
   else {
     if ( dbg ) printf( "     passed in widget %p IS NOT GAUGE !\n", graph );
   }
-  g_return_val_if_fail ( PIE_IS_WIDGET ( graph ), FALSE);
+	g_return_val_if_fail ( PIE_IS_WIDGET ( graph ), FALSE);
 
   priv = graph->priv;
 

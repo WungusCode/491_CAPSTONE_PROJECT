@@ -13,7 +13,7 @@
 
 int dbg =1 ;
 
-int create_dummy_data( pokane_grp *head ) {
+int create_test_dummy_data( pokane_grp *head ) {
 
   okane_grp tmp;
   int lst_len;
@@ -91,14 +91,20 @@ int main(int argc, char* argv[]) {
     getchar();
     create_new_db( DB_FILE_0 );
     db_hdl = db_open( DB_FILE_0 , __FUNCTION__ , 0 ,dbg );
+
+    create_test_dummy_data( &t_act_lst );
+    linked_list_print_okane_grp ( t_act_lst );
+    printf( "  Ent to cont ! \n" );
+    getchar();
+
+    db_add_entry( db_hdl , t_act_lst , dbg );
   }
+  if ( t_act_lst == NULL ) {
+    db_read_in_all_transactions( db_hdl , &t_act_lst, dbg );
 
-  create_dummy_data( &t_act_lst );
-  linked_list_print_okane_grp ( t_act_lst );
-  printf( "  Ent to cont ! \n" );
-  getchar();
-
-  db_add_entry( db_hdl , t_act_lst , dbg );
+    linked_list_print_okane_grp ( t_act_lst );
+    getchar();
+  }
 
   db_close( db_hdl, __FUNCTION__ , dbg  );
 
