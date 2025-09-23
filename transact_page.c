@@ -2,6 +2,8 @@
 #include <glib/gi18n.h>
 #include<gtk/gtk.h>
 
+#include <gdk/gdkkeysyms.h> // for key press
+
 #include "base_defs.h"
 #include "my_time.h"
 #include "link_list.h"
@@ -27,6 +29,47 @@ void check_button_clicked (GtkWidget *widget, gpointer *data) {
     g_print( "  all_hdls = %p \n" ,  all_hdls );
 	}
 }  // check_button_clicked
+
+static gboolean key_press_cb(GtkWidget *w, GdkEvent *ev, gpointer data)
+{
+    (void)w; (void)data; /* To avoid compiler warnings */
+    GdkEventKey *key = (GdkEventKey*)ev;
+    if(key) /* Extra check maybe redundant */
+    {
+        if(key->keyval == GDK_KEY_Tab)
+            printf(" Tab pressed\n");
+        else if (key->keyval == GDK_KEY_Return)
+            printf(" Enter pressed\n");
+    }
+    /* Default handling of "Tab" is change of focus.
+     * If TRUE is passed here, the event will not be propagated
+     */
+    return FALSE;
+}
+static void clear_entry (GtkWidget *widget, gpointer *data )
+{
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  printf( "  >> E  %s  all_hdls =%p \n" , __func__ , all_hdls );
+  gtk_entry_set_text ( GTK_ENTRY( widget ) , "");
+  printf( "  << Lv %s  all_hdls =%p \n" , __func__ , all_hdls );
+}
+
+void on_description_key_press ( GtkWidget *widget, gpointer *data) {
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  int dbg=1;
+
+  if ( dbg ) {
+    g_print( "\n  %s data=%p *data=%p \n" , __FUNCTION__ , data , *data );
+    g_print( "  all_hdls = %p \n" ,  all_hdls );
+  }
+  // get text, lookup description
+  const gchar *description_txt;
+  description_txt = gtk_entry_get_text( GTK_ENTRY( widget ) );
+  printf( "   %s  got text : ->%s<- \n" , __func__ , description_txt);
+
+}  // on_description_key_press
 
 static void message_dialog_clicked (GtkButton *button, gpointer user_data) {
 
@@ -216,6 +259,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     GtkWidget *table;
     GtkWidget *label;
     GtkWidget *check_btn;
+    GtkWidget *combo;
 
     pall_hdls->vbox_transact_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     if ( pall_hdls->vbox_active != NULL ) {
@@ -282,6 +326,25 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     entry2 = gtk_entry_new ();
     gtk_grid_attach (GTK_GRID (table), entry2, 1, 2, 1, 1);
     pall_hdls->vbx_hdls->tp_w_description = entry2;
+    g_signal_connect( entry2, "changed", G_CALLBACK( on_description_key_press ), (gpointer)pall_hdls );
+    //g_signal_connect_swapped (entry2, "activate", G_CALLBACK (clear_entry), (gpointer)pall_hdls );
+    g_signal_connect (entry2, "activate", G_CALLBACK (clear_entry), (gpointer)pall_hdls );
+    g_signal_connect( entry2, "key-press-event", G_CALLBACK(key_press_cb), (gpointer)pall_hdls );
+
+    /* A combobox with string IDs */
+    combo = gtk_combo_box_text_new ();
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "never"       , "No selection");
+
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "Entertainment");
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "Health");
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "Housing");
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "Food");
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "Transport");
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "Work");
+    //gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always", "Always visible");
+    g_object_set ( check_btn, "tooltip-text", "Select category of item, eg wages = income, rent, electric = housing", NULL);
+
+    gtk_grid_attach ( GTK_GRID ( table ), combo , 2, 2 , 1 , 1);
 
     // final buttons
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
