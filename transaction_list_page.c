@@ -75,14 +75,21 @@ void paint_background_trans_list ( GtkCellRenderer   *renderer,
 
   int stk_mth=0;
 
-  gtk_tree_model_get(model, iter, MODEL_IS_INCOME , &stk_mth, -1);
+  gtk_tree_model_get(model, iter, MODEL_CATEGORY , &stk_mth, -1);
   /* set 'cell-background' property of the cell renderer */
   switch( stk_mth ) {
-    case 0:
-      g_object_set(renderer, "cell-background-gdk", &lorange, "cell-background-set", TRUE, NULL);
-      break;
+    // This could be replaced with if else, but case allows future flexibility
     case 1:
       g_object_set(renderer, "cell-background-gdk", &lgreen, "cell-background-set", TRUE, NULL);
+      break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+      g_object_set(renderer, "cell-background-gdk", &lorange, "cell-background-set", TRUE, NULL);
       break;
     default:
       g_object_set(renderer,
@@ -107,7 +114,7 @@ void gen_renderer_func_trans_list ( GtkTreeViewColumn *col,
 
   int u_dat = (intptr_t)user_data;
 
-  if ( u_dat == MODEL_IS_INCOME ) {
+  if ( u_dat == MODEL_CATEGORY ) {
     if ( !gen_render_needs_coding_warn ) printf( "  %s  THIS NEEDS  coding %s !! , %s L%4d \n" , COLOR_YELLOW , COLOR_RESET , __func__, __LINE__  );
     gen_render_needs_coding_warn++;
   }
@@ -158,11 +165,12 @@ gboolean update_prices_foreach_trans_list (GtkTreeModel *model,
                 GtkTreeIter  *iter,
                 gpointer      user_data)
 {
-  int       entry_nr, is_income, is_in_dB;
+  int       entry_nr, category, is_in_dB;
   uint32_t  entry_ts;
   float     amount;
   gchar    *description;
   gchar    *tree_path_str;
+  char     date_str[31];
 
   int   ii, chgd = 0;
   int 	dbg = 1;
@@ -173,7 +181,7 @@ gboolean update_prices_foreach_trans_list (GtkTreeModel *model,
 
   printf( "   >> E %s  TODO - add code to it ! L%4d   store=%p \n" , __func__ , __LINE__ , store );
 
-  printf( "    head-> entry_nr=%4d is_income=%2d entry_ts=%08x amount=%6.2f descrip=%s in_dB=%d \n" , head->entry_nr, head->is_income
+  printf( "    head-> entry_nr=%4d category=%2d entry_ts=%08x amount=%6.2f descrip=%s in_dB=%d \n" , head->entry_nr, head->category
                                                                                            , head->entry_ts, head->amount
                                                                                            , head->description , head->in_dB );
   tree_path_str = gtk_tree_path_to_string(path);
@@ -186,8 +194,9 @@ gboolean update_prices_foreach_trans_list (GtkTreeModel *model,
   }
 
   gtk_tree_model_get (model, iter, MODEL_ENTRY_NR            , &entry_nr    , -1 );
-  gtk_tree_model_get (model, iter, MODEL_IS_INCOME           , &is_income   , -1 );
+  gtk_tree_model_get (model, iter, MODEL_CATEGORY            , &category    , -1 );
   gtk_tree_model_get (model, iter, MODEL_ENTRY_TS            , &entry_ts    , -1 );
+  gtk_tree_model_get (model, iter, MODEL_DATE_STR            , &date_str    , -1 );
   gtk_tree_model_get (model, iter, MODEL_AMOUNT              , &amount      , -1 );
   gtk_tree_model_get (model, iter, MODEL_DESCRIPTION         , &description , -1 );
   gtk_tree_model_get (model, iter, MODEL_IS_IN_DB            , &is_in_dB    , -1 );
@@ -198,17 +207,17 @@ gboolean update_prices_foreach_trans_list (GtkTreeModel *model,
     tmp = tmp->next;
   }
   printf( "  FOUND: \n" );
-  printf( "    tmp-> entry_nr=%4d is_income=%2d entry_ts=%08x amount=%6.2f descrip=%s in_db=%d \n" , tmp->entry_nr, tmp->is_income
-                                                                                           , tmp->entry_ts, tmp->amount
+  printf( "    tmp-> entry_nr=%4d category=%2d entry_ts=%08x date_str=%9s amount=%6.2f descrip=%s in_db=%d \n" , tmp->entry_nr, tmp->category
+                                                                                           , tmp->entry_ts, "--/--/--" , tmp->amount
                                                                                            , tmp->description , tmp->in_dB );
 
 
-  if ( tmp->is_income != is_income ) { is_income  = tmp->is_income;  chgd=1; }
-  if ( tmp->amount    != amount    ) { amount     = tmp->amount;     chgd=1; }
+  if ( tmp->category != category ) { category  = tmp->category;  chgd=1; }
+  if ( tmp->amount    != amount  ) { amount    = tmp->amount;     chgd=1; }
 
   if ( chgd == 1 ) {
     gtk_tree_store_set ( GTK_TREE_STORE (model), iter,
-                         MODEL_IS_INCOME , is_income,
+                         MODEL_CATEGORY , category,
                          MODEL_AMOUNT    , amount,
                         -1);
 
@@ -258,6 +267,7 @@ int add_to_trans_list_treestore ( pokane_grp head ) {
   pokane_grp tmp = NULL;
 
   GtkTreeStore *treestore=NULL;
+  char time_str[31];
 
   treestore = get_trans_list_treestore( );
 
@@ -268,15 +278,17 @@ int add_to_trans_list_treestore ( pokane_grp head ) {
   }
 
   printf( "  FOUND: \n" );
-  printf( "    tmp-> entry_nr=%4d is_income=%2d entry_ts=%08x amount=%6.2f descrip=%s \n" , tmp->entry_nr, tmp->is_income
+  printf( "    tmp-> entry_nr=%4d category=%2d entry_ts=%08x amount=%6.2f descrip=%s \n" , tmp->entry_nr, tmp->category
                                                                                            , tmp->entry_ts, tmp->amount
                                                                                            , tmp->description );
   gtk_tree_store_append( treestore, &iter, NULL);
 
+  convert_to_date_string( tmp->entry_ts , time_str );
   gtk_tree_store_set ( treestore, &iter,
                       MODEL_ENTRY_NR    , tmp->entry_nr ,
-                      MODEL_IS_INCOME   , tmp->is_income ,
+                      MODEL_CATEGORY    , tmp->category ,
                       MODEL_ENTRY_TS    , tmp->entry_ts ,
+                      MODEL_DATE_STR    , time_str,
                       MODEL_AMOUNT      , tmp->amount,
                       MODEL_DESCRIPTION , tmp->description,
                       MODEL_IS_IN_DB    , tmp->in_dB,
@@ -312,6 +324,7 @@ void create_and_fill_trans_list ( pokane_grp stk_lst ) {
   GtkTreeIter     child;
 #endif
   GtkTreeStore *treestore=NULL;
+  char time_str[31];
 
   pokane_grp list = stk_lst;
 
@@ -339,18 +352,21 @@ void create_and_fill_trans_list ( pokane_grp stk_lst ) {
   gtk_tree_store_append(treestore, &toplevel, NULL);
 
   while ( list != NULL ) {
-    gtk_tree_store_set ( treestore, &toplevel,
+    convert_to_date_string( list->entry_ts , time_str );
+
+		gtk_tree_store_set ( treestore, &toplevel,
                       MODEL_ENTRY_NR    , list->entry_nr ,
-                      MODEL_IS_INCOME   , list->is_income ,
+                      MODEL_CATEGORY   , list->category ,
                       MODEL_ENTRY_TS    , list->entry_ts ,
+                      MODEL_DATE_STR    , time_str ,
                       MODEL_AMOUNT      , list->amount,
                       MODEL_DESCRIPTION , list->description,
                       MODEL_IS_IN_DB    , list->in_dB,
                       MODEL_SHARE_END_LIST);
 
     if ( dbg ) {
-      printf( "    Nr=%3d is_income=%d entry_ts=%8x amnt=%6.2f desc=%s in_dB=%d \n" , list->entry_nr, list->is_income, list->entry_ts
-                                                                                    , list->amount  , list->description, list->in_dB );
+      printf( "    Nr=%3d category=%d entry_ts=%8x date=%s amnt=%6.2f desc=%s in_dB=%d \n" , list->entry_nr, list->category, list->entry_ts
+                                                                                    , time_str , list->amount  , list->description, list->in_dB );
     }
     list = list->next;
     if ( list ) {
@@ -507,8 +523,9 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
   if ( col == NULL ) printf( "Oh my !\n" );
   gtk_tree_view_column_set_max_width ( col, 50);
 
-  gtk_tree_view_column_set_title(col, "Rcvd");
-  g_object_set ( gtk_tree_view_column_get_button (col), "tooltip-text", "Was money received ( a credit ) or paid out ( a debit )", NULL);
+  gtk_tree_view_column_set_title(col, "Cat");
+
+  g_object_set ( gtk_tree_view_column_get_button (col), "tooltip-text", "category of expense, 1 = money received, >=2 different types of expense, eg food housing etc", NULL);
 
   /* pack tree view column into tree view */
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
@@ -520,8 +537,10 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
 
   /* connect 'text' property of the cell renderer to
    *  model column that contains the first name */
-  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_IS_INCOME );
-  user_dat = MODEL_IS_INCOME;
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_CATEGORY );
+  gtk_tree_view_column_set_sort_column_id (col, MODEL_CATEGORY );
+
+  user_dat = MODEL_CATEGORY;
   gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list,  (void *)(intptr_t)user_dat , NULL /* GtkDestroyNotify destroy */ );
 
   /* --- Column #3 --- */
@@ -550,7 +569,30 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
   /* --- Column #4 --- */
   col = gtk_tree_view_column_new();
   if ( col == NULL ) printf( "Oh my !\n" );
-  gtk_tree_view_column_set_max_width ( col, 50);
+
+  gtk_tree_view_column_set_title(col, "Date");
+  g_object_set ( gtk_tree_view_column_get_button (col), "tooltip-text", "Date String", NULL);
+
+  /* pack tree view column into tree view */
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+
+  renderer = gtk_cell_renderer_text_new();
+
+  /* pack cell renderer into tree view column */
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+
+  /* connect 'text' property of the cell renderer to
+   *  model column that contains the first name */
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_DATE_STR );
+  user_dat = MODEL_ENTRY_TS;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list,  (void *)(intptr_t)user_dat , NULL /* GtkDestroyNotify destroy */ );
+
+  gtk_tree_view_column_set_sort_column_id (col, MODEL_DATE_STR );
+
+  /* --- Column #5 --- */
+  col = gtk_tree_view_column_new();
+  if ( col == NULL ) printf( "Oh my !\n" );
+  gtk_tree_view_column_set_max_width ( col, 90);
 
   gtk_tree_view_column_set_title(col, "Amount");
   g_object_set ( gtk_tree_view_column_get_button (col), "tooltip-text", "Amount : how much was received or paid", NULL);
@@ -574,10 +616,10 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
 
   gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list,  (void *)(intptr_t)user_dat , NULL /* GtkDestroyNotify destroy */ );
 
-  /* --- Column #5 --- */
+  /* --- Column #6 --- */
   col = gtk_tree_view_column_new();
   if ( col == NULL ) printf( "Oh my !\n" );
-  gtk_tree_view_column_set_max_width ( col, 250);
+  gtk_tree_view_column_set_max_width ( col, 350);
 
   gtk_tree_view_column_set_title(col, "Description");
   g_object_set ( gtk_tree_view_column_get_button (col), "tooltip-text", "Description, eg wages if a credit, gasoline if a debit", NULL);
@@ -596,8 +638,9 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
   user_dat = MODEL_DESCRIPTION;
   gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list,  (void *)(intptr_t)user_dat , NULL /* GtkDestroyNotify destroy */ );
 
-  /* --- Column #6 --- */
+  /* --- Column #7 --- */
 
+  // TODO : make this a hidden column
   col = gtk_tree_view_column_new();
   if ( col == NULL ) printf( "Oh my !\n" );
   gtk_tree_view_column_set_max_width ( col, 50);
@@ -634,8 +677,9 @@ transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg ) {
 
   store->t_act = gtk_tree_store_new ( MODEL_SHARE_NUM_COLS ,
        G_TYPE_INT,        // MODEL_ENTRY_NR
-       G_TYPE_INT,        // MODEL_IS_INCOME
-       G_TYPE_INT,        // MODEL_ENTRY_TS
+       G_TYPE_INT,        // MODEL_CATEGORY
+       G_TYPE_INT,        // MODEL_ENTRY_TS     // TODO make hidden
+       G_TYPE_STRING,     // MODEL_DATE_STR
        G_TYPE_FLOAT,      // MODEL_AMOUNT
        G_TYPE_STRING,     // MODEL_DESCRIPTION
        G_TYPE_INT         // IS_IN_DB
