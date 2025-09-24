@@ -8,7 +8,6 @@
 #include "pie_page.h"
 
 #include "transaction_list_page.h"
-
 #include "setting_page.h"
 
 static void hide_home_page( phdl_grp all_hdls ) {
@@ -43,7 +42,9 @@ static void list_transact_clicked ( GtkButton *button , gpointer data ) {
 }
 
 static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
+
     (void)btn; (void)user_data; // unused
+
     create_setting_page();
 }
 
@@ -56,15 +57,6 @@ int create_home_screen ( phdl_grp *all_hdls ) {
   int rc = 0;
 
   phdl_grp pall_hdls = *all_hdls;
-
-  if (!pall_hdls->vbx_hdls) {
-    pall_hdls->vbx_hdls = g_new0(uiHdl, 1);
-  }
-
-  // Only read dbg if flg exists
-  if (pall_hdls->flg && pall_hdls->flg->dbg) {
-    printf("  >> E %s\n", __FUNCTION__);
-  }
 
   if ( all_hdls != NULL ) {
     if ( pall_hdls->flg->dbg ) {
@@ -118,21 +110,20 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
     button = gtk_button_new_with_label ("");
 
-    GtkWidget *image_one = gtk_image_new_from_file("./resources/libreoffice-chart.png");
-    //printf("   Image_one = %p   \n", image_one);
-    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
-    gtk_button_set_image( GTK_BUTTON( button ) , image_one);
+    GtkWidget *image = gtk_image_new_from_file("./resources/libreoffice-chart.png");
+    gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
+    gtk_button_set_image( GTK_BUTTON( button ) , image);
 
+    pall_hdls->vbx_hdls->hp_chart_btn = button;
     g_object_set ( button , "tooltip-text", "Click to display Pie Chart", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( chart_clicked ), (gpointer) pall_hdls );
 
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
     button = gtk_button_new_with_label ("");
-    GtkWidget *image_two = gtk_image_new_from_file("./resources/transaction_64x64.png");
-    //printf("   Image_two = %p   \n", image_two);
-    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
-    gtk_button_set_image( GTK_BUTTON( button ) , image_two);
+    image = gtk_image_new_from_file("./resources/transaction_64x64.png");
+    gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
+    gtk_button_set_image( GTK_BUTTON( button ) , image);
 
     pall_hdls->vbx_hdls->hp_plus_trans_btn = button;
 
@@ -142,11 +133,9 @@ int create_home_screen ( phdl_grp *all_hdls ) {
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
     button = gtk_button_new_with_label ("");
-    GtkWidget *image_three = gtk_image_new_from_file("./resources/list_transactions_64x64.png");
-    //printf("   Image_three = %p   \n", image_three);
-    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
-    gtk_button_set_image( GTK_BUTTON( button ) , image_three);
-    gtk_widget_show ( button );
+    image = gtk_image_new_from_file("./resources/list_transactions_64x64.png");
+    gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
+    gtk_button_set_image( GTK_BUTTON( button ) , image);
 
     pall_hdls->vbx_hdls->hp_list_trans_btn = button;
 
@@ -157,10 +146,9 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
     //button = gtk_button_new_with_label ("Config");
     button = gtk_button_new_with_label ("");
-    GtkWidget *image_four = gtk_image_new_from_file("./resources/settings.png");
-    //printf("   Image_four = %p   \n", image_four);
-    gtk_button_set_always_show_image ( GTK_BUTTON ( button ), TRUE);
-    gtk_button_set_image( GTK_BUTTON( button ) , image_four);
+    image = gtk_image_new_from_file("./resources/settings.png");
+    gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
+    gtk_button_set_image( GTK_BUTTON( button ) , image);
 
     g_object_set ( button , "tooltip-text", "Click to change app settings", NULL);
 
@@ -169,9 +157,10 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox3 );
 
-  } else { // if !all_hdls->vbox_home_page
+  } else {  // if !all_hdls->vbox_home_page
     gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_home_page);
   }
+
   g_object_ref ( pall_hdls->vbox_home_page );
   gtk_widget_show_all ( pall_hdls->vbox_home_page );
 
