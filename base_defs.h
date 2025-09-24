@@ -27,10 +27,12 @@
 #define COLOR_WHITE  "\033[0;37m"
 #define COLOR_RESET  "\033[0m"
 
+typedef enum { NO_SELECTION_ID=0 , INCOME_ID, HOUSING_ID, FOOD_ID, TRANSPORT_ID, ENTERTAIN_ID, HEALTH_ID, WORK_ID, OTHER_ID , MAX_ID=-1 } CATOG_ID;
+
 typedef struct _okane_grp {
   struct _okane_grp  *next;                         // next entry in single linked list
   int                 entry_nr;                     // transaction_id in DB
-  int                 is_income;                    // if 0, it's a debit ( ie spending ), if 1, it's income ( wages, lottery etc )
+  int                 category;                     // one of enum xxx
   uint32_t            entry_ts;                     // unix timestamp of when the transaction occured
   float               amount;                       // how much money was received ( income ) or spent ( debit )
   char                description[DB_DESCRIP_LEN];  // text to describe transaction, eg 'wages' etc if income, 'gas', 'food' etc if debit
@@ -48,18 +50,20 @@ typedef struct _uiHdl {
   GtkWidget *tp_w_is_income;
   GtkWidget *tp_w_amount;
   GtkWidget *tp_w_description;
+  GtkWidget *tp_w_category;
 
   // transaction history_page widgets
   GtkWidget *thp_xx;
 
   // chart_page widgets
-  GtkWidget *cp_xx;
+  GtkWidget *cp_myPie;
 
 } uiHdl, *puiHdl;
 
 // keep at bottom
 typedef struct _hdl_grp {
   GtkWidget *parentWin;
+
   // Keep vbox handles here for easy reference
   GtkWidget *vbox_active;         // current vbox attached to parentWin, can only be ONE at any time !
   GtkWidget *vbox_start_page;      // vbox container for 'start_page'
