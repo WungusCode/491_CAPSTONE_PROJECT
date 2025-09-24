@@ -85,9 +85,9 @@ void linked_list_print_okane_grp( pokane_grp head) {
   if ( ll_dbg ) printf( "  >> E %s \n" , __FUNCTION__ );
 
   printf("    printing list...\n");
-  printf("      entry_ts \t   entry_nr is_inc \tamount  \tdescription \n");
+  printf("      entry_ts \t   entry_nr is_inc \tamount  \tdescription         \t in_dB \n");
   while (tmp != NULL) {
-    printf("      %u\t    %d \t%d \t%4.2f \t%s \n", tmp->entry_ts, tmp->entry_nr, tmp->is_income, tmp->amount, tmp->description );
+    printf("      %u\t    %d \t%d \t%7.2f   \t%-20s \t %d \n", tmp->entry_ts, tmp->entry_nr, tmp->category, tmp->amount, tmp->description , tmp->in_dB );
     tmp = tmp->next;
   }
 
