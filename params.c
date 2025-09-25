@@ -30,6 +30,9 @@ int parse_cmdline(int argc, char *argv[] , papp_flags flgs )
       if ( strcmp( "-d" , argv[ii] ) == 0 ) {
         flgs->dbg = 1;
       }
+      if ( strcmp( "-at" , argv[ii] ) == 0 ) {
+        flgs->autoTest = 1;
+      }
 
       ii++;
     } // while
