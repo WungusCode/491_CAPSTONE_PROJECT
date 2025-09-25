@@ -6,7 +6,7 @@
 
 typedef struct _app_flags {
   int dbg;
-
+  int autoTest;
 } app_flags, * papp_flags;
 
 #endif
