@@ -371,7 +371,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
     gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON ( check_btn), FALSE );
 
-    g_object_set ( check_btn, "tooltip-text", "Click if item is moeny you RECEIVED", NULL);
+    g_object_set ( check_btn, "tooltip-text", "Click if item is money you RECEIVED", NULL);
     g_signal_connect ( check_btn, "toggled", G_CALLBACK ( check_button_clicked ), (gpointer)pall_hdls );
     gtk_grid_attach (GTK_GRID (table), check_btn, 0, 0, 1, 1);
 
@@ -388,6 +388,8 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
 
     entry2 = gtk_entry_new ();
+    g_object_set ( entry2, "tooltip-text", "Enter a description of the expense you are entering", NULL);
+
     gtk_grid_attach (GTK_GRID (table), entry2, 1, 2, 1, 1);
     pall_hdls->vbx_hdls->tp_w_description = entry2;
     g_signal_connect( entry2, "changed", G_CALLBACK( on_description_key_press ), (gpointer)pall_hdls );
@@ -397,6 +399,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
     /* A combobox with string IDs */
     combo = gtk_combo_box_text_new ();
+    g_object_set ( combo, "tooltip-text", "Category of item added - will auto complete if previously entered", NULL);
     pall_hdls->vbx_hdls->tp_w_category = combo;
 
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "never"       , "No selection");
