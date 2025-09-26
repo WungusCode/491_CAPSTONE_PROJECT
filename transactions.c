@@ -71,7 +71,6 @@ int create_dummy_data( pokane_grp *head ) {
 
   if ( dbg ) {
     linked_list_print_okane_grp ( *head );
-    getchar();
   }
 
   if ( dbg ) printf( "  << Lv %s \n" , __FUNCTION__ );
@@ -92,22 +91,23 @@ int get_data_from_db ( phdl_grp *all_hdls ) {
   db_hdl = db_open( DB_FILE_0 , __FUNCTION__ , 0 ,dbg );
   if ( db_hdl == NULL ) {
     printf( "  DB doesn't exist, create it !!\n\t Ent to cont ! \n" );
-    getchar();
+    if ( pall_hdls->flg->dbg &&  pall_hdls->flg->autoTest == 0 ) getchar();
     create_new_db( DB_FILE_0 );
     db_hdl = db_open( DB_FILE_0 , __FUNCTION__ , 0 ,dbg );
 
     create_dummy_data( &pall_hdls->t_lst );
     linked_list_print_okane_grp ( pall_hdls->t_lst );
-    printf( "  Ent to cont ! \n" );
-    getchar();
-
+    if ( !pall_hdls->flg->autoTest ) {
+      printf( "  Ent to cont ! \n" );
+      getchar();
+    }
     db_add_entry( db_hdl , pall_hdls->t_lst , dbg );
   }
   if ( pall_hdls->t_lst == NULL ) {
     db_read_in_all_transactions( db_hdl , &pall_hdls->t_lst, dbg );
 
     linked_list_print_okane_grp ( pall_hdls->t_lst );
-    if ( dbg ) getchar();
+    if ( dbg && pall_hdls->flg->autoTest == 0 ) getchar();
   }
 
   db_close( db_hdl, __FUNCTION__ , dbg  );
