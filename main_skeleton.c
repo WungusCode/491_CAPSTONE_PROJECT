@@ -19,9 +19,13 @@
 #include "transactions.h"
 #include "transaction_list_page.h"
 
+#include "auto_test.h"
+
 static app_flags flgs;
 
 static void destroy( GtkWidget *widget,    gpointer   data );
+
+gboolean do_test_sequence( gpointer data );
 
 int main(int argc, char* argv[]) {
   int rc = 0;
@@ -80,7 +84,7 @@ int main(int argc, char* argv[]) {
 
     get_data_from_db ( &pall_hdls );
     printf("    pall_hdls->t_list = %p , %s , L%4d \n", pall_hdls->t_lst, __func__, __LINE__);
- 
+
     create_start_screen_rtn             (  &pall_hdls );
     create_login_screen_rtn             (  &pall_hdls );
     create_create_screen_rtn            (  &pall_hdls );
@@ -93,11 +97,18 @@ int main(int argc, char* argv[]) {
 
     gtk_widget_show_all ( window );
 
+    if ( pall_hdls->flg->autoTest ) {
+      g_timeout_add ( 1500, (GSourceFunc)do_test_sequence, (gpointer)pall_hdls );
+      printf( "        afr g_timeout_add()  \n"  );
+    }
+
     gtk_main();  // blocks until GTK terminates
   }
   return rc;
 }
 
 static void destroy( GtkWidget *widget, gpointer   data ) {
+  printf( "  >> E %s , L%4d \n" , __func__, __LINE__ );
   gtk_main_quit ();
+  printf( "  << Lv %s , L%4d \n" , __func__, __LINE__ );
 }
