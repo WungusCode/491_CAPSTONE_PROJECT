@@ -23,15 +23,18 @@ static void back_to_start ( GtkButton *button , gpointer data ) {
 static void goto_create ( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_login_screen( all_hdls );
-  create_create_screen ( all_hdls );
+	create_create_screen ( all_hdls );
 }
 
 static void l_goto_home( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_login_screen( all_hdls );
-  create_home_screen ( &all_hdls );
+  printf( "   CALL create_home_screen !\n" );
+  create_home_screen ( all_hdls );
+  printf( "   rtn create_home_screen !\n" );
 }
 
+#if 0
 static void on_submit_login ( GtkButton *button , gpointer data ) {
   GtkEntry *u = g_object_get_data(G_OBJECT(button), "u");
   GtkEntry *p = g_object_get_data(G_OBJECT(button), "p");
@@ -39,7 +42,7 @@ static void on_submit_login ( GtkButton *button , gpointer data ) {
   const char *pass = gtk_entry_get_text(GTK_ENTRY(p));
   g_print("[Login] username='%s' password='%s'\n", user, pass);
 }
-
+#endif
 int create_login_screen ( phdl_grp pall_hdls ) {
   GtkWidget *hbox , *hbox2 ;
   GtkWidget *label, *button;
@@ -57,7 +60,6 @@ int create_login_screen ( phdl_grp pall_hdls ) {
 
   if ( pall_hdls->vbox_login_page == NULL ) {
     pall_hdls->vbox_login_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_create_page); 
 
     // Title row
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
@@ -87,16 +89,21 @@ int create_login_screen ( phdl_grp pall_hdls ) {
 
     // Back to Start
     button = gtk_button_new_with_label ("Back");
+    pall_hdls->vbx_hdls->lp_back_btn = button;
+
     g_signal_connect (button, "clicked",  G_CALLBACK ( back_to_start ), (gpointer) pall_hdls );
     gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
 
     // Go to Create Account (direct switch)
     button = gtk_button_new_with_label ("Go to Create");
+    pall_hdls->vbx_hdls->lp_create_btn = button;
     g_signal_connect (button, "clicked",  G_CALLBACK ( goto_create ), (gpointer) pall_hdls );
     gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
 
     // Submit
     button = gtk_button_new_with_label ("Submit");
+    pall_hdls->vbx_hdls->lp_submit_btn = button;
+
     g_object_set_data(G_OBJECT(button), "u", user_entry);
     g_object_set_data(G_OBJECT(button), "p", pass_entry);
     g_signal_connect (button, "clicked",  G_CALLBACK ( l_goto_home ), (gpointer) pall_hdls );
