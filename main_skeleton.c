@@ -6,9 +6,11 @@
 #include "link_list.h"
 
 #include "params.h"
+
 #include "start_screen.h"
 #include "create_screen.h"
 #include "login_screen.h"
+
 #include "home_page.h"
 #include "transact_page.h"
 #include "setting_page.h"
@@ -68,8 +70,9 @@ int main(int argc, char* argv[]) {
     pall_hdls->vbx_hdls->tp_w_amount      = NULL;
     pall_hdls->vbx_hdls->tp_w_description = NULL;
 
-    pall_hdls->vbx_hdls->thp_xx    = NULL;
-    pall_hdls->vbx_hdls->cp_myPie  = NULL;
+    pall_hdls->vbx_hdls->tlp_list_trans_done_btn  = NULL;
+
+    pall_hdls->vbx_hdls->cp_pie_done_btn          = NULL;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     pall_hdls->parentWin = window;
@@ -83,12 +86,12 @@ int main(int argc, char* argv[]) {
     g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
     get_data_from_db ( &pall_hdls );
-    printf("    pall_hdls->t_list = %p , %s , L%4d \n", pall_hdls->t_lst, __func__, __LINE__);
 
     create_start_screen_rtn             (  &pall_hdls );
     create_login_screen_rtn             (  &pall_hdls );
     create_create_screen_rtn            (  &pall_hdls );
-    create_home_screen                  (  &pall_hdls );
+
+    create_home_screen_rtn              (  &pall_hdls );
     create_transaction_page_rtn         (  &pall_hdls );
     create_pie_chart_page_rtn           (  &pall_hdls );
 
@@ -98,7 +101,7 @@ int main(int argc, char* argv[]) {
     gtk_widget_show_all ( window );
 
     if ( pall_hdls->flg->autoTest ) {
-      g_timeout_add ( 1500, (GSourceFunc)do_test_sequence, (gpointer)pall_hdls );
+      g_timeout_add ( 1500, (GSourceFunc) do_test_sequence_a, (gpointer)pall_hdls );
       printf( "        afr g_timeout_add()  \n"  );
     }
 
