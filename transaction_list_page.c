@@ -804,7 +804,7 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
     gtk_box_pack_start (GTK_BOX ( hbox ), button, FALSE, FALSE, 0);
 
     // for auto test
-    pall_hdls->vbx_hdls->hp_list_trans_done_btn = button;
+    pall_hdls->vbx_hdls->tlp_list_trans_done_btn = button;
     gtk_box_pack_end (GTK_BOX ( vbox ), hbox, FALSE, FALSE, 0);
 
     // add ref to widget so it doesn't get destroyed on container_remove !
