@@ -1,13 +1,13 @@
 #include <stdio.h>
-#include <gtk/gtk.h>
+#include<gtk/gtk.h>
 
 #include "base_defs.h"
-#include "custom_pie_widget.h"
 
 #include "transact_page.h"
 #include "pie_page.h"
 
 #include "transaction_list_page.h"
+
 #include "setting_page.h"
 
 static void hide_home_page( phdl_grp all_hdls ) {
@@ -42,13 +42,11 @@ static void list_transact_clicked ( GtkButton *button , gpointer data ) {
 }
 
 static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
-
     (void)btn; (void)user_data; // unused
-
     create_setting_page();
 }
 
-int create_home_screen ( phdl_grp *all_hdls ) {
+int create_home_screen ( phdl_grp pall_hdls ) {
 
   GtkWidget *hbox , *hbox2 , *hbox3, *hbox_spc;
   GtkWidget *label, *blnk_label;
@@ -56,9 +54,7 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
   int rc = 0;
 
-  phdl_grp pall_hdls = *all_hdls;
-
-  if ( all_hdls != NULL ) {
+  if ( pall_hdls != NULL ) {
     if ( pall_hdls->flg->dbg ) {
       printf( "  >> E %s \n" , __FUNCTION__ );
       printf( "    flgs->dbg = %d \n" , pall_hdls->flg->dbg );
@@ -71,9 +67,8 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
   if ( pall_hdls->vbox_home_page == NULL ) {
     pall_hdls->vbox_home_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
 
-    printf( "    vbox = %p  , %s L%4d \n" , pall_hdls->vbox_home_page , __FILE__ , __LINE__  );
+    if ( pall_hdls->flg->dbg  ) printf( "    vbox = %p  , %s L%4d \n" , pall_hdls->vbox_home_page , __FILE__ , __LINE__  );
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
@@ -144,31 +139,45 @@ int create_home_screen ( phdl_grp *all_hdls ) {
 
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-    //button = gtk_button_new_with_label ("Config");
     button = gtk_button_new_with_label ("");
     image = gtk_image_new_from_file("./resources/settings.png");
     gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
     gtk_button_set_image( GTK_BUTTON( button ) , image);
 
+    g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), NULL);
     g_object_set ( button , "tooltip-text", "Click to change app settings", NULL);
 
-    g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), NULL);
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox3 );
 
-  } else {  // if !all_hdls->vbox_home_page
-    gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_home_page);
+  }  // if !all_hdls->vbox_home_page
+  else {
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
   }
 
   g_object_ref ( pall_hdls->vbox_home_page );
   gtk_widget_show_all ( pall_hdls->vbox_home_page );
 
-  *all_hdls = pall_hdls;
-
   if ( pall_hdls->flg->dbg ) {
     printf( "  << Lv %s \n" , __FUNCTION__ );
   }
 
+  return rc;
+}  // create_home_screen
+
+int create_home_screen_rtn( phdl_grp *all_hdls ) {
+  int rc = 0;
+  phdl_grp pall_hdls = *all_hdls;
+
+  printf( "  E  %s  *all_hdls = %p pall_hdls =%p \n" , __func__ , *all_hdls , pall_hdls );
+  rc = create_home_screen( pall_hdls );
+
+  if ( pall_hdls != NULL ) {
+    printf( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_home_page );
+  }
+  *all_hdls = pall_hdls;
+
+  printf( "  Lv  %s *all_hdls = %p pall_hdls =%p \n" , __func__, *all_hdls , pall_hdls );
   return rc;
 }
