@@ -61,6 +61,8 @@ int create_start_screen ( phdl_grp pall_hdls ) {
 
     // Exit
     button = gtk_button_new_with_label ("Exit");
+    pall_hdls->vbx_hdls->sp_exit_btn = button;
+
     gtk_widget_set_valign ( button, GTK_ALIGN_CENTER);
     g_object_set ( button , "tooltip-text", "Click to End program", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( end_program ), (gpointer) pall_hdls );
@@ -68,6 +70,8 @@ int create_start_screen ( phdl_grp pall_hdls ) {
 
     // Login
     button = gtk_button_new_with_label ("Login");
+    pall_hdls->vbx_hdls->sp_login_btn = button;
+
     gtk_widget_set_valign ( button, GTK_ALIGN_CENTER);
     g_object_set ( button , "tooltip-text", "Go to Login", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( goto_login ), (gpointer) pall_hdls );
@@ -75,6 +79,8 @@ int create_start_screen ( phdl_grp pall_hdls ) {
 
     // Create Account
     button = gtk_button_new_with_label ("Create Account");
+    pall_hdls->vbx_hdls->sp_create_btn = button;
+
     gtk_widget_set_valign ( button, GTK_ALIGN_CENTER);
     g_object_set ( button , "tooltip-text", "Go to Create Account", NULL);
     g_signal_connect (button, "clicked",  G_CALLBACK ( goto_create ), (gpointer) pall_hdls );

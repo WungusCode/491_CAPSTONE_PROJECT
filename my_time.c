@@ -50,3 +50,15 @@ uint32_t get_unix_time_now( void ) {
   return tv.tv_sec;
 }
 
+void convert_to_date_string( float unix_ts , char *str ) {
+  struct tm  ts;
+  time_t rawtime = unix_ts;
+
+  // printf( "ts=%.0f div/1000=%.0f\n" , node->valuedouble , node->valuedouble/1000 );
+  ts = *localtime(&rawtime);
+  // strftime( str, 25, "%a %Y-%m-%d %H:%M:%S %Z", &ts); creates eg, Mon 2022-05-05 00:00:16 , but end time always same, dont need day
+  strftime( str, 11, "%Y-%m-%d", &ts);
+  // printf("\t%s\n", str);
+
+}
+

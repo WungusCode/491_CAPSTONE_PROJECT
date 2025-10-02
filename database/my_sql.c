@@ -41,7 +41,7 @@ sqlite3 *dbInit(int create_db, char *dbName ) {
     int rc = 0;
     char *errmsg;
 
-    char *sql_1 = "CREATE TABLE IF NOT EXISTS okane_record ( transaction_Id INTEGER PRIMARY KEY AUTOINCREMENT,is_income INTEGER NOT NULL,transact_ts INT,amount REAL, description VARCHAR(255) NOT NULL )";
+    char *sql_1 = "CREATE TABLE IF NOT EXISTS okane_record ( transaction_Id INTEGER PRIMARY KEY AUTOINCREMENT,category INTEGER NOT NULL,transact_ts INT,amount REAL, description VARCHAR(255) NOT NULL )";
 
     printf( "  sql is ->%s<- \n , %s L%d " , sql_1 , __FILE__ , __LINE__ );
     rc = sqlite3_exec(db, sql_1, 0, 0, &errmsg);
@@ -122,10 +122,10 @@ int db_add_entry( sqlite3 *db_hdl , pokane_grp data_lst , int dbg ) {
   int ii, rc=0;
   int insert_errors=0;
 
-  const char *sql_end  = "INSERT OR IGNORE INTO okane_record (  `transaction_id`, `is_income`, `transact_ts`, `amount`, `description`) VALUES ( ";
+  const char *sql_end  = "INSERT OR IGNORE INTO okane_record (  `transaction_id`, `category`, `transact_ts`, `amount`, `description`) VALUES ( ";
 
   char t_id[11];
-  char is_income[11];
+  char category[11];
   char entry_ts[21];
   char amount[11];
   char descrip[ DB_DESCRIP_LEN + 5 ];
@@ -150,8 +150,8 @@ int db_add_entry( sqlite3 *db_hdl , pokane_grp data_lst , int dbg ) {
       sprintf( t_id , "%d, "         , data_lst->entry_nr    );
       strcat( db_string , t_id );
 
-      sprintf( is_income , "%d, "    , data_lst->is_income   );
-      strcat( db_string , is_income );
+      sprintf( category , "%d, "    , data_lst->category   );
+      strcat( db_string , category );
 
       sprintf( entry_ts  , "%u, "    , data_lst->entry_ts    );
       strcat( db_string , entry_ts );
@@ -232,7 +232,7 @@ int db_read_in_all_transactions( sqlite3 *db_hdl , pokane_grp *data_lst, int dbg
   while (sqlite3_step(stmt) != SQLITE_DONE) {
     int      ii;
     int      no_data     = 0;
-    int      is_income   = 0;
+    int      category    = 0;
     uint32_t transact_ts = 0;
     float    amount      = 0.0;
 
@@ -256,7 +256,7 @@ int db_read_in_all_transactions( sqlite3 *db_hdl , pokane_grp *data_lst, int dbg
         val_i = sqlite3_column_int(stmt, ii);
         if ( dbg ) printf("%d, ", val_i );
 
-        if ( ii == 1 ) is_income = val_i;
+        if ( ii == 1 ) category = val_i;
         else if ( ii == 2 ) transact_ts = (uint32_t)val_i;
 
         break;
@@ -280,7 +280,7 @@ int db_read_in_all_transactions( sqlite3 *db_hdl , pokane_grp *data_lst, int dbg
     pokane_grp newP = malloc( sizeof( okane_grp ) );
     memset( newP, 0 , sizeof( okane_grp) );
     newP->entry_nr    = nrTkr;
-    newP->is_income   = is_income;
+    newP->category    = category;
     newP->entry_ts    = transact_ts;
     newP->amount      = amount;
     newP->in_dB       = 1;
