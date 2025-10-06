@@ -29,4 +29,4 @@ jobs:
     - name: Set DISPLAY environment variable
       run: export DISPLAY=:99
     - name: Run UI tests with virtual display
-      run: xvfb-run -a ./switcher -d
+      run: xvfb-run -a ./sekai -at
