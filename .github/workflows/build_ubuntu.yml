@@ -20,3 +20,17 @@ jobs:
 
     - name: make
       run: make
+    - name: make
+      run: make
+    - name: make check
+      run: make check
+    - name: Install Xvfb
+      run: sudo apt-get update && sudo apt-get install -y xvfb
+    - name: Install at-spi2-core (if necessary)
+      run: sudo apt-get install -y at-spi2-core
+    - name: Start Xvfb
+      run: Xvfb :99 -screen 0 1024x768x16 &
+    - name: Set DISPLAY environment variable
+      run: export DISPLAY=:99
+    - name: Run UI tests with virtual display
+      run: xvfb-run -a ./switcher -d
