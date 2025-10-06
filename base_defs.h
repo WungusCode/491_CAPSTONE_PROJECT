@@ -27,10 +27,12 @@
 #define COLOR_WHITE  "\033[0;37m"
 #define COLOR_RESET  "\033[0m"
 
+typedef enum { NO_SELECTION_ID=0 , INCOME_ID, HOUSING_ID, FOOD_ID, TRANSPORT_ID, ENTERTAIN_ID, HEALTH_ID, WORK_ID, OTHER_ID , MAX_ID=-1 } CATOG_ID;
+
 typedef struct _okane_grp {
   struct _okane_grp  *next;                         // next entry in single linked list
   int                 entry_nr;                     // transaction_id in DB
-  int                 is_income;                    // if 0, it's a debit ( ie spending ), if 1, it's income ( wages, lottery etc )
+  int                 category;                     // one of enum xxx
   uint32_t            entry_ts;                     // unix timestamp of when the transaction occured
   float               amount;                       // how much money was received ( income ) or spent ( debit )
   char                description[DB_DESCRIP_LEN];  // text to describe transaction, eg 'wages' etc if income, 'gas', 'food' etc if debit
@@ -41,30 +43,46 @@ typedef struct _okane_grp {
 typedef struct _uiHdl {
   // home page widgets
   GtkWidget *hp_plus_trans_btn;
+
   GtkWidget *hp_chart_btn;
+
   GtkWidget *hp_list_trans_btn;
 
   // transaction_page widgets
   GtkWidget *tp_w_is_income;
   GtkWidget *tp_w_amount;
   GtkWidget *tp_w_description;
+  GtkWidget *tp_w_category;
+  GtkWidget *tp_cancel_btn;       // cancel or go back button
 
-  // transaction history_page widgets
-  GtkWidget *thp_xx;
+  // transaction list page widgets
+  // GtkWidget *thp_xx;
+  GtkWidget *tlp_list_trans_done_btn;
 
   // chart_page widgets
-  GtkWidget *cp_xx;
+  GtkWidget *cp_pie_done_btn;
+
+  // start screen_page widgets
+  GtkWidget *sp_login_btn;   // login  button , move to next screen
+  GtkWidget *sp_create_btn;  // create button , move to 'create account' screen
+  GtkWidget *sp_exit_btn;    // exit   button , move to 'submit' screen
+
+  // login screen_page widgets
+  GtkWidget *lp_create_btn;  // create button , move to 'create account' screen
+  GtkWidget *lp_submit_btn;  // subit  button , move to 'submit' screen
+  GtkWidget *lp_back_btn;    // back   button  , leave app
 
 } uiHdl, *puiHdl;
 
 // keep at bottom
 typedef struct _hdl_grp {
   GtkWidget *parentWin;
+
   // Keep vbox handles here for easy reference
   GtkWidget *vbox_active;         // current vbox attached to parentWin, can only be ONE at any time !
-  GtkWidget *vbox_start_page;      // vbox container for 'start_page'
-  GtkWidget *vbox_create_page;      // vbox container for 'create_page'
-  GtkWidget *vbox_login_page;      // vbox container for 'login_page'
+  GtkWidget *vbox_start_page;     // vbox container for 'start_page'
+  GtkWidget *vbox_create_page;    // vbox container for 'create_page'
+  GtkWidget *vbox_login_page;     // vbox container for 'login_page'
   GtkWidget *vbox_home_page;      // vbox container for 'home_page'
   GtkWidget *vbox_transact_page;  // vbox container for 'transact_page'
   GtkWidget *vbox_chart_page;     // vbox container for 'pie_page'

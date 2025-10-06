@@ -222,6 +222,8 @@ static gboolean pie_widget_draw(GtkWidget *widget, cairo_t *cr) {
   double start_angle = 0.0;
   double total       = 0.0;
 
+  int l_dbg = 0;  // localised debug flag
+
   self = graph->priv;
 
   gtk_widget_get_allocation(widget, &alloc);
@@ -284,7 +286,7 @@ static gboolean pie_widget_draw(GtkWidget *widget, cairo_t *cr) {
       if(middle > G_PI / 2 && middle < 3 * G_PI / 2) {
         lx -= extent.width;
       }
-      printf( "  %2d label at x=%4.1f y=%4.1f   %s \n" , ii, lx , ly , slice->label );
+      if ( l_dbg ) printf( "  %2d label at x=%5.1f y=%4.1f   %s \n" , ii, lx , ly , slice->label );
       cairo_move_to(cr, lx, ly);
       cairo_show_text(cr, slice->label);
     } // if slice-label
@@ -292,7 +294,7 @@ static gboolean pie_widget_draw(GtkWidget *widget, cairo_t *cr) {
     start_angle += slice_angle;
     ii++;
   } // for
-  printf( "\n" );
+  if ( l_dbg ) printf( "\n" );
 
   // gdk_cairo_set_source_rgba (cr, &self->text_color);
   g_value_init(&styleVal, GDK_TYPE_RGBA);

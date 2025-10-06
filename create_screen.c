@@ -29,9 +29,10 @@ static void goto_login ( GtkButton *button , gpointer data ) {
 static void c_goto_home( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_create_screen( all_hdls );
-  create_home_screen ( &all_hdls );
+  create_home_screen ( all_hdls );
 }
 
+#if 0
 static void on_submit_create ( GtkButton *button , gpointer data ) {
   GtkEntry *u = g_object_get_data(G_OBJECT(button), "u");
   GtkEntry *p = g_object_get_data(G_OBJECT(button), "p");
@@ -39,6 +40,7 @@ static void on_submit_create ( GtkButton *button , gpointer data ) {
   const char *pass = gtk_entry_get_text(GTK_ENTRY(p));
   g_print("[Create] username='%s' password='%s'\n", user, pass);
 }
+#endif
 
 int create_create_screen ( phdl_grp pall_hdls ) {
   GtkWidget *hbox , *hbox2 ;
@@ -57,7 +59,6 @@ int create_create_screen ( phdl_grp pall_hdls ) {
 
   if ( pall_hdls->vbox_create_page == NULL ) {
     pall_hdls->vbox_create_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_create_page);
 
     // Title row
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);

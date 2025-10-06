@@ -6,4 +6,5 @@
 #include "data_types.h"
 
 int create_home_screen ( phdl_grp *all_hdls );
+extern int create_home_screen_rtn( phdl_grp *all_hdls );
 #endif

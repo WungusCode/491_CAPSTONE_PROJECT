@@ -58,6 +58,8 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
     gtk_box_pack_end (GTK_BOX ( pall_hdls->vbox_chart_page ), hbox, FALSE, FALSE, 0);
 
     button = gtk_button_new_with_mnemonic ("_Done");
+    pall_hdls->vbx_hdls->cp_pie_done_btn = button;
+
     g_signal_connect (button, "clicked", G_CALLBACK ( cancel_clicked ), (gpointer) pall_hdls  );
 
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);

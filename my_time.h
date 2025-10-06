@@ -6,4 +6,5 @@
 
 extern uint32_t get_unix_time_now( void );
 
+extern void convert_to_date_string( float unix_ts , char *str );
 #endif

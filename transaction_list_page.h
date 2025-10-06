@@ -10,8 +10,9 @@ typedef enum { POPUP_MENU_0=0 , POPUP_MENU_1, POPUP_MENU_2 , POPUP_MENU_3 , MAX_
 enum
 {
   MODEL_ENTRY_NR = 0,  // INT
-  MODEL_IS_INCOME,     // INT
+  MODEL_CATEGORY,      // INT   , ie money group see enum CATOG_ID
   MODEL_ENTRY_TS,      // INT
+  MODEL_DATE_STR,      // FLOAT
   MODEL_AMOUNT,        // FLOAT
   MODEL_DESCRIPTION,   // STRING
   MODEL_IS_IN_DB,      // INT
