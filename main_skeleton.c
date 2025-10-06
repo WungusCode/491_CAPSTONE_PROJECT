@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
     pall_hdls->vbx_hdls->tp_w_is_income   = NULL;
     pall_hdls->vbx_hdls->tp_w_amount      = NULL;
     pall_hdls->vbx_hdls->tp_w_description = NULL;
+    pall_hdls->vbx_hdls->tp_cancel_btn    = NULL;
 
     pall_hdls->vbx_hdls->tlp_list_trans_done_btn  = NULL;
 

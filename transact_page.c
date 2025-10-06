@@ -427,6 +427,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
 
     button = gtk_button_new_with_mnemonic ("C_ancel");
+    pall_hdls->vbx_hdls->tp_cancel_btn = button;
     g_signal_connect (button, "clicked", G_CALLBACK ( cancel_clicked ), (gpointer) pall_hdls  );
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
 

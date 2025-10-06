@@ -36,7 +36,7 @@ gboolean do_test_sequence_3( gpointer data ) {
   g_print("    Injecting 'clicked' signal to ADD TRANSACTION ...\n");
   g_signal_emit_by_name( pall_hdls->vbx_hdls->hp_plus_trans_btn , "clicked", NULL);
 
-  g_timeout_add ( 2000, (GSourceFunc) do_test_sequence_4 , NULL );
+  g_timeout_add ( 2000, (GSourceFunc) do_test_sequence_4 , data );
 
   printf( "  << Lv %s , L%4d \n\n" , __func__, __LINE__ );
   return FALSE;
