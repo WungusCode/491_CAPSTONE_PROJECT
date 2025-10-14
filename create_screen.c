@@ -48,13 +48,14 @@ static void back_to_start ( GtkButton *button , gpointer data ) {
 static void goto_login ( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_create_screen( all_hdls );
-  create_login_screen ( all_hdls );
+  create_login_screen_rtn (&all_hdls );   // using _rtn now
 }
 
 static void c_goto_home( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_create_screen( all_hdls );
-  create_home_screen ( all_hdls );
+  // create_home_screen ( all_hdls );
+  create_home_screen_rtn ( &all_hdls );    // using _rtn now
 }
 
 #if 0

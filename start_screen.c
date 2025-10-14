@@ -47,13 +47,13 @@ static void end_program ( GtkButton *button , gpointer data ) {
 static void goto_login ( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_start_screen( all_hdls );
-  create_login_screen ( all_hdls );     // renamed
+  create_login_screen_rtn( &all_hdls );     // using _rtn now
 }
 
 static void goto_create ( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_start_screen( all_hdls );
-  create_create_screen ( all_hdls );    // renamed
+  create_create_screen_rtn (&all_hdls );    // using _rtn now
 }
 
 int create_start_screen ( phdl_grp pall_hdls ) {
