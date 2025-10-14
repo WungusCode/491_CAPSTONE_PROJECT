@@ -5,7 +5,7 @@
 #include "data_types.h"
 
 int create_create_screen     ( phdl_grp  all_hdls );
-int create_create_screen_rtn ( phdl_grp *pall_hdls );
+int create_create_screen_rtn ( phdl_grp *all_hdls );
 
 #endif
 
