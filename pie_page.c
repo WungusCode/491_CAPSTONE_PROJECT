@@ -59,7 +59,7 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
     title_lbl = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(title_lbl), "<b>Spending Categories</b>");
     gtk_widget_set_halign(title_lbl, GTK_ALIGN_CENTER);
-    gtk_widget_set_margin_top(title_lbl, 8);
+    gtk_widget_set_margin_top(title_lbl, 16);
     gtk_widget_set_margin_bottom(title_lbl, 4);
     gtk_box_pack_start(GTK_BOX(pall_hdls->vbox_chart_page), title_lbl, FALSE, FALSE, 0);
 
@@ -108,8 +108,10 @@ int create_pie_chart_page_rtn( phdl_grp *all_hdls ) {
   if ( pall_hdls != NULL ) {
     printf( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_transact_page );
 
-  *all_hdls = pall_hdls;
+    *all_hdls = pall_hdls;
 
-  if ( pall_hdls->flg->dbg ) printf( "  Lv %s  *all_hdls = %p pall_hdls =%p \n" , __FUNCTION__ , *all_hdls , pall_hdls );
+    if ( pall_hdls->flg->dbg ) printf( "  Lv %s  *all_hdls = %p pall_hdls =%p \n" , __FUNCTION__ , *all_hdls , pall_hdls );
+  }
+
   return rc;
 }
