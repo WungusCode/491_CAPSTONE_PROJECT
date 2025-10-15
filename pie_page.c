@@ -74,6 +74,32 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
       pie_widget_add_slice_to_pie((PieWidget *) piMy, categories[i].amount, categories[i].color, categories[i].name);
     }
 
+    // added a title to the percentage of money spent
+    GtkWidget *subtitle_lbl;
+    subtitle_lbl = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(subtitle_lbl), "<b>Amount per Category Spent</b>");
+    gtk_widget_set_halign(subtitle_lbl, GTK_ALIGN_CENTER);
+    gtk_widget_set_margin_top(subtitle_lbl, 12);
+    gtk_widget_set_margin_bottom(subtitle_lbl, 12);
+    gtk_box_pack_start(GTK_BOX(pall_hdls->vbox_chart_page), subtitle_lbl, FALSE, FALSE, 0);
+
+    // Add grid with category names and amounts
+    GtkWidget *grid = gtk_grid_new();
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 4);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
+    gtk_widget_set_halign(grid, GTK_ALIGN_CENTER);
+    gtk_box_pack_start(GTK_BOX(pall_hdls->vbox_chart_page), grid, FALSE, FALSE, 0);
+    for (int i = 0; i < num_categories; i++) {
+        char amount_text[64];
+        snprintf(amount_text, sizeof(amount_text), "%d%%", categories[i].amount);
+        GtkWidget *name_lbl = gtk_label_new(categories[i].name);
+        GtkWidget *amt_lbl = gtk_label_new(amount_text);
+        gtk_widget_set_halign(name_lbl, GTK_ALIGN_START);
+        gtk_widget_set_halign(amt_lbl, GTK_ALIGN_END);
+        gtk_grid_attach(GTK_GRID(grid), name_lbl, 0, i, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), amt_lbl, 1, i, 1, 1);
+    }
+
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_box_pack_end (GTK_BOX ( pall_hdls->vbox_chart_page ), hbox, FALSE, FALSE, 0);
 
@@ -96,7 +122,7 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
   if ( pall_hdls->flg->dbg ) printf( "  Lv  %s pall_hdls =%p \n" , __FUNCTION__ , pall_hdls );
 
   return rc;
-} // create_pie_chart_pagehi
+} // fixed
 
 int create_pie_chart_page_rtn( phdl_grp *all_hdls ) {
   int rc = 0;
