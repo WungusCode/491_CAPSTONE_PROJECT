@@ -6,7 +6,7 @@
 #include "custom_pie_widget.h"
 
 static void cancel_clicked ( GtkButton *button,  gpointer   user_data) {
-  // ALWAYS called from home_page, so go back to it !
+  // ALWAYS called from home_page, so go back to it !!
   phdl_grp all_hdls = (phdl_grp)user_data;
 
   gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_chart_page );
