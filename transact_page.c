@@ -5,6 +5,8 @@
 #include <gdk/gdkkeysyms.h> // for key press
 
 #include "base_defs.h"
+#include "indent_print.h"
+
 #include "my_time.h"
 #include "link_list.h"
 #include "transact_page.h"
@@ -220,9 +222,10 @@ static void save_db_clicked ( GtkButton *button,  gpointer   user_data) {
   phdl_grp all_hdls = (phdl_grp)user_data;
   pokane_grp head  = (all_hdls->t_lst);
 
-  printf( "  >> E %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
+  LOG_BLOCK_START ( "  >> E %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
   // SAVE TO DB !
   save_to_dB_transaction( head , 1 );
+  LOG_BLOCK_END ( "  << Lv %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
 }
 
 
@@ -304,14 +307,14 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
   if ( pall_hdls != NULL ) {
     if ( pall_hdls->flg->dbg ) {
-      printf( "  >> E %s \n" , __FUNCTION__ );
-      printf( "    flgs->dbg     = %d \n" , pall_hdls->flg->dbg );
-      printf( "    parentWin     = %p \n" , pall_hdls->parentWin );
-      printf( "    vbox_transact = %p \n" , pall_hdls->vbox_transact_page );
+      LOG_BLOCK_START ( "  >> E %s \n" , __FUNCTION__ );
+      LOG_INDENTED ( "    flgs->dbg     = %d \n" , pall_hdls->flg->dbg );
+      LOG_INDENTED ( "    parentWin     = %p \n" , pall_hdls->parentWin );
+      LOG_INDENTED ( "    vbox_transact = %p \n" , pall_hdls->vbox_transact_page );
     }
   }
   else {
-      printf( "  >> E %s pall_hdls = NULL  \n" , __FUNCTION__ );
+      LOG_BLOCK_START ( "  >> E %s pall_hdls = NULL  \n" , __FUNCTION__ );
   }
 
   if ( pall_hdls->vbox_transact_page == NULL ) {
@@ -328,9 +331,9 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     pall_hdls->vbox_transact_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     if ( pall_hdls->vbox_active != NULL ) {
       // only attach, if no vbox active !
-			gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_transact_page );
+      gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_transact_page );
     }
-    printf( "    vbox = %p   , %s L%4d \n" , pall_hdls->vbox_transact_page , __FILE__ , __LINE__ );
+    LOG_INDENTED ( "    vbox = %p   , %s L%4d \n" , pall_hdls->vbox_transact_page , __FILE__ , __LINE__ );
 
     frame = gtk_frame_new ("Dialogs");
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_transact_page ), frame);
@@ -428,6 +431,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
     button = gtk_button_new_with_mnemonic ("C_ancel");
     pall_hdls->vbx_hdls->tp_cancel_btn = button;
+
     g_signal_connect (button, "clicked", G_CALLBACK ( cancel_clicked ), (gpointer) pall_hdls  );
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
 
@@ -446,7 +450,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
   if ( g_addTodB != NULL ) gtk_widget_hide ( g_addTodB ); // Hidden until have added a record
 
   if ( pall_hdls->flg->dbg ) {
-    printf( "  << Lv %s \n" , __FUNCTION__ );
+    LOG_BLOCK_END ( "  << Lv %s \n" , __FUNCTION__ );
   }
 
   return rc;
@@ -456,14 +460,14 @@ int create_transaction_page_rtn( phdl_grp *all_hdls ) {
   int rc = 0;
   phdl_grp pall_hdls = *all_hdls;
 
-  printf( "  E   *all_hdls = %p pall_hdls =%p \n" , *all_hdls , pall_hdls );
+  LOG_BLOCK_START ( "  E  %s *all_hdls = %p pall_hdls =%p \n" , __func__ , *all_hdls , pall_hdls );
   rc = create_transaction_page( pall_hdls );
 
   if ( pall_hdls != NULL ) {
-    printf( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_transact_page );
-	}
-	*all_hdls = pall_hdls;
+    LOG_INDENTED ( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_transact_page );
+  }
+  *all_hdls = pall_hdls;
 
-	printf( "  Lv   *all_hdls = %p pall_hdls =%p \n" , *all_hdls , pall_hdls );
+  LOG_BLOCK_END ( "  Lv  %s *all_hdls = %p pall_hdls =%p \n" , __func__ , *all_hdls , pall_hdls );
   return rc;
 }

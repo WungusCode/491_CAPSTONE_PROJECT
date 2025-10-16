@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "base_defs.h"
+#include "indent_print.h"
 
 #include "link_list.h"
 #include "my_time.h"
@@ -18,10 +19,10 @@ int create_dummy_data( pokane_grp *head ) {
 
   int dbg = 1; // TODO use passed in global dbg
 
-  if ( dbg ) printf( "  >> E %s \n" , __FUNCTION__ );
+  if ( dbg ) LOG_BLOCK_START ( "  >> E %s \n" , __FUNCTION__ );
 
   lst_len       = get_okane_grp_list_len( *head );
-  if ( dbg ) printf( "      list len = %3d  \n" , lst_len );
+  if ( dbg ) LOG_INDENTED ( "      list len = %3d  \n" , lst_len );
 
   tmp.category  = INCOME_ID;
   tmp.entry_nr  = lst_len;
@@ -67,13 +68,13 @@ int create_dummy_data( pokane_grp *head ) {
   strcpy( tmp.description , "school supplies" );
   add_transaction( head , &tmp , 1 );
   lst_len = get_okane_grp_list_len( *head );
-  if ( dbg ) printf( "      list len = %3d  \n" , lst_len );
+  if ( dbg ) LOG_INDENTED ( "      list len = %3d  \n" , lst_len );
 
   if ( dbg ) {
     linked_list_print_okane_grp ( *head );
   }
 
-  if ( dbg ) printf( "  << Lv %s \n" , __FUNCTION__ );
+  if ( dbg ) LOG_BLOCK_END ( "  << Lv %s \n" , __FUNCTION__ );
 
   return 0;
 }  // create_dummy_data
@@ -87,10 +88,12 @@ int get_data_from_db ( phdl_grp *all_hdls ) {
 
   int dbg = pall_hdls->flg->dbg;
 
+  if ( dbg ) LOG_BLOCK_START ( ">> E %s \n" , __func__ );
+
   // from database/main_test.c
   db_hdl = db_open( DB_FILE_0 , __FUNCTION__ , 0 ,dbg );
   if ( db_hdl == NULL ) {
-    printf( "  DB doesn't exist, create it !!\n\t Ent to cont ! \n" );
+    LOG_INDENTED ( "  DB doesn't exist, create it !!\n\t Ent to cont ! \n" );
     if ( pall_hdls->flg->dbg &&  pall_hdls->flg->autoTest == 0 ) getchar();
     create_new_db( DB_FILE_0 );
     db_hdl = db_open( DB_FILE_0 , __FUNCTION__ , 0 ,dbg );
@@ -113,6 +116,9 @@ int get_data_from_db ( phdl_grp *all_hdls ) {
   db_close( db_hdl, __FUNCTION__ , dbg  );
 
   *all_hdls = pall_hdls;
+
+  if ( dbg ) LOG_BLOCK_END ( "<< Lv %s \n" , __func__ );
+
   return rc;
 }
 
@@ -162,7 +168,7 @@ int save_to_dB_transaction ( pokane_grp t_lst , int dbg ) {
 
   db_hdl = db_open( DB_FILE_0 , __func__ , 0 ,dbg );
   if ( db_hdl != NULL ) {
-    if ( dbg ) printf( "    %s  , L%4d   db_hdl=%p , call db_add_entry() !  \n" , __func__ , __LINE__ , db_hdl );
+    if ( dbg ) LOG_INDENTED ( "    %s  , L%4d   db_hdl=%p , call db_add_entry() !  \n" , __func__ , __LINE__ , db_hdl );
     db_add_entry( db_hdl , t_lst , dbg );
     db_close( db_hdl, __FUNCTION__ , dbg  );
   }
