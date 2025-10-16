@@ -47,6 +47,73 @@ static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
 }
 
 int create_home_screen ( phdl_grp pall_hdls ) {
+ if (!pall_hdls) return -1;
+
+    if (pall_hdls->vbox_home_page == NULL) {
+        GtkWidget *content = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
+        gtk_container_set_border_width(GTK_CONTAINER(content), 16);
+
+        GtkWidget *row1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
+        GtkWidget *label = gtk_label_new(" $3,261 ");
+        gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
+        gtk_box_pack_start(GTK_BOX(row1), label, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(content), row1, FALSE, FALSE, 0);
+
+        GtkWidget *row2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
+        GtkWidget *button = gtk_button_new_with_label("Show more details");
+        gtk_widget_set_valign(button, GTK_ALIGN_CENTER);
+        gtk_box_pack_start(GTK_BOX(row2), button, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(content), row2, FALSE, FALSE, 0);
+
+        GtkWidget *row3 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
+
+        button = gtk_button_new_with_label("");
+        GtkWidget *image = gtk_image_new_from_file("./resources/libreoffice-chart.png");
+        gtk_button_set_always_show_image(GTK_BUTTON(button), TRUE);
+        gtk_button_set_image(GTK_BUTTON(button), image);
+        gtk_widget_set_size_request(button, 200, 200);
+        pall_hdls->vbx_hdls->hp_chart_btn = button;
+        g_object_set(button, "tooltip-text", "Click to display Pie Chart", NULL);
+        g_signal_connect(button, "clicked", G_CALLBACK(chart_clicked), pall_hdls);
+        gtk_box_pack_start(GTK_BOX(row3), button, FALSE, FALSE, 0);
+
+        button = gtk_button_new_with_label("");
+        image = gtk_image_new_from_file("./resources/transaction_64x64.png");
+        gtk_button_set_always_show_image(GTK_BUTTON(button), TRUE);
+        gtk_button_set_image(GTK_BUTTON(button), image);
+        gtk_widget_set_size_request(button, 200, 200);
+        pall_hdls->vbx_hdls->hp_plus_trans_btn = button;
+        g_object_set(button, "tooltip-text", "Click to add or delete a transaction", NULL);
+        g_signal_connect(button, "clicked", G_CALLBACK(transact_clicked), pall_hdls);
+        gtk_box_pack_start(GTK_BOX(row3), button, FALSE, FALSE, 0);
+
+        button = gtk_button_new_with_label("");
+        image = gtk_image_new_from_file("./resources/list_transactions_64x64.png");
+        gtk_button_set_always_show_image(GTK_BUTTON(button), TRUE);
+        gtk_button_set_image(GTK_BUTTON(button), image);
+        gtk_widget_set_size_request(button, 200, 200);
+        pall_hdls->vbx_hdls->hp_list_trans_btn = button;
+        g_object_set(button, "tooltip-text", "Click to show all transactions", NULL);
+        g_signal_connect(button, "clicked", G_CALLBACK(list_transact_clicked), pall_hdls);
+        gtk_box_pack_start(GTK_BOX(row3), button, FALSE, FALSE, 0);
+
+        button = gtk_button_new_with_label("");
+        image = gtk_image_new_from_file("./resources/settings.png");
+        gtk_button_set_always_show_image(GTK_BUTTON(button), TRUE);
+        gtk_button_set_image(GTK_BUTTON(button), image);
+        gtk_widget_set_size_request(button, 200, 200);
+        g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), NULL);
+        g_object_set(button, "tooltip-text", "Click to change app settings", NULL);
+        gtk_box_pack_start(GTK_BOX(row3), button, FALSE, FALSE, 0);
+
+        gtk_box_pack_start(GTK_BOX(content), row3, FALSE, FALSE, 0);
+
+        pall_hdls->vbox_home_page = center_in_page(content);
+        gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_home_page);
+        g_object_ref(pall_hdls->vbox_home_page);
+    } else {
+        gtk_container_add(GTK_CONTAINER(pall_hdls->parentWin), pall_hdls->vbox_home_page);
+    }
 
   GtkWidget *hbox , *hbox2 , *hbox3, *hbox_spc;
   GtkWidget *label, *blnk_label;

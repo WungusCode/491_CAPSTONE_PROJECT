@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <glib/gi18n.h>
 #include<gtk/gtk.h>
+#include <glib.h>
 
 #include "base_defs.h"
 #include "custom_pie_widget.h"
@@ -32,6 +33,21 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
   }
 
   if ( pall_hdls->vbox_chart_page == NULL ) {
+    typedef struct {
+      const char *name;
+      const char *color;
+      int amount;
+    } CategorySpending;
+//issues with being able to print the title right about herem and other things
+    CategorySpending categories[] = {
+      {"Rent", "#F44336", 40},
+      {"Food", "#2196F3", 25},
+      {"Transport", "#4CAF50", 15},
+      {"Entertainment", "#FFEB3B", 10},
+      {"Others", "#9C27B0", 10}
+    };
+    int num_categories = sizeof(categories) / sizeof(CategorySpending);
+
     GtkWidget *piMy;
     GtkWidget *hbox , *button;
     GtkWidget *title_lbl;
@@ -41,10 +57,10 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
     printf( "    vbox = %p  , %s L%4d \n" , pall_hdls->vbox_chart_page , __FILE__ , __LINE__  );
 
     title_lbl = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(title_lbl), "<b>Spending Category</b>");
+    gtk_label_set_markup(GTK_LABEL(title_lbl), "<b>Spending Categories</b>");
     gtk_widget_set_halign(title_lbl, GTK_ALIGN_CENTER);
-    gtk_widget_set_margin_top(title_lbl, 8);
-    gtk_widget_set_margin_bottom(title_lbl, 8);
+    gtk_widget_set_margin_top(title_lbl, 16);
+    gtk_widget_set_margin_bottom(title_lbl, 4);
     gtk_box_pack_start(GTK_BOX(pall_hdls->vbox_chart_page), title_lbl, FALSE, FALSE, 0);
 
     piMy = pie_widget_new();
@@ -53,6 +69,36 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
     gtk_widget_set_halign(piMy, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(piMy, GTK_ALIGN_START);
     gtk_box_pack_start( GTK_BOX( pall_hdls->vbox_chart_page ), piMy, TRUE, TRUE, 0);
+
+    for (int i = 0; i < num_categories; i++) {
+      pie_widget_add_slice_to_pie((PieWidget *) piMy, categories[i].amount, categories[i].color, categories[i].name);
+    }
+
+    // added a title to the percentage of money spent
+    GtkWidget *subtitle_lbl;
+    subtitle_lbl = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(subtitle_lbl), "<b>Amount per Category Spent</b>");
+    gtk_widget_set_halign(subtitle_lbl, GTK_ALIGN_CENTER);
+    gtk_widget_set_margin_top(subtitle_lbl, 12);
+    gtk_widget_set_margin_bottom(subtitle_lbl, 12);
+    gtk_box_pack_start(GTK_BOX(pall_hdls->vbox_chart_page), subtitle_lbl, FALSE, FALSE, 0);
+
+    // Add grid with category names and amounts
+    GtkWidget *grid = gtk_grid_new();
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 4);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
+    gtk_widget_set_halign(grid, GTK_ALIGN_CENTER);
+    gtk_box_pack_start(GTK_BOX(pall_hdls->vbox_chart_page), grid, FALSE, FALSE, 0);
+    for (int i = 0; i < num_categories; i++) {
+        char amount_text[64];
+        snprintf(amount_text, sizeof(amount_text), "%d%%", categories[i].amount);
+        GtkWidget *name_lbl = gtk_label_new(categories[i].name);
+        GtkWidget *amt_lbl = gtk_label_new(amount_text);
+        gtk_widget_set_halign(name_lbl, GTK_ALIGN_START);
+        gtk_widget_set_halign(amt_lbl, GTK_ALIGN_END);
+        gtk_grid_attach(GTK_GRID(grid), name_lbl, 0, i, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), amt_lbl, 1, i, 1, 1);
+    }
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_box_pack_end (GTK_BOX ( pall_hdls->vbox_chart_page ), hbox, FALSE, FALSE, 0);
@@ -63,12 +109,6 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
     g_signal_connect (button, "clicked", G_CALLBACK ( cancel_clicked ), (gpointer) pall_hdls  );
 
     gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
-
-    pie_widget_add_slice_to_pie ( (PieWidget *) piMy , 50, "#F00000", "Wages");
-    pie_widget_add_slice_to_pie ( (PieWidget *) piMy , 10, "#FF6484", "Gas");
-    pie_widget_add_slice_to_pie ( (PieWidget *) piMy , 20, "#FFC686", "Food");
-    pie_widget_add_slice_to_pie ( (PieWidget *) piMy , 15, "#36A282", "Phone");
-    pie_widget_add_slice_to_pie ( (PieWidget *) piMy ,  5, "#1010A0", "School stuff");
 
     // add ref to widget so it doesn't get destroyed on container_remove !
     g_object_ref ( pall_hdls->vbox_chart_page );
@@ -82,7 +122,7 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
   if ( pall_hdls->flg->dbg ) printf( "  Lv  %s pall_hdls =%p \n" , __FUNCTION__ , pall_hdls );
 
   return rc;
-} // create_pie_chart_page
+} // fixed
 
 int create_pie_chart_page_rtn( phdl_grp *all_hdls ) {
   int rc = 0;
@@ -93,9 +133,11 @@ int create_pie_chart_page_rtn( phdl_grp *all_hdls ) {
 
   if ( pall_hdls != NULL ) {
     printf( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_transact_page );
-  }
-  *all_hdls = pall_hdls;
 
-  if ( pall_hdls->flg->dbg ) printf( "  Lv %s  *all_hdls = %p pall_hdls =%p \n" , __FUNCTION__ , *all_hdls , pall_hdls );
+    *all_hdls = pall_hdls;
+
+    if ( pall_hdls->flg->dbg ) printf( "  Lv %s  *all_hdls = %p pall_hdls =%p \n" , __FUNCTION__ , *all_hdls , pall_hdls );
+  }
+
   return rc;
 }
