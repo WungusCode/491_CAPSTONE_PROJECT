@@ -209,7 +209,7 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
   this_entry.category  = category;
   this_entry.entry_ts  = get_unix_time_now();
   this_entry.amount    = amount;
-  this_entry.in_dB     = 1;
+  this_entry.in_dB     = 0;
 
   strcpy( this_entry.description , description_txt );
 
@@ -228,6 +228,7 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
 
   add_to_trans_list_treestore( all_hdls->t_lst );
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_record_btn );
+  gtk_widget_set_sensitive(all_hdls->vbx_hdls->tp_add_dB_btn, TRUE);
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_dB_btn );
 
   printf( "  << Lv   pall_hdls =%p \n" , all_hdls );
@@ -363,10 +364,14 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_box_pack_start (GTK_BOX (hbox2), button, FALSE, FALSE, 0);
 
     pall_hdls->vbx_hdls->tp_add_dB_btn = gtk_button_new_with_mnemonic ("SAVE to dB");
+    //button = gtk_button_new_with_mnemonic ("SAVE to dB");
     gtk_widget_set_sensitive( pall_hdls->vbx_hdls->tp_add_dB_btn , FALSE);     // grey it out
+    //gtk_widget_set_sensitive( button , FALSE);     // grey it out
 
     g_signal_connect ( pall_hdls->vbx_hdls->tp_add_dB_btn , "clicked", G_CALLBACK ( save_db_clicked ), (gpointer) pall_hdls  );
     gtk_box_pack_start (GTK_BOX (hbox2), pall_hdls->vbx_hdls->tp_add_dB_btn, FALSE, FALSE, 0);
+    //g_signal_connect ( button , "clicked", G_CALLBACK ( save_db_clicked ), (gpointer) pall_hdls  );
+    //gtk_box_pack_start (GTK_BOX (hbox2), button, FALSE, FALSE, 0);
 
     // add ref to widget so it doesn't get destroyed on container_remove !
     g_object_ref ( pall_hdls->vbox_transact_page );
