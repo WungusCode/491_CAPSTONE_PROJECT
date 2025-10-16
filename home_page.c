@@ -94,7 +94,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
         GtkWidget *image = gtk_image_new_from_file("./resources/libreoffice-chart.png");
         gtk_button_set_always_show_image(GTK_BUTTON(button), TRUE);
         gtk_button_set_image(GTK_BUTTON(button), image);
-        gtk_widget_set_size_request(button, 200, 200);
+        gtk_widget_set_size_request(button, 100, 100);
         pall_hdls->vbx_hdls->hp_chart_btn = button;
         g_object_set(button, "tooltip-text", "Click to display Pie Chart", NULL);
         g_signal_connect(button, "clicked", G_CALLBACK(chart_clicked), pall_hdls);
@@ -104,7 +104,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
         image = gtk_image_new_from_file("./resources/transaction_64x64.png");
         gtk_button_set_always_show_image(GTK_BUTTON(button), TRUE);
         gtk_button_set_image(GTK_BUTTON(button), image);
-        gtk_widget_set_size_request(button, 200, 200);
+        gtk_widget_set_size_request(button, 100, 100);
         pall_hdls->vbx_hdls->hp_plus_trans_btn = button;
         g_object_set(button, "tooltip-text", "Click to add or delete a transaction", NULL);
         g_signal_connect(button, "clicked", G_CALLBACK(transact_clicked), pall_hdls);
@@ -114,7 +114,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
         image = gtk_image_new_from_file("./resources/list_transactions_64x64.png");
         gtk_button_set_always_show_image(GTK_BUTTON(button), TRUE);
         gtk_button_set_image(GTK_BUTTON(button), image);
-        gtk_widget_set_size_request(button, 200, 200);
+        gtk_widget_set_size_request(button, 100, 100);
         pall_hdls->vbx_hdls->hp_list_trans_btn = button;
         g_object_set(button, "tooltip-text", "Click to show all transactions", NULL);
         g_signal_connect(button, "clicked", G_CALLBACK(list_transact_clicked), pall_hdls);
@@ -124,7 +124,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
         image = gtk_image_new_from_file("./resources/settings.png");
         gtk_button_set_always_show_image(GTK_BUTTON(button), TRUE);
         gtk_button_set_image(GTK_BUTTON(button), image);
-        gtk_widget_set_size_request(button, 200, 200);
+        gtk_widget_set_size_request(button, 100, 100);
         g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), NULL);
         g_object_set(button, "tooltip-text", "Click to change app settings", NULL);
         gtk_box_pack_start(GTK_BOX(row3), button, FALSE, FALSE, 0);
