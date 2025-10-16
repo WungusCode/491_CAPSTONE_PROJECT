@@ -16,7 +16,7 @@ gboolean do_test_sequence_4( gpointer data ) {
   // select 'Done' to go back to main screen
   g_print("    Injecting 'clicked' signal to ADD RECORD 'DONE' btn ( to go back to home page...) all_hdls=%p \n" , pall_hdls );
   printf( "   tp_cancel_btn=%p \n" , pall_hdls->vbx_hdls->tp_cancel_btn );
-  g_signal_emit_by_name( pall_hdls->vbx_hdls->tp_cancel_btn , "clicked", NULL);
+  g_signal_emit_by_name( pall_hdls->vbx_hdls->tp_cancel_btn , "clicked", NULL );
   printf( "   SENT sig to tp_cancel_btn=%p \n" , pall_hdls->vbx_hdls->tp_cancel_btn );
 
   g_timeout_add ( 2000, (GSourceFunc)end_test_sequence, NULL );
@@ -35,9 +35,9 @@ gboolean do_test_sequence_3( gpointer data ) {
   g_signal_emit_by_name( pall_hdls->vbx_hdls->cp_pie_done_btn, "clicked", NULL);
 
   g_print("    Injecting 'clicked' signal to ADD TRANSACTION ...\n");
-  g_signal_emit_by_name( pall_hdls->vbx_hdls->hp_plus_trans_btn , "clicked", NULL);
+  g_signal_emit_by_name( pall_hdls->vbx_hdls->hp_plus_trans_btn , "clicked", NULL );
 
-  g_timeout_add ( 2000, (GSourceFunc) do_test_sequence_4 , NULL );
+  g_timeout_add ( 2000, (GSourceFunc) do_test_sequence_4 , data );
 
   printf( "  << Lv %s , L%4d \n\n" , __func__, __LINE__ );
   return FALSE;

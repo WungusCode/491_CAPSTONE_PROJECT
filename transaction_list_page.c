@@ -318,7 +318,7 @@ static gboolean transact_list_row_visible (GtkTreeModel *model, GtkTreeIter *ite
   return rc;
 }  // transact_list_row_visible
 
-void create_and_fill_trans_list ( pokane_grp stk_lst ) {
+void create_and_fill_trans_list ( pokane_grp stk_lst , int dbg ) {
 
   GtkTreeIter    toplevel;
 #ifdef COPIED_FROM_HEADER_TODO_REMOVE
@@ -329,9 +329,8 @@ void create_and_fill_trans_list ( pokane_grp stk_lst ) {
 
   pokane_grp list = stk_lst;
 
-  //int dbg = get_debug();
-  int dbg = 1;
-//dbg=1;
+  dbg = 0;
+
   if ( dbg ) LOG_BLOCK_START ( ">> E  %s L%d \n" , __FUNCTION__ , __LINE__ );
 
   treestore = get_trans_list_treestore( );
@@ -359,7 +358,7 @@ void create_and_fill_trans_list ( pokane_grp stk_lst ) {
                       MODEL_SHARE_END_LIST);
 
     if ( dbg ) {
-      LOG_INDENTED ( "    Nr=%3d category=%d entry_ts=%8x date=%s amnt=%6.2f desc=%s in_dB=%d \n" , list->entry_nr, list->category, list->entry_ts
+      LOG_INDENTED ( "    Nr=%3d category=%d entry_ts=%8x date=%s amnt=%6.2f desc=%25s in_dB=%d \n" , list->entry_nr, list->category, list->entry_ts
                                                                                     , time_str , list->amount  , list->description, list->in_dB );
     }
     list = list->next;
@@ -697,7 +696,7 @@ transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg ) {
   }
 
   // model is actually GTK_TREE_MODEL(treestore)
-  create_and_fill_trans_list ( stk_lst );
+  create_and_fill_trans_list ( stk_lst , dbg );
 
   // store->t_act is the base model, order is :
   //  t_act
@@ -764,13 +763,13 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
    |     button                                |
    |-------------------------------------------|
 */
-		if ( pall_hdls->vbox_active != NULL ) {
+   if ( pall_hdls->vbox_active == NULL ) {
       // only attach, if no vbox active !
       gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_t_history_page );
     }
 
     frame = gtk_frame_new ("Trans List");
-    gtk_widget_set_size_request( frame, 400,300 );
+    gtk_widget_set_size_request( frame, WIN_W - 200, WIN_H - 40 );
     gtk_container_set_border_width (GTK_CONTAINER ( frame ), 1);
 
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_t_history_page ), frame);
@@ -779,7 +778,7 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
     gtk_container_add (GTK_CONTAINER (frame) , vbox);
 
     table = gtk_table_new( 20,1, FALSE /* TRUE */);        // 6x6 table to be put in frame
-    gtk_widget_set_size_request( table, 400,250 );
+    gtk_widget_set_size_request( table, WIN_W - 220 , WIN_H - 60 );
 
     gtk_box_pack_start (GTK_BOX ( vbox ), table, FALSE, FALSE, 0);
 

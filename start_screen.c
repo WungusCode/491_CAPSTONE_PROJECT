@@ -55,6 +55,8 @@ int create_start_screen ( phdl_grp pall_hdls ) {
     pall_hdls->vbox_start_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_start_page );
 
+    pall_hdls->vbox_active = pall_hdls->vbox_start_page;
+
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
     label = gtk_label_new (" START SCREEN ");
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
