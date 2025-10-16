@@ -46,6 +46,12 @@ static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
     create_setting_page();
 }
 
+GtkWidget* center_in_page(GtkWidget *child) {
+    GtkWidget *alignment = gtk_alignment_new(0.5, 0.5, 0, 0);
+    gtk_container_add(GTK_CONTAINER(alignment), child);
+    return alignment;
+}
+
 int create_home_screen ( phdl_grp pall_hdls ) {
  if (!pall_hdls) return -1;
 
