@@ -100,4 +100,6 @@ typedef struct _hdl_grp {
 
 } hdl_grp, *phdl_grp;
 
+GtkWidget* center_in_page(GtkWidget *child);
+
 #endif
