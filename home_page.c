@@ -2,6 +2,7 @@
 #include<gtk/gtk.h>
 
 #include "base_defs.h"
+#include "indent_print.h"
 
 #include "transact_page.h"
 #include "pie_page.h"
@@ -143,13 +144,13 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
   if ( pall_hdls != NULL ) {
     if ( pall_hdls->flg->dbg ) {
-      printf( "  >> E %s \n" , __FUNCTION__ );
-      printf( "    flgs->dbg = %d \n" , pall_hdls->flg->dbg );
-      printf( "    parentWin = %p \n" , pall_hdls->parentWin );
+      LOG_BLOCK_START ( "  >> E %s \n" , __FUNCTION__ );
+      LOG_INDENTED ( "    flgs->dbg = %d \n" , pall_hdls->flg->dbg );
+      LOG_INDENTED ( "    parentWin = %p \n" , pall_hdls->parentWin );
     }
   }
   else {
-     printf( "  >> E %s  , all_hdls = NULL !!! \n" , __FUNCTION__ );
+     LOG_BLOCK_START ( "  >> E %s  , all_hdls = NULL !!! \n" , __FUNCTION__ );
   }
 
   if ( pall_hdls->vbox_home_page == NULL ) {
@@ -238,6 +239,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox3 );
 
+    if ( pall_hdls->vbox_active == NULL ) gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
   }  // if !all_hdls->vbox_home_page
   else {
     gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
@@ -247,7 +249,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
   gtk_widget_show_all ( pall_hdls->vbox_home_page );
 
   if ( pall_hdls->flg->dbg ) {
-    printf( "  << Lv %s \n" , __FUNCTION__ );
+    LOG_BLOCK_END ( "  << Lv %s \n" , __FUNCTION__ );
   }
 
   return rc;

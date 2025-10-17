@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "base_defs.h"
+#include "indent_print.h"
 
 #include "link_list.h"
 #include "my_time.h"
@@ -308,16 +309,16 @@ static gboolean transact_list_row_visible (GtkTreeModel *model, GtkTreeIter *ite
   int rc  = 1;
   int dbg = 1 /* get_debug() */;
 
-  if ( dbg && ( row_visible_warn < 2 ) ) g_print( "    >> E %s L%d iter=%p store->articles (treestore) =%p \n" , __FUNCTION__ , __LINE__ , iter , store->t_act);
+  if ( dbg && ( row_visible_warn < 2 ) ) LOG_BLOCK_START( "    >> E %s L%d iter=%p store->articles (treestore) =%p \n" , __FUNCTION__ , __LINE__ , iter , store->t_act);
 
-  if ( row_visible_warn < 2 ) printf( "        %s - code needs implementing ! , L%4d \n" , __FUNCTION__ , __LINE__ );
+  if ( row_visible_warn < 2 ) LOG_INDENTED ( "        %s - code needs implementing ! , L%4d \n" , __FUNCTION__ , __LINE__ );
   row_visible_warn++;
 
-  if ( dbg && ( row_visible_warn < 2 ) ) g_print( "    << Lv %s L%d \n" , __func__ , __LINE__ );
+  if ( dbg && ( row_visible_warn < 2 ) ) LOG_BLOCK_END ( "    << Lv %s L%d \n" , __func__ , __LINE__ );
   return rc;
 }  // transact_list_row_visible
 
-void create_and_fill_trans_list ( pokane_grp stk_lst ) {
+void create_and_fill_trans_list ( pokane_grp stk_lst , int dbg ) {
 
   GtkTreeIter    toplevel;
 #ifdef COPIED_FROM_HEADER_TODO_REMOVE
@@ -328,21 +329,13 @@ void create_and_fill_trans_list ( pokane_grp stk_lst ) {
 
   pokane_grp list = stk_lst;
 
-  //int dbg = get_debug();
-  int dbg = 1;
-//dbg=1;
-  if ( dbg ) printf( "    >> E  %s L%d \n" , __FUNCTION__ , __LINE__ );
+  dbg = 0;
+
+  if ( dbg ) LOG_BLOCK_START ( ">> E  %s L%d \n" , __FUNCTION__ , __LINE__ );
 
   treestore = get_trans_list_treestore( );
 
-  if ( dbg) {
-    if (  list != NULL ) {
-      printf( "        In %s lnk lst entry_nr=%d amount=%f descrip=%s \n" , __FUNCTION__ , list->entry_nr, list->amount, list->description );
-    }
-    else {
-      printf("    stk_lst = %p \n", stk_lst);
-    }
-  }
+  if ( dbg ) LOG_INDENTED ( "  In %s lnk lst entry_nr=%d amount=%f descrip=%s \n" , __FUNCTION__ , list->entry_nr, list->amount, list->description );
 
   if ( dbg ) {
     linked_list_print_okane_grp ( stk_lst );
@@ -365,7 +358,7 @@ void create_and_fill_trans_list ( pokane_grp stk_lst ) {
                       MODEL_SHARE_END_LIST);
 
     if ( dbg ) {
-      printf( "    Nr=%3d category=%d entry_ts=%8x date=%s amnt=%6.2f desc=%s in_dB=%d \n" , list->entry_nr, list->category, list->entry_ts
+      LOG_INDENTED ( "    Nr=%3d category=%d entry_ts=%8x date=%s amnt=%6.2f desc=%25s in_dB=%d \n" , list->entry_nr, list->category, list->entry_ts
                                                                                     , time_str , list->amount  , list->description, list->in_dB );
     }
     list = list->next;
@@ -375,7 +368,7 @@ void create_and_fill_trans_list ( pokane_grp stk_lst ) {
 
   }  // while list != NULL
 
-  if ( dbg ) printf( "    << Lv %s L%d \n" , __FUNCTION__ , __LINE__ );
+  if ( dbg ) LOG_BLOCK_END ( "    << Lv %s L%d \n" , __FUNCTION__ , __LINE__ );
 
   return;
 } // create_and_fill_trans_list
@@ -461,7 +454,7 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
 #endif
   view = get_trans_list_treeview( );
 
-  if ( dbg ) printf( "  >> E %s L%d \n" , __FUNCTION__ , __LINE__ );
+  if ( dbg ) LOG_BLOCK_START ( "  >> E %s L%d \n" , __FUNCTION__ , __LINE__ );
 
   g_object_unref ( store->sorted ); /* destroy model automatically with view */
 
@@ -662,7 +655,9 @@ static GtkWidget * create_trans_listview ( transact_lst_store *store , int dbg )
   user_dat = MODEL_IS_IN_DB;
   gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list,  (void *)(intptr_t)user_dat , NULL /* GtkDestroyNotify destroy */ );
 
-  return view;
+  if ( dbg ) LOG_BLOCK_END ( "  << Lv %s L%d  \n" , __FUNCTION__ , __LINE__ );
+
+	return view;
 } // create_trans_listview
 
 transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg ) {
@@ -670,7 +665,7 @@ transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg ) {
   transact_lst_store *store = NULL;
   GtkWidget        *view;
 
-  if ( dbg ) g_print( "  >> E %s L%d  \n" , __FUNCTION__ , __LINE__ );
+  if ( dbg ) LOG_BLOCK_START ( "  >> E %s L%d  \n" , __FUNCTION__ , __LINE__ );
 
   store = g_new0 ( transact_lst_store, 1);
   store->max_xx = MAX_PRICE_START;
@@ -685,14 +680,14 @@ transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg ) {
        G_TYPE_INT         // IS_IN_DB
   );
 
-  if ( dbg ) g_print( "  NR_COLS=%d done gtk_tree_store_new \n" , MODEL_SHARE_NUM_COLS );
+  if ( dbg ) LOG_INDENTED ( "  NR_COLS=%d done gtk_tree_store_new \n" , MODEL_SHARE_NUM_COLS );
 
   set_trans_list_store( store );
 
-  g_print( "  NR_COLS=%d done gtk_tree_store_new \n" , MODEL_SHARE_NUM_COLS );
+  LOG_INDENTED ( "  NR_COLS=%d done gtk_tree_store_new \n" , MODEL_SHARE_NUM_COLS );
 
   if (  store->t_act == NULL ) {
-    g_print( "  NR_COLS=%d stg wrong with treestore \n" , MODEL_SHARE_NUM_COLS );
+    LOG_INDENTED ( "  NR_COLS=%d stg wrong with treestore \n" , MODEL_SHARE_NUM_COLS );
     getchar();
   }
   set_trans_list_treestore( store->t_act );
@@ -701,7 +696,7 @@ transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg ) {
   }
 
   // model is actually GTK_TREE_MODEL(treestore)
-  create_and_fill_trans_list ( stk_lst );
+  create_and_fill_trans_list ( stk_lst , dbg );
 
   // store->t_act is the base model, order is :
   //  t_act
@@ -719,7 +714,7 @@ transact_lst_store * create_trans_list_store ( pokane_grp stk_lst , int dbg ) {
 
   set_trans_list_treeview( view );
 
-  if ( dbg ) g_print( "  << Lv %s L%d  \n" , __FUNCTION__ , __LINE__ );
+  if ( dbg ) LOG_BLOCK_END ( "  << Lv %s L%d  \n" , __FUNCTION__ , __LINE__ );
 
   return store;
 } // create_trans_list_store
@@ -730,14 +725,14 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
 
   if ( pall_hdls != NULL ) {
     if ( pall_hdls->flg->dbg ) {
-      printf( "  >> E %s \n" , __FUNCTION__ );
-      printf( "    flgs->dbg     = %d \n" , pall_hdls->flg->dbg );
-      printf( "    parentWin     = %p \n" , pall_hdls->parentWin );
-      printf( "    vbox_transact = %p \n" , pall_hdls->vbox_t_history_page );
+      LOG_BLOCK_START ( "  >> E %s \n" , __FUNCTION__ );
+      LOG_INDENTED ( "    flgs->dbg     = %d \n" , pall_hdls->flg->dbg );
+      LOG_INDENTED ( "    parentWin     = %p \n" , pall_hdls->parentWin );
+      LOG_INDENTED ( "    vbox_transact = %p \n" , pall_hdls->vbox_t_history_page );
     }
   }
   else {
-      printf( "  >> E %s pall_hdls = NULL  \n" , __FUNCTION__ );
+      LOG_BLOCK_START ( "  >> E %s pall_hdls = NULL  \n" , __FUNCTION__ );
   }
 
   if ( pall_hdls->vbox_t_history_page == NULL ) {
@@ -753,7 +748,7 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
     pokane_grp    one_tkr_lst = head;  // this correct ??
 
     pall_hdls->vbox_t_history_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    printf( "    vbox_t_history_page = %p   , %s L%4d \n" , pall_hdls->vbox_t_history_page , __FILE__ , __LINE__ );
+    LOG_INDENTED ( "    vbox_t_history_page = %p   , %s L%4d \n" , pall_hdls->vbox_t_history_page , __FILE__ , __LINE__ );
 
 /* LAYOUT
    |-------------------------------------------|
@@ -768,13 +763,13 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
    |     button                                |
    |-------------------------------------------|
 */
-		if ( pall_hdls->vbox_active != NULL ) {
+   if ( pall_hdls->vbox_active == NULL ) {
       // only attach, if no vbox active !
       gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_t_history_page );
     }
 
     frame = gtk_frame_new ("Trans List");
-    gtk_widget_set_size_request( frame, 400,300 );
+    gtk_widget_set_size_request( frame, WIN_W - 200, WIN_H - 40 );
     gtk_container_set_border_width (GTK_CONTAINER ( frame ), 1);
 
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_t_history_page ), frame);
@@ -783,7 +778,7 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
     gtk_container_add (GTK_CONTAINER (frame) , vbox);
 
     table = gtk_table_new( 20,1, FALSE /* TRUE */);        // 6x6 table to be put in frame
-    gtk_widget_set_size_request( table, 400,250 );
+    gtk_widget_set_size_request( table, WIN_W - 220 , WIN_H - 60 );
 
     gtk_box_pack_start (GTK_BOX ( vbox ), table, FALSE, FALSE, 0);
 
@@ -816,7 +811,7 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
   gtk_widget_show_all ( pall_hdls->vbox_t_history_page );
 
   if ( pall_hdls->flg->dbg ) {
-    printf( "  << Lv %s \n" , __FUNCTION__ );
+    LOG_BLOCK_END ( "  << Lv %s \n" , __FUNCTION__ );
   }
   return rc;
 } // create_transaction_history_page
@@ -825,15 +820,15 @@ int create_transaction_history_page_rtn( phdl_grp *all_hdls ) {
   int rc = 0;
   phdl_grp pall_hdls = *all_hdls;
 
-  printf( "  >> E  %s  *all_hdls = %p pall_hdls =%p \n" , __FUNCTION__ , *all_hdls , pall_hdls );
+  LOG_BLOCK_START ( "  >> E  %s  *all_hdls = %p pall_hdls =%p \n" , __FUNCTION__ , *all_hdls , pall_hdls );
   rc = create_transaction_history_page( pall_hdls );
 
   if ( pall_hdls != NULL ) {
-    printf( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_t_history_page );
+    LOG_INDENTED ( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_t_history_page );
   }
   *all_hdls = pall_hdls;
 
-  printf( "  << Lv %s  *all_hdls = %p pall_hdls =%p \n" , __FUNCTION__ , *all_hdls , pall_hdls );
+  LOG_BLOCK_END ( "  << Lv %s  *all_hdls = %p pall_hdls =%p \n" , __FUNCTION__ , *all_hdls , pall_hdls );
   return rc;
 }  // create_transaction_history_page_rtn
 
