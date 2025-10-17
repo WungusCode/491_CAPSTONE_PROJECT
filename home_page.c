@@ -7,8 +7,9 @@
 #include "pie_page.h"
 
 #include "transaction_list_page.h"
-
+#include "home_page.h"
 #include "setting_page.h"
+#include "start_screen.h"
 
 static void hide_home_page( phdl_grp all_hdls ) {
   gtk_widget_hide( all_hdls->vbox_home_page );
@@ -52,6 +53,13 @@ GtkWidget* center_in_page(GtkWidget *child) {
     return alignment;
 }
 
+ static void on_LogOut_clicked(GtkButton *button, gpointer user_data) {
+    phdl_grp all_hdls = (phdl_grp)user_data;
+    g_print("[Settings] Log Out clicked\n");
+    hide_home_page( all_hdls );
+    create_start_screen( all_hdls );
+ }
+
 int create_home_screen ( phdl_grp pall_hdls ) {
  if (!pall_hdls) return -1;
 
@@ -70,6 +78,12 @@ int create_home_screen ( phdl_grp pall_hdls ) {
         gtk_widget_set_valign(button, GTK_ALIGN_CENTER);
         gtk_box_pack_start(GTK_BOX(row2), button, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(content), row2, FALSE, FALSE, 0);
+
+        // Log out button
+        GtkWidget *btn_logout = gtk_button_new_with_label("Sign out");
+        gtk_widget_set_valign(btn_logout, GTK_ALIGN_CENTER);
+        g_signal_connect(btn_logout, "clicked", G_CALLBACK(on_LogOut_clicked), pall_hdls);
+        gtk_box_pack_start(GTK_BOX(row2), btn_logout, FALSE, FALSE, 0);
 
         GtkWidget *row3 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
 
