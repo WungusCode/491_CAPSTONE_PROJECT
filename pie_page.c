@@ -38,7 +38,7 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
       const char *color;
       int amount;
     } CategorySpending;
-//issues with being able to print the title right about herem and other things
+//issues with being able to print the title right about here and other things
     CategorySpending categories[] = {
       {"Rent", "#F44336", 40},
       {"Food", "#2196F3", 25},
@@ -83,7 +83,7 @@ int create_pie_chart_page( phdl_grp pall_hdls ) {
     gtk_widget_set_margin_bottom(subtitle_lbl, 12);
     gtk_box_pack_start(GTK_BOX(pall_hdls->vbox_chart_page), subtitle_lbl, FALSE, FALSE, 0);
 
-    // Add grid with category names and amounts
+    // Added category names and
     GtkWidget *grid = gtk_grid_new();
     gtk_grid_set_row_spacing(GTK_GRID(grid), 4);
     gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
