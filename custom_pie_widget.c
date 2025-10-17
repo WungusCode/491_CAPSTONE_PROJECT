@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include <indent_print.h>
+
 // ADDED
 int dbg = 0;
 
@@ -429,12 +431,12 @@ gboolean pie_widget_set_text (PieWidget *graph, GLGElementID element, const gcha
   gboolean   rc = TRUE;
 
   g_debug ("    ===> pie_widget_set_text(entered)");
-  printf( " >> E %s \n" , __FUNCTION__ );
+  LOG_BLOCK_START ( " >> E %s \n" , __FUNCTION__ );
 
   if ( PIE_IS_WIDGET ( graph ) ) {
-    printf( "     passed in widget %p IS GAUGE !\n" , graph );
+    LOG_INDENTED ( "     passed in widget %p IS PIE !\n" , graph );
   }
-  else  printf( "     passed in widget %p IS NOT GAUGE !\n", graph );
+  else  LOG_INDENTED ( "     passed in widget %p IS NOT PIE !\n", graph );
 
   g_return_val_if_fail ( PIE_IS_WIDGET ( graph ), FALSE);
   g_return_val_if_fail (pch_text != NULL, FALSE);
@@ -442,8 +444,6 @@ gboolean pie_widget_set_text (PieWidget *graph, GLGElementID element, const gcha
   priv = graph->priv;
 
   pch = g_strdup (pch_text);
-
-  printf( " pch = %s !\n" , pch );
 
   switch ( element ) {
    case GLG_TITLE_T :
@@ -460,7 +460,7 @@ gboolean pie_widget_set_text (PieWidget *graph, GLGElementID element, const gcha
 	} // switch element
 
   //g_debug ("    ===> pie_widget_set_text(exited)");
-  printf( " << Lv  %s  , rc = %d\n" , __FUNCTION__ , rc );
+  LOG_BLOCK_END ( " << Lv  %s  , rc = %d\n" , __FUNCTION__ , rc );
   return rc;
 }
 

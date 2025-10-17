@@ -2,6 +2,8 @@
 #include <gtk/gtk.h>
 
 #include "base_defs.h"
+#include "indent_print.h"
+
 #include "start_screen.h"
 #include "login_screen.h"
 #include "home_page.h"
@@ -29,9 +31,9 @@ static void goto_create ( GtkButton *button , gpointer data ) {
 static void l_goto_home( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
   hide_login_screen( all_hdls );
-  printf( "   CALL create_home_screen !\n" );
+  LOG_BLOCK_START ( "   CALL create_home_screen !\n" );
   create_home_screen ( all_hdls );
-  printf( "   rtn create_home_screen !\n" );
+  LOG_BLOCK_END ( "   rtn create_home_screen !\n" );
 }
 
 #if 0
@@ -54,8 +56,8 @@ int create_login_screen ( phdl_grp pall_hdls ) {
   }
 
   if ( two_dbg ) {
-    printf( "  >> E %s \n" , __FUNCTION__ );
-    printf( "    parentWin = %p \n" , pall_hdls->parentWin );
+    LOG_BLOCK_START ( "  >> E %s \n" , __func__ );
+    LOG_INDENTED ( "    parentWin = %p \n" , pall_hdls->parentWin );
   }
 
   if ( pall_hdls->vbox_login_page == NULL ) {
@@ -116,7 +118,11 @@ int create_login_screen ( phdl_grp pall_hdls ) {
   }
 
   gtk_widget_show_all ( pall_hdls->vbox_login_page );
-  return 0;
+
+	if ( two_dbg ) {
+    LOG_BLOCK_END ( "  Lv  %s \n" , __func__ );
+  }
+	return 0;
 }
 
 int create_login_screen_rtn( phdl_grp *all_hdls ) {
