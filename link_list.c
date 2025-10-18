@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "indent_print.h"
+
 #include "link_list.h"
 
-int ll_dbg         = 1;
+int ll_dbg         = 0;
 
 #if 0
 int g_dbg_all_hdls = 1;
@@ -82,15 +84,15 @@ pokane_grp linked_list_empty_okane_grp( pokane_grp head) {
 void linked_list_print_okane_grp( pokane_grp head) {
   pokane_grp tmp = head;
 
-  if ( ll_dbg ) printf( "  >> E %s \n" , __FUNCTION__ );
+  if ( ll_dbg ) LOG_BLOCK_START ( "  >> E %s \n" , __FUNCTION__ );
 
-  printf("    printing list...\n");
-  printf("      entry_ts \t   entry_nr is_inc \tamount  \tdescription         \t in_dB \n");
+  LOG_INDENTED ("    printing list...\n");
+  LOG_INDENTED ("      entry_ts \t   entry_nr is_inc \tamount  \tdescription         \t in_dB \n");
   while (tmp != NULL) {
-    printf("      %u\t    %d \t%d \t%7.2f   \t%-20s \t %d \n", tmp->entry_ts, tmp->entry_nr, tmp->category, tmp->amount, tmp->description , tmp->in_dB );
+    LOG_INDENTED("      %u\t    %d \t%d \t%7.2f   \t%-20s \t %d \n", tmp->entry_ts, tmp->entry_nr, tmp->category, tmp->amount, tmp->description , tmp->in_dB );
     tmp = tmp->next;
   }
 
-  if ( ll_dbg ) printf( "  Lv %s \n" , __FUNCTION__ );
+  if ( ll_dbg ) LOG_BLOCK_END ( "  << Lv %s \n" , __FUNCTION__ );
 }
 

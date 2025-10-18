@@ -8,7 +8,7 @@
 
 #include "data_types.h"
 
-#define WIN_W 720
+#define WIN_W 770
 #define WIN_H 480
 
 #define DB_DESCRIP_LEN 255
@@ -27,7 +27,7 @@
 #define COLOR_WHITE  "\033[0;37m"
 #define COLOR_RESET  "\033[0m"
 
-typedef enum { NO_SELECTION_ID=0 , INCOME_ID, HOUSING_ID, FOOD_ID, TRANSPORT_ID, ENTERTAIN_ID, HEALTH_ID, WORK_ID, OTHER_ID , MAX_ID=-1 } CATOG_ID;
+typedef enum { NO_SELECTION_ID=0 , INCOME_ID, HOUSING_ID, UTIL_ID ,FOOD_ID, TRANSPORT_ID, ENTERTAIN_ID, HEALTH_ID, WORK_ID, OTHER_ID , MAX_ID=-1 } CATOG_ID;
 
 typedef struct _okane_grp {
   struct _okane_grp  *next;                         // next entry in single linked list
@@ -48,18 +48,29 @@ typedef struct _uiHdl {
 
   GtkWidget *hp_list_trans_btn;
 
+  GtkWidget    *hp_treeView;
+  GtkTreeStore *hp_treeStore;    // void so can pass without headers
+  void         *hp_t_lst_store;  // void so can pass without headers, is transact_lst_store defined in transaction_list_view.h
+
   // transaction_page widgets
   GtkWidget *tp_w_is_income;
   GtkWidget *tp_w_amount;
   GtkWidget *tp_w_description;
   GtkWidget *tp_w_category;
   GtkWidget *tp_cancel_btn;       // cancel or go back button
+  GtkWidget *tp_add_record_btn;   // Add record to list
+  GtkWidget *tp_add_dB_btn;       // save to dB button
 
   // transaction list page widgets
   // GtkWidget *thp_xx;
-  GtkWidget *tlp_list_trans_done_btn;
+  GtkWidget    *tlp_list_trans_done_btn;
+
+  GtkWidget    *tlp_treeView;
+  GtkTreeStore *tlp_treeStore;    // void so can pass without headers
+  void         *tlp_t_lst_store;  // void so can pass without headers, is transact_lst_store defined in transaction_list_view.h
 
   // chart_page widgets
+  GtkWidget *cp_myPie;
   GtkWidget *cp_pie_done_btn;
 
   // start screen_page widgets

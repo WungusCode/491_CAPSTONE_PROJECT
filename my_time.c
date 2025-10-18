@@ -11,6 +11,20 @@ void print_tm_struct ( struct tm *now ) {
   printf( "  yr=%d mon=%d day=%d hr=%d min=%d sec=%d \n" , now->tm_year, now->tm_mon, now->tm_mday, now->tm_hour , now->tm_min , now->tm_sec );
 }
 
+int get_month_now( void ) {
+
+  int rc,dbg=0;
+  time_t tim=time(NULL);
+  struct tm *now=localtime(&tim);
+
+  dbg |= g_t_dbg;
+
+  rc = now->tm_mon;
+  rc++;
+  if ( dbg ) printf( "  Mth now = %d \n" , rc );
+  return rc;
+}
+
 uint32_t get_month_start_ts( void ) {
 
   int dbg =0;
@@ -41,6 +55,33 @@ uint32_t get_month_start_ts( void ) {
   return mth_start ;
 }
 
+uint32_t get_month_end_ts( void ) {
+
+  int dbg=0;
+  time_t mth_end;
+
+  time_t tim=time(NULL);
+  struct tm *now=localtime(&tim);
+
+  dbg |= g_t_dbg;
+  // set to beginning of next month
+  now->tm_mday = 1;
+  now->tm_sec  = 0;
+  now->tm_min  = 0;
+  now->tm_hour = 0;
+  now->tm_mon  += 1;
+
+  mth_end = (time_t)mktime( now );
+  if ( mth_end == -1 ) printf( "  Failed to obtain start of month timestamp ! \n" );
+
+  if ( dbg ) {
+    printf( "      Mth End " );
+    print_tm_struct ( now );
+  }
+
+  return mth_end ;
+}
+
 uint32_t get_unix_time_now( void ) {
 
   struct timeval tv;
@@ -48,6 +89,82 @@ uint32_t get_unix_time_now( void ) {
   // printf("  Seconds since Jan. 1, 1970: %ld\n", tv.tv_sec);
 
   return tv.tv_sec;
+}
+
+uint32_t get_n_month_start_ts( int Mth ) {
+
+  int dbg=0;
+  time_t mth_start;
+
+  time_t tim=time(NULL);
+//  struct tm *now=localtime(&tim);
+  struct tm *now=gmtime(&tim);
+
+  dbg |= g_t_dbg;
+
+  Mth -= 1;
+
+  if ( dbg ) print_tm_struct ( now );
+
+  // set to beginning of next month
+  now->tm_mday =  1;
+  now->tm_sec  =  1;
+  now->tm_min  = 20;
+  now->tm_hour =  0;
+  if ( Mth >= 0 )  now->tm_mon  = Mth;
+
+  if ( dbg ) printf( "  file=%s L%d Mth = %d now->tm_mon  = %d \n" , __FILE__ , __LINE__ , Mth , now->tm_mon );
+
+  //mth_start = (time_t)timegm( now );
+#ifdef _WIN32
+    mth_start = (time_t)_mkgmtime(now);
+#else
+    mth_start = (time_t)timegm(now);
+#endif
+
+  if ( mth_start == -1 ) printf( "  Failed to obtain start of month timestamp ! \n" );
+
+  if ( dbg ) {
+    printf( "      Mth Start " );
+    print_tm_struct ( now );
+  }
+
+  return mth_start ;
+}
+
+uint32_t get_n_month_end_ts( int Mth ) {
+
+  int dbg=0;
+  time_t mth_end;
+
+  time_t tim=time(NULL);
+//  struct tm *now=localtime(&tim);
+  struct tm *now=gmtime(&tim);
+
+  dbg |= g_t_dbg;
+
+  if ( dbg ) print_tm_struct ( now );
+
+  // set to beginning of next month
+  now->tm_mday = 1;
+  now->tm_sec  = 0;
+  now->tm_min  = 0;
+  now->tm_hour = 0;
+  if ( Mth >= 0 )  now->tm_mon  = Mth;
+  else now->tm_mon  += 1;
+
+  if ( dbg ) printf( "  file=%s L%d Mth = %d now->tm_mon  = %d \n" , __FILE__ , __LINE__ , Mth , now->tm_mon );
+
+  mth_end = (time_t)mktime( now );
+  if ( mth_end == -1 ) printf( "  Failed to obtain start of month timestamp ! \n" );
+  mth_end -= 60;
+
+  if ( dbg ) {
+    printf( "      Mth End " );
+    print_tm_struct ( now );
+  }
+
+  return mth_end ;
 }
 
 void convert_to_date_string( float unix_ts , char *str ) {

@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
+
 #include "setting_page.h"
+#include "home_page.h"
+#include "start_screen.h"
 #include "base_defs.h"
 
 // --- Callbacks ---
@@ -49,12 +52,6 @@ static void on_reportProblem_clicked(GtkButton *btn, gpointer user_data) {
     gtk_dialog_run(GTK_DIALOG(report_dialog));
     gtk_widget_destroy(report_dialog);
 }
- // used for the log out buttion 
-
- static void on_LogOut_clicked(GtkButton *button, gpointer user_data) {
-    g_print("[Settings] Log Out clicked\n");
-    // Placeholder for actual log out functionality
- }
 
 // --- Public API ---
 
@@ -142,11 +139,6 @@ GtkWidget* create_setting_page(void) {
     GtkWidget *btn_report = gtk_button_new_with_label("Report a problem with the web application");
     g_signal_connect(btn_report, "clicked", G_CALLBACK(on_reportProblem_clicked), window);
     gtk_box_pack_start(GTK_BOX(vbox), btn_report, FALSE, FALSE, 0);
-
-    // Log out button
-    GtkWidget *btn_logout = gtk_button_new_with_label("Sign out of your account");
-    g_signal_connect(btn_logout, "clicked", G_CALLBACK(on_LogOut_clicked), NULL);
-    gtk_box_pack_start(GTK_BOX(vbox), btn_logout, FALSE, FALSE, 0);
 
     // Close button at bottom
     GtkWidget *btn_close = gtk_button_new_with_label("Close");
