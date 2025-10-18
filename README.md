@@ -20,12 +20,6 @@ Users can log their income and expenses, view totals, and see spending insights 
 Make sure you have this installed on your system:
 ** sudo apt install libgtk-3-dev libsqlite3-dev build-essential **
 
-Build and Run
-** make clean && make **
-** ./sekai **
-
-
-
-
-setting pages is going to have 
-email file in the blank 
+### Build and Run
+**make clean && make -B**
+**./sekai**
