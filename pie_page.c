@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <glib/gi18n.h>
 #include<gtk/gtk.h>
+#include <math.h>
 
 #include "base_defs.h"
 #include "indent_print.h"
@@ -18,6 +19,72 @@ static void cancel_clicked ( GtkButton *button,  gpointer   user_data) {
   // Go back to home page screen
   gtk_container_add ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_home_page );
   gtk_widget_show_all ( all_hdls->parentWin );
+}
+
+static GtkWidget* build_percent_list_widget(int inc_pct,
+                                            int rent_pct,
+                                            int food_pct,
+                                            int tpt_pct,
+                                            int ent_pct,
+                                            int oth_pct)
+{
+    GtkWidget *outer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+    gtk_widget_set_halign(outer, GTK_ALIGN_CENTER);  // center the whole block
+
+    // Title
+    GtkWidget *title = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(title), "<b>Amount per Category Spent</b>");
+    gtk_widget_set_halign(title, GTK_ALIGN_CENTER);
+    gtk_box_pack_start(GTK_BOX(outer), title, FALSE, FALSE, 0);
+
+    // 2-column grid
+    GtkWidget *grid = gtk_grid_new();
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 6);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 24);
+    gtk_widget_set_halign(grid, GTK_ALIGN_CENTER);
+    gtk_box_pack_start(GTK_BOX(outer), grid, FALSE, FALSE, 0);
+
+    struct Row { const char *name; int pct; } rows[] = {
+        {"Income",        inc_pct},
+        {"Rent",          rent_pct},
+        {"Food",          food_pct},
+        {"Transport",     tpt_pct},
+        {"Entertainment", ent_pct},
+        {"Others",        oth_pct},
+    };
+
+    for (int r = 0; r < (int)(sizeof(rows)/sizeof(rows[0])); ++r) {
+        GtkWidget *ln = gtk_label_new(rows[r].name);
+        gtk_widget_set_halign(ln, GTK_ALIGN_START);
+        GtkWidget *lp = gtk_label_new(NULL);
+        char buf[16]; g_snprintf(buf, sizeof(buf), "%d%%", rows[r].pct);
+        gtk_label_set_text(GTK_LABEL(lp), buf);
+        gtk_widget_set_halign(lp, GTK_ALIGN_END);
+        gtk_grid_attach(GTK_GRID(grid), ln, 0, r, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), lp, 1, r, 1, 1);
+    }
+
+    gtk_widget_set_name(outer, "pct_list_block");
+    return outer;
+}
+
+static void add_or_replace_percent_list(GtkWidget *vbox, GtkWidget *list_block)
+{
+    // Remove any previous list
+    GList *children = gtk_container_get_children(GTK_CONTAINER(vbox));
+    for (GList *l = children; l != NULL; l = l->next) {
+        GtkWidget *w = GTK_WIDGET(l->data);
+        const char *nm = gtk_widget_get_name(w);
+        if (nm && g_strcmp0(nm, "pct_list_block") == 0) {
+            gtk_container_remove(GTK_CONTAINER(vbox), w);
+            break;
+        }
+    }
+    g_list_free(children);
+
+    // Insert before the bottom pack_end() hbox (Done button). Since that hbox
+    // was packed with pack_end, a pack_start here will place the list above it.
+    gtk_box_pack_start(GTK_BOX(vbox), list_block, FALSE, FALSE, 0);
 }
 
 int calc_stats( phdl_grp pall_hdls ) {
@@ -157,6 +224,33 @@ int calc_stats( phdl_grp pall_hdls ) {
       if ( wrk_per > 0.025 )     pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , wrk_per, "#A010A0", "Work");
 
       pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , otr_per, "#303090", "Other");
+      /* ---------- Percentage list (reads the same percents) ---------- */
+      int inc_pct = (int)lroundf(inc_per * 100.0f);
+      int hou_pct = (int)lroundf(hou_per * 100.0f);
+      int foo_pct = (int)lroundf(foo_per * 100.0f);
+      int tpr_pct = (int)lroundf(tpr_per * 100.0f);
+      int ent_pct = (int)lroundf(ent_per * 100.0f);
+      int oth_pct = (int)lroundf(otr_per * 100.0f);
+
+      /* If a category didn’t make it into the pie (≤ threshold), show 0% in the list */
+      if (hou_per <= 0.0f) hou_pct = 0;
+      if (foo_per <= 0.0f) foo_pct = 0;
+      if (tpr_per <= 0.0f) tpr_pct = 0;
+      if (ent_per <= 0.0f) ent_pct = 0;
+      if (otr_per <= 0.0f) oth_pct = 0;
+      if (inc_per <= 0.0f) inc_pct = 0;   // include Income, zero if unused
+
+      GtkWidget *list_block = build_percent_list_widget(
+          inc_pct,        // Income
+          hou_pct,        // Rent (Housing)
+          foo_pct,        // Food
+          tpr_pct,        // Transport
+          ent_pct,        // Entertainment
+          oth_pct         // Others
+      );
+
+      add_or_replace_percent_list(pall_hdls->vbox_chart_page, list_block);
+
 #endif
     }  // t_lst != NULL
   }
