@@ -3,6 +3,7 @@
 
 #include "base_defs.h"
 #include "data_types.h"
+#include "indent_print.h"
 #include "link_list.h"
 
 #include "params.h"
@@ -13,7 +14,6 @@
 
 #include "home_page.h"
 #include "transact_page.h"
-#include "setting_page.h"
 #include "custom_pie_widget.h"
 #include "pie_page.h"
 
@@ -22,6 +22,8 @@
 #include "transaction_list_page.h"
 
 #include "auto_test.h"
+
+int current_indent = 0;
 
 static app_flags flgs;
 
@@ -49,18 +51,15 @@ int main(int argc, char* argv[]) {
 
     // code
     pall_hdls->vbox_active         = NULL;
-    pall_hdls->vbox_start_page     = NULL;
-    pall_hdls->vbox_create_page    = NULL;
-    pall_hdls->vbox_login_page     = NULL;
     pall_hdls->vbox_home_page      = NULL;
     pall_hdls->vbox_transact_page  = NULL;
     pall_hdls->vbox_chart_page     = NULL;
     pall_hdls->vbox_t_history_page = NULL;
 
     pall_hdls->vbx_hdls = malloc ( sizeof ( uiHdl ) );
-    printf( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls );  // RM
+    LOG_BLOCK_START( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls );
     memset( pall_hdls->vbx_hdls, 0 , sizeof ( uiHdl ) );
-    printf( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls ); // RM
+    LOG_INDENTED ( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls ); // RM
 
     pall_hdls->vbx_hdls->hp_chart_btn      = NULL;
     pall_hdls->vbx_hdls->hp_plus_trans_btn = NULL;
@@ -73,6 +72,7 @@ int main(int argc, char* argv[]) {
 
     pall_hdls->vbx_hdls->tlp_list_trans_done_btn  = NULL;
 
+    pall_hdls->vbx_hdls->cp_myPie                 = NULL;
     pall_hdls->vbx_hdls->cp_pie_done_btn          = NULL;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
     gtk_window_set_default_size (GTK_WINDOW (window), WIN_W, WIN_H );
 
     if ( pall_hdls->flg->dbg ) {
-      printf( "  window = %p \n" , window );
+      LOG_INDENTED ( "  window = %p \n" , window );
     }
     g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
@@ -96,14 +96,14 @@ int main(int argc, char* argv[]) {
     create_transaction_page_rtn         (  &pall_hdls );
     create_pie_chart_page_rtn           (  &pall_hdls );
 
-    printf( "  pall_hdls = %p pall_hdls->flg = %p pall_hdls->flg->dbg = %d \n" , pall_hdls, pall_hdls->flg, pall_hdls->flg->dbg );
+    LOG_INDENTED ( "  pall_hdls = %p pall_hdls->flg = %p pall_hdls->flg->dbg = %d \n" , pall_hdls, pall_hdls->flg, pall_hdls->flg->dbg );
     create_transaction_history_page_rtn (  &pall_hdls );
 
     gtk_widget_show_all ( window );
 
     if ( pall_hdls->flg->autoTest ) {
       g_timeout_add ( 1500, (GSourceFunc) do_test_sequence_a, (gpointer)pall_hdls );
-      printf( "        afr g_timeout_add()  \n"  );
+      LOG_INDENTED ( "        afr g_timeout_add()  \n"  );
     }
 
     gtk_main();  // blocks until GTK terminates

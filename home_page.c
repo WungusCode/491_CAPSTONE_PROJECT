@@ -2,13 +2,15 @@
 #include<gtk/gtk.h>
 
 #include "base_defs.h"
+#include "indent_print.h"
 
 #include "transact_page.h"
 #include "pie_page.h"
 
 #include "transaction_list_page.h"
-
+#include "home_page.h"
 #include "setting_page.h"
+#include "start_screen.h"
 
 // Added helper to center content in the window using a GtkGrid layout
 static GtkWidget* center_in_page(GtkWidget *content) {
@@ -70,6 +72,19 @@ static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
     create_setting_page();
 }
 
+GtkWidget* center_in_page(GtkWidget *child) {
+    GtkWidget *alignment = gtk_alignment_new(0.5, 0.5, 0, 0);
+    gtk_container_add(GTK_CONTAINER(alignment), child);
+    return alignment;
+}
+
+ static void on_LogOut_clicked(GtkButton *button, gpointer user_data) {
+    phdl_grp all_hdls = (phdl_grp)user_data;
+    g_print("[Settings] Log Out clicked\n");
+    hide_home_page( all_hdls );
+    create_start_screen( all_hdls );
+ }
+
 int create_home_screen ( phdl_grp pall_hdls ) {
  if (!pall_hdls) return -1;
     GdkRGBA dark_green = {0.0, 0.4, 0.0, 1.0};
@@ -99,6 +114,12 @@ int create_home_screen ( phdl_grp pall_hdls ) {
         gtk_widget_set_valign(button, GTK_ALIGN_CENTER);
         gtk_box_pack_start(GTK_BOX(row2), button, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(content), row2, FALSE, FALSE, 0);
+
+        // Log out button
+        GtkWidget *btn_logout = gtk_button_new_with_label("Sign out");
+        gtk_widget_set_valign(btn_logout, GTK_ALIGN_CENTER);
+        g_signal_connect(btn_logout, "clicked", G_CALLBACK(on_LogOut_clicked), pall_hdls);
+        gtk_box_pack_start(GTK_BOX(row2), btn_logout, FALSE, FALSE, 0);
 
         GtkWidget *row3 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
 
@@ -192,16 +213,16 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
 //   int rc = 0;
 
-//   if ( pall_hdls != NULL ) {
-//     if ( pall_hdls->flg->dbg ) {
-//       printf( "  >> E %s \n" , __FUNCTION__ );
-//       printf( "    flgs->dbg = %d \n" , pall_hdls->flg->dbg );
-//       printf( "    parentWin = %p \n" , pall_hdls->parentWin );
-//     }
-//   }
-//   else {
-//      printf( "  >> E %s  , all_hdls = NULL !!! \n" , __FUNCTION__ );
-//   }
+  if ( pall_hdls != NULL ) {
+    if ( pall_hdls->flg->dbg ) {
+      LOG_BLOCK_START ( "  >> E %s \n" , __FUNCTION__ );
+      LOG_INDENTED ( "    flgs->dbg = %d \n" , pall_hdls->flg->dbg );
+      LOG_INDENTED ( "    parentWin = %p \n" , pall_hdls->parentWin );
+    }
+  }
+  else {
+     LOG_BLOCK_START ( "  >> E %s  , all_hdls = NULL !!! \n" , __FUNCTION__ );
+  }
 
 //   if ( pall_hdls->vbox_home_page == NULL ) {
 //     pall_hdls->vbox_home_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
@@ -289,17 +310,18 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
 //     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox3 );
 
-//   }  // if !all_hdls->vbox_home_page
-//   else {
-//     gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
-//   }
+    if ( pall_hdls->vbox_active == NULL ) gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
+  }  // if !all_hdls->vbox_home_page
+  else {
+    gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_home_page );
+  }
 
 //   g_object_ref ( pall_hdls->vbox_home_page );
 //   gtk_widget_show_all ( pall_hdls->vbox_home_page );
 
-//   if ( pall_hdls->flg->dbg ) {
-//     printf( "  << Lv %s \n" , __FUNCTION__ );
-//   }
+  if ( pall_hdls->flg->dbg ) {
+    LOG_BLOCK_END ( "  << Lv %s \n" , __FUNCTION__ );
+  }
 
 //   return rc;
 // }  // create_home_screen

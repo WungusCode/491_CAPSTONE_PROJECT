@@ -2,6 +2,8 @@
 #include <gtk/gtk.h>
 
 #include "base_defs.h"
+#include "indent_print.h"
+
 #include "start_screen.h"
 #include "login_screen.h"   // renamed
 #include "create_screen.h"  // renamed
@@ -22,8 +24,10 @@ static void end_program ( GtkButton *button , gpointer data ) {
 
 static void goto_login ( GtkButton *button , gpointer data ) {
   phdl_grp all_hdls = (phdl_grp)data;
+  LOG_INDENTED ( "  >> E %s \n" , __func__ );
   hide_start_screen( all_hdls );
   create_login_screen ( all_hdls );     // renamed
+  LOG_INDENTED ( "  Lv %s \n" , __func__ );
 }
 
 static void goto_create ( GtkButton *button , gpointer data ) {
@@ -50,6 +54,8 @@ int create_start_screen ( phdl_grp pall_hdls ) {
   if ( pall_hdls->vbox_start_page == NULL ) {
     pall_hdls->vbox_start_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_start_page );
+
+    pall_hdls->vbox_active = pall_hdls->vbox_start_page;
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
     label = gtk_label_new (" START SCREEN ");

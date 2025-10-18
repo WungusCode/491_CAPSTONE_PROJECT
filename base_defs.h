@@ -54,12 +54,15 @@ typedef struct _uiHdl {
   GtkWidget *tp_w_description;
   GtkWidget *tp_w_category;
   GtkWidget *tp_cancel_btn;       // cancel or go back button
+  GtkWidget *tp_add_record_btn;   // Add record to list
+  GtkWidget *tp_add_dB_btn;       // save to dB button
 
   // transaction list page widgets
   // GtkWidget *thp_xx;
   GtkWidget *tlp_list_trans_done_btn;
 
   // chart_page widgets
+  GtkWidget *cp_myPie;
   GtkWidget *cp_pie_done_btn;
 
   // start screen_page widgets
@@ -96,5 +99,7 @@ typedef struct _hdl_grp {
   pokane_grp t_lst;               // linked list of transactions
 
 } hdl_grp, *phdl_grp;
+
+GtkWidget* center_in_page(GtkWidget *child);
 
 #endif
