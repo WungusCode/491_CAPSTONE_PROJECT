@@ -13,27 +13,12 @@
 
 #include "setting_page.h"
 
+
 static void hide_home_page( phdl_grp all_hdls ) {
   gtk_widget_hide( all_hdls->vbox_home_page );
 
   gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_home_page );
 
-}
-
-// Center any child widget inside an alignment container
-GtkWidget* center_in_page(GtkWidget *child) {
-    GtkWidget *alignment = gtk_alignment_new(0.5, 0.5, 0, 0);
-    gtk_container_add(GTK_CONTAINER(alignment), child);
-    return alignment;
-}   
-    
-// Log Out handler: hide home page and go back to start screen
-static void on_LogOut_clicked(GtkButton *button, gpointer user_data) {
-    (void)button;  // unused
-    phdl_grp all_hdls = (phdl_grp)user_data;
-    g_print("[Home] Log Out clicked\n"); 
-    hide_home_page(all_hdls);
-    create_start_screen(all_hdls);
 }
 
 static void chart_clicked ( GtkButton *button , gpointer data ) {
@@ -63,6 +48,13 @@ static void list_transact_clicked ( GtkButton *button , gpointer data ) {
 static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
     (void)btn; (void)user_data; // unused
     create_setting_page();
+}
+
+static void on_LogOut_clicked(GtkButton *button, gpointer user_data) {
+   phdl_grp all_hdls = (phdl_grp)user_data;
+   g_print("[Settings] Log Out clicked\n");
+   hide_home_page( all_hdls );
+   create_start_screen( all_hdls );
 }
 
 int create_home_screen ( phdl_grp pall_hdls ) {
@@ -161,6 +153,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
     button = gtk_button_new_with_label ("");
+    button = gtk_button_new_with_label ("Pie Chart");
 
     GtkWidget *image = gtk_image_new_from_file("./resources/libreoffice-chart.png");
     gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
@@ -173,6 +166,8 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
     button = gtk_button_new_with_label ("");
+    button = gtk_button_new_with_label ("Add Transaction");    
+
     image = gtk_image_new_from_file("./resources/transaction_64x64.png");
     gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
     gtk_button_set_image( GTK_BUTTON( button ) , image);
@@ -185,6 +180,8 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
     button = gtk_button_new_with_label ("");
+    button = gtk_button_new_with_label ("Transaction List");
+
     image = gtk_image_new_from_file("./resources/list_transactions_64x64.png");
     gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
     gtk_button_set_image( GTK_BUTTON( button ) , image);
@@ -197,6 +194,8 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
     button = gtk_button_new_with_label ("");
+    button = gtk_button_new_with_label ("Settings");
+
     image = gtk_image_new_from_file("./resources/settings.png");
     gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
     gtk_button_set_image( GTK_BUTTON( button ) , image);
@@ -206,7 +205,13 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
 
-    button = gtk_button_new_with_label("Log Out");
+    button = gtk_button_new_with_label("");
+    button = gtk_button_new_with_label("Sign out");
+
+    image = gtk_image_new_from_file("./resources/logout-64.png");
+    gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
+    gtk_button_set_image( GTK_BUTTON( button ) , image);
+
     g_object_set(button, "tooltip-text", "Sign out and return to start screen", NULL);
     g_signal_connect(button, "clicked", G_CALLBACK(on_LogOut_clicked), (gpointer)pall_hdls);
     gtk_box_pack_start(GTK_BOX(hbox3), button, TRUE, FALSE, 0);
@@ -233,17 +238,14 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 }  // create_home_screen
 
 int create_home_screen_rtn( phdl_grp *all_hdls ) {
-  int rc = 0;
-  phdl_grp pall_hdls = *all_hdls;
-
-  printf( "  E  %s  *all_hdls = %p pall_hdls =%p \n" , __func__ , *all_hdls , pall_hdls );
-  rc = create_home_screen( pall_hdls );
-
-  if ( pall_hdls != NULL ) {
-    printf( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_home_page );
-  }
-  *all_hdls = pall_hdls;
-
-  printf( "  Lv  %s *all_hdls = %p pall_hdls =%p \n" , __func__, *all_hdls , pall_hdls );
-  return rc;
+    int rc = 0;
+    phdl_grp pall_hdls = *all_hdls;
+    printf( "  E  %s  *all_hdls = %p pall_hdls =%p \n" , __func__ , *all_hdls , pall_hdls );
+    rc = create_home_screen( pall_hdls );
+    if ( pall_hdls != NULL ) {
+        printf( "      pall_hdls->vbox_transact_page = %p \n" , pall_hdls->vbox_home_page );
+    }
+    *all_hdls = pall_hdls;
+    printf( "  Lv  %s *all_hdls = %p pall_hdls =%p \n" , __func__, *all_hdls , pall_hdls );
+    return rc;
 }
