@@ -234,6 +234,7 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
 
   add_to_trans_list_treestore( all_hdls );
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_record_btn );
+  gtk_widget_set_sensitive(all_hdls->vbx_hdls->tp_add_dB_btn, TRUE);
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_dB_btn );
 
   LOG_BLOCK_END ( "  << Lv %s L%4d ,  pall_hdls =%p \n" , __func__ , __LINE__ , all_hdls );
