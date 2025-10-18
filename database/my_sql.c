@@ -14,7 +14,7 @@
 */
 
 int log_sql_access = 0;
-int sql_log_dbg    = 1;
+int sql_log_dbg    = 0;
 
 void set_log_sql_access ( int logit ) {
   log_sql_access = logit;

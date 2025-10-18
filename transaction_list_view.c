@@ -31,8 +31,6 @@ const GdkColor pastelPink    = RGB( 0xff , 0xe0 , 0xe6 );
 int g_dbg_trans_listtree    = 0;
 int g_trans_listhide_no_div = 0;
 
-void * create_trans_list_store ( phdl_grp pall_hdls , int dbg );
-
 // render funcs --
 
 void paint_background_trans_list ( GtkCellRenderer   *renderer,
@@ -204,7 +202,7 @@ static gboolean tlv_row_visible (GtkTreeModel *model, GtkTreeIter *iter, transac
   return rc;
 }  // tlv_row_visible
 
-void create_and_fill_trans_list ( phdl_grp pall_hdls , int dbg ) {
+void create_and_fill_trans_list ( phdl_grp pall_hdls , int nrEntries , int dbg ) {
 
   GtkTreeIter    toplevel;
 #ifdef COPIED_FROM_HEADER_TODO_REMOVE
@@ -219,7 +217,12 @@ void create_and_fill_trans_list ( phdl_grp pall_hdls , int dbg ) {
 
   if ( dbg ) LOG_BLOCK_START ( ">> E  %s L%d \n" , __FUNCTION__ , __LINE__ );
 
-  treestore = pall_hdls->vbx_hdls->tlp_treeStore;
+  if ( nrEntries == -1 ) {
+    treestore = pall_hdls->vbx_hdls->tlp_treeStore;
+  }
+  else {
+    treestore = pall_hdls->vbx_hdls->hp_treeStore;
+  }
   if ( dbg ) LOG_INDENTED ( "  In %s treestore=%p \n" , __FUNCTION__ , treestore );
   //get_trans_list_treestore( );
 
@@ -228,11 +231,12 @@ void create_and_fill_trans_list ( phdl_grp pall_hdls , int dbg ) {
   if ( dbg ) {
     linked_list_print_okane_grp ( pall_hdls->t_lst );
   }
+  if ( nrEntries == -1 ) nrEntries = 10000;  // make a big number so list will go to end . TODO : better limit
 
   /* Append a top level row and leave it empty */
   gtk_tree_store_append(treestore, &toplevel, NULL);
 
-  while ( list != NULL ) {
+  while ( list != NULL && nrEntries > 0 ) {
     convert_to_date_string( list->entry_ts , time_str );
 
 		gtk_tree_store_set ( treestore, &toplevel,
@@ -249,11 +253,13 @@ void create_and_fill_trans_list ( phdl_grp pall_hdls , int dbg ) {
       LOG_INDENTED ( "    Nr=%3d category=%d entry_ts=%8x date=%s amnt=%6.2f desc=%25s in_dB=%d \n" , list->entry_nr, list->category, list->entry_ts
                                                                                     , time_str , list->amount  , list->description, list->in_dB );
     }
-    list = list->next;
-    if ( list ) {
-      gtk_tree_store_append ( treestore, &toplevel, NULL );
+    nrEntries--;
+    if ( nrEntries != 0 ) {
+      list = list->next;
+      if ( list ) {
+        gtk_tree_store_append ( treestore, &toplevel, NULL );
+      }
     }
-
   }  // while list != NULL
 
   if ( dbg ) LOG_BLOCK_END ( "    << Lv %s L%d \n" , __FUNCTION__ , __LINE__ );
@@ -279,7 +285,7 @@ void check_box (GtkCellRendererToggle * cell, gchar * path, GtkTreeStore * model
     }
 } // check_box
 
-GtkWidget * create_trans_listview ( phdl_grp pall_hdls , int dbg ) {
+GtkWidget * create_trans_listview ( phdl_grp pall_hdls , int nrEntries ,int dbg ) {
   GtkWidget           *view;
   GtkCellRenderer     *renderer;
   GtkTreeViewColumn   *col;
@@ -289,16 +295,22 @@ GtkWidget * create_trans_listview ( phdl_grp pall_hdls , int dbg ) {
 #ifdef HAVE_RENDER_DEFINED
   GtkTreeSelection    *selection;
 #endif
-  transact_lst_store *store = pall_hdls->vbx_hdls->tlp_t_lst_store;
+  transact_lst_store *store;
 
-  //view = get_trans_list_treeview( );
-  //view = pall_hdls->vbx_hdls->tlp_treeView;
-  view = pall_hdls->vbx_hdls->tlp_treeView;
+  if ( nrEntries == -1 ) {
+    view  = pall_hdls->vbx_hdls->tlp_treeView;
+    store = pall_hdls->vbx_hdls->tlp_t_lst_store;
+    LOG_INDENTED ( "  view = %p pall_hdls->vbx_hdls->tlp_treeView = %p \n" , view , pall_hdls->vbx_hdls->tlp_treeView );
+  }
+  else {
+    view  = pall_hdls->vbx_hdls->hp_treeView;
+    store = pall_hdls->vbx_hdls->hp_t_lst_store;
+    LOG_INDENTED ( "  view = %p pall_hdls->vbx_hdls->hp_treeView = %p \n" , view , pall_hdls->vbx_hdls->hp_treeView );
+  }
 
   if ( dbg ) LOG_BLOCK_START ( "  >> E %s L%d \n" , __FUNCTION__ , __LINE__ );
 
   g_object_unref ( store->sorted ); /* destroy model automatically with view */
-  LOG_INDENTED ( "  view = %p pall_hdls->vbx_hdls->tlp_treeView = %p \n" , view , pall_hdls->vbx_hdls->tlp_treeView );
 
 #ifdef HAVE_RENDER_DEFINED
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
@@ -502,10 +514,10 @@ GtkWidget * create_trans_listview ( phdl_grp pall_hdls , int dbg ) {
 	return view;
 } // create_trans_listview
 
-void * create_trans_list_store ( phdl_grp pall_hdls , int dbg ) {
+void * create_trans_list_store ( phdl_grp pall_hdls , int nrEntries , int dbg ) {
 
   transact_lst_store *store = NULL;
-  GtkWidget        *view;
+  GtkWidget          *view;
 
   if ( dbg ) LOG_BLOCK_START ( "  >> E %s L%d  \n" , __FUNCTION__ , __LINE__ );
 
@@ -524,9 +536,14 @@ void * create_trans_list_store ( phdl_grp pall_hdls , int dbg ) {
 
   if ( dbg ) LOG_INDENTED ( "  NR_COLS=%d done gtk_tree_store_new \n" , MODEL_SHARE_NUM_COLS );
 
-  pall_hdls->vbx_hdls->tlp_t_lst_store = (void *)store;
-
-	LOG_INDENTED ( "  store = transact_lst_store = %p \n" , store  );
+  // THIS DOESNT SCALE
+  if ( nrEntries == -1 ) {
+    pall_hdls->vbx_hdls->tlp_t_lst_store = (void *)store;
+  }
+  else {
+    pall_hdls->vbx_hdls->hp_t_lst_store = (void *)store;
+  }
+  LOG_INDENTED ( "  store = transact_lst_store = %p \n" , store  );
 
   LOG_INDENTED ( "  NR_COLS=%d done gtk_tree_store_new \n" , MODEL_SHARE_NUM_COLS );
 
@@ -534,17 +551,21 @@ void * create_trans_list_store ( phdl_grp pall_hdls , int dbg ) {
     LOG_INDENTED ( "  NR_COLS=%d stg wrong with treestore \n" , MODEL_SHARE_NUM_COLS );
     getchar();
   }
-  pall_hdls->vbx_hdls->tlp_treeStore = store->t_act;
+  if ( nrEntries == -1 ) {
+    pall_hdls->vbx_hdls->tlp_treeStore = store->t_act;
+  }
+  else {
+    pall_hdls->vbx_hdls->hp_treeStore = store->t_act;
+  }
   //LOG_INDENTED ( "%s  dbg=%d list_treestore=%p , tlp_treeStore=%p %s \n" , COLOR_YELLOW , dbg, store->t_act  , pall_hdls->vbx_hdls->tlp_treeStore , COLOR_RESET );
   //getchar();
 
-	if ( 0 /* dbg */ ) {
-    //linked_list_print_okane_grp ( stk_lst );
+  if ( 0 /* dbg */ ) {
     linked_list_print_okane_grp ( pall_hdls->t_lst );
   }
 
   // model is actually GTK_TREE_MODEL(treestore)
-  create_and_fill_trans_list ( pall_hdls , dbg );
+  create_and_fill_trans_list ( pall_hdls , nrEntries , dbg );
 
   // store->t_act is the base model, order is :
   //  t_act
@@ -561,8 +582,14 @@ void * create_trans_list_store ( phdl_grp pall_hdls , int dbg ) {
   gtk_tree_view_set_grid_lines( GTK_TREE_VIEW ( view ), GTK_TREE_VIEW_GRID_LINES_BOTH );
 
   // set_trans_list_treeview( view );
-  pall_hdls->vbx_hdls->tlp_treeView = view;
-  LOG_INDENTED ( "  view = %p pall_hdls->vbx_hdls->tlp_treeView =%p \n" , view, pall_hdls->vbx_hdls->tlp_treeView  );
+  if ( nrEntries == -1 ) {
+    pall_hdls->vbx_hdls->tlp_treeView = view;
+    LOG_INDENTED ( "  view = %p pall_hdls->vbx_hdls->tlp_treeView =%p \n" , view, pall_hdls->vbx_hdls->tlp_treeView  );
+  }
+  else {
+    pall_hdls->vbx_hdls->hp_treeView = view;
+    LOG_INDENTED ( "  view = %p pall_hdls->vbx_hdls->tlp_treeView =%p \n" , view, pall_hdls->vbx_hdls->hp_treeView  );
+  }
 
   if ( dbg ) LOG_BLOCK_END ( "  << Lv %s L%d  \n" , __FUNCTION__ , __LINE__ );
 

@@ -57,20 +57,27 @@ int main(int argc, char* argv[]) {
     pall_hdls->vbox_t_history_page = NULL;
 
     pall_hdls->vbx_hdls = malloc ( sizeof ( uiHdl ) );
-    LOG_BLOCK_START( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls );
+    if( pall_hdls->flg->dbg ) LOG_BLOCK_START( "  pall_hdls->vbx_hdls = %p , %s L%4d \n" , pall_hdls->vbx_hdls , __func__ , __LINE__ );
     memset( pall_hdls->vbx_hdls, 0 , sizeof ( uiHdl ) );
-    LOG_INDENTED ( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls ); // RM
+    if( pall_hdls->flg->dbg ) LOG_INDENTED ( "  pall_hdls->vbx_hdls = %p , %s L%4d \n" , pall_hdls->vbx_hdls , __func__ , __LINE__ ); // RM
 
     pall_hdls->vbx_hdls->hp_chart_btn      = NULL;
     pall_hdls->vbx_hdls->hp_plus_trans_btn = NULL;
     pall_hdls->vbx_hdls->hp_list_trans_btn = NULL;
 
+    pall_hdls->vbx_hdls->hp_treeView       = NULL;
+    pall_hdls->vbx_hdls->hp_treeStore      = NULL;
+    pall_hdls->vbx_hdls->hp_t_lst_store    = NULL;
+
     pall_hdls->vbx_hdls->tp_w_is_income   = NULL;
     pall_hdls->vbx_hdls->tp_w_amount      = NULL;
     pall_hdls->vbx_hdls->tp_w_description = NULL;
-    pall_hdls->vbx_hdls->tp_cancel_btn    = NULL;
 
     pall_hdls->vbx_hdls->tlp_list_trans_done_btn  = NULL;
+
+    pall_hdls->vbx_hdls->tlp_treeView             = NULL;
+    pall_hdls->vbx_hdls->tlp_treeStore            = NULL;
+    pall_hdls->vbx_hdls->tlp_t_lst_store          = NULL;
 
     pall_hdls->vbx_hdls->cp_myPie                 = NULL;
     pall_hdls->vbx_hdls->cp_pie_done_btn          = NULL;

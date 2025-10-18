@@ -32,10 +32,9 @@ typedef struct
 extern int add_to_trans_list_treestore ( phdl_grp pall_hdls );
 extern void update_trans_list_treeview( pokane_grp head );
 
-extern void                 create_and_fill_trans_list ( phdl_grp pall_hdls , int dbg );
+extern void                 create_and_fill_trans_list ( phdl_grp pall_hdls , int nrEntries , int dbg );
 
-extern GtkWidget          * create_trans_listview ( phdl_grp pall_hdls , int dbg );
+extern GtkWidget          * create_trans_listview ( phdl_grp pall_hdls , int nrEntries , int dbg );
 
-extern void               * create_trans_list_store ( phdl_grp pall_hdls , int dbg );
-
+extern void               * create_trans_list_store ( phdl_grp pall_hdls , int nrEntries , int dbg );
 #endif

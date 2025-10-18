@@ -292,6 +292,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     if ( pall_hdls->vbox_active == NULL ) {
       // only attach, if no vbox active !
       gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_transact_page );
+      pall_hdls->vbox_active = pall_hdls->vbox_transact_page;
     }
     LOG_INDENTED ( "    vbox = %p   , %s L%4d \n" , pall_hdls->vbox_transact_page , __FILE__ , __LINE__ );
 
@@ -384,6 +385,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
   } // !if ( pall_hdls->vbox_transact_page == NULL
   else {
     gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_transact_page );
+    pall_hdls->vbox_active = pall_hdls->vbox_transact_page;
     gtk_widget_show_all ( pall_hdls->vbox_transact_page );
   }
 

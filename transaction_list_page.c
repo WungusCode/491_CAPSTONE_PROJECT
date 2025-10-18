@@ -89,11 +89,11 @@ int create_transaction_history_page( phdl_grp pall_hdls ) {
     // make the tree list
     {
       void * tmpStore=NULL;
-	    tmpStore = create_trans_list_store ( pall_hdls , dbg );
+      tmpStore = create_trans_list_store ( pall_hdls , -1 , dbg );
       LOG_INDENTED ( "  tmpStore=%p vbx_hdls->tlp_t_lst_store = %p \n" , tmpStore , pall_hdls->vbx_hdls->tlp_t_lst_store );
     }
 
-    pall_hdls->vbx_hdls->tlp_treeView  = GTK_WIDGET ( create_trans_listview ( pall_hdls , dbg ) );
+    pall_hdls->vbx_hdls->tlp_treeView  = GTK_WIDGET ( create_trans_listview ( pall_hdls , -1 , dbg ) );
     LOG_INDENTED ( "  vbx_hdls->tlp_treeStore = %p , vbx_hdls->tlp_treeView=%p \n" , pall_hdls->vbx_hdls->tlp_treeStore , pall_hdls->vbx_hdls->tlp_treeView );
 
     gtk_container_add(GTK_CONTAINER(scrolledwindow), pall_hdls->vbx_hdls->tlp_treeView );      // add view to scrolled window

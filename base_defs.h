@@ -8,7 +8,7 @@
 
 #include "data_types.h"
 
-#define WIN_W 720
+#define WIN_W 770
 #define WIN_H 480
 
 #define DB_DESCRIP_LEN 255
@@ -47,6 +47,10 @@ typedef struct _uiHdl {
   GtkWidget *hp_chart_btn;
 
   GtkWidget *hp_list_trans_btn;
+
+  GtkWidget    *hp_treeView;
+  GtkTreeStore *hp_treeStore;    // void so can pass without headers
+  void         *hp_t_lst_store;  // void so can pass without headers, is transact_lst_store defined in transaction_list_view.h
 
   // transaction_page widgets
   GtkWidget *tp_w_is_income;

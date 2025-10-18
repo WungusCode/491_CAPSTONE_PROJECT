@@ -171,7 +171,7 @@ int get_data_from_db ( phdl_grp *all_hdls ) {
     db_hdl = db_open( DB_FILE_0 , __FUNCTION__ , 0 ,dbg );
 
     create_YTD_dummy_data ( &pall_hdls->t_lst ,dbg );
-    linked_list_print_okane_grp ( pall_hdls->t_lst );
+    if ( dbg ) linked_list_print_okane_grp ( pall_hdls->t_lst );
     if ( !pall_hdls->flg->autoTest ) {
       printf( "  Ent to cont ! \n" );
       getchar();
@@ -181,7 +181,7 @@ int get_data_from_db ( phdl_grp *all_hdls ) {
   if ( pall_hdls->t_lst == NULL ) {
     db_read_in_all_transactions( db_hdl , &pall_hdls->t_lst, dbg );
 
-    linked_list_print_okane_grp ( pall_hdls->t_lst );
+    if ( dbg ) linked_list_print_okane_grp ( pall_hdls->t_lst );
     if ( dbg && pall_hdls->flg->autoTest == 0 ) getchar();
   }
 
