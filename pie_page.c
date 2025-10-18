@@ -23,92 +23,141 @@ static void cancel_clicked ( GtkButton *button,  gpointer   user_data) {
 int calc_stats( phdl_grp pall_hdls ) {
   int rc=0;
 
-  float income=0.0, housing=0.0, food=0.0, transport=0.0, entertain=0.0, health=0.0, work=0.0, other=0.0;
+  float income=0.0, housing=0.0, util = 0.0, food=0.0, transport=0.0, entertain=0.0, health=0.0, work=0.0, other=0.0;
   float total=0.0;
 
   printf( "  >> E %s L%4d   , pall_hdls=%p \n" , __FUNCTION__ , __LINE__, pall_hdls );
 
   if ( pall_hdls->vbox_chart_page != NULL ) {
     if ( pall_hdls->t_lst != NULL ) {
-      float inc_per, hou_per, foo_per, tpr_per , ent_per ,hlt_per , wrk_per, otr_per;
+      float inc_per, hou_per, util_per ,foo_per, tpr_per , ent_per ,hlt_per , wrk_per, otr_per;
       pokane_grp list = pall_hdls->t_lst;
 
       while ( list ) {
+        int mult = 1;
+        float amt;
+        if ( list->amount < 0 ) mult = -1;
+        amt = mult * list->amount;
+
         switch ( list->category ) {
           case INCOME_ID:
-            income += list->amount;
+            income += amt;
             break;
           case HOUSING_ID:
-            housing += list->amount;
+            housing += amt;
+            break;
+          case UTIL_ID:
+            util += amt;
             break;
           case FOOD_ID:
-            food += list->amount;
+            food += amt;
             break;
           case TRANSPORT_ID:
-            transport += list->amount;
+            transport += amt;
             break;
           case ENTERTAIN_ID:
-            entertain += list->amount;
+            entertain += amt;
             break;
           case HEALTH_ID:
-            health += list->amount;
+            health += amt;
             break;
           case WORK_ID:
-            work += list->amount;
+            work += amt;
             break;
           default:
             /* other */
-            other += list->amount;
+            other += amt;
             break;
         }
-        total += list->amount;
+        total += amt;
+
         list = list->next;
       }  // while
 
-      inc_per = income/total;
-      hou_per = housing/total;
-      foo_per = food/total;
-      if ( foo_per < 5.0 ) {
+      inc_per  = income/total;
+
+      if ( housing < 0 ) housing *= -1;
+      if ( food < 0 )    food    *= -1;
+      if ( util < 0 )    util    *= -1;
+      if ( transport < 0 )    transport    *= -1;
+      if ( entertain < 0 )    entertain    *= -1;
+      if ( health    < 0 )    entertain    *= -1;
+      if ( work      < 0 )    work         *= -1;
+      if ( other     < 0 )    other        *= -1;
+
+      hou_per  = housing/total;
+      foo_per  = food/total;
+      util_per = util/total;
+      tpr_per  = transport/total;
+      ent_per  = entertain/total;
+      hlt_per  = health/total;
+      wrk_per  = work/total;
+      otr_per  = other/total;
+
+      printf( "\n\n  inc = %4.2f hou = %4.2f foo = %4.2f util = %4.2f tpr = %4.2f ent = %4.2f hlth = %4.2f wrk = %4.2f otr = %4.2f \n" ,
+                                              income, housing, food, util, transport, entertain, health, work, other );
+
+      printf( "\n\n  inc_per = %4.2f hou_per = %4.2f foo_per = %4.2f tpr= %4.2f ent = %4.2f hlth = %4.2f wrk = %4.2f otr = %4.2f \n" ,
+                                              inc_per , hou_per , foo_per, tpr_per, ent_per, hlt_per , wrk_per , otr_per );
+
+      if ( foo_per < 0.0225 ) {
         other += food;
         food  = 0.0;
       }
+      if ( util_per < 0.025 ) {
+        other += util;
+        util  = 0.0;
+      }
       tpr_per = transport/total;
-      if ( tpr_per < 5.0 ) {
+      if ( tpr_per < 0.025 ) {
         other += transport;
         transport  = 0.0;
       }
       ent_per = entertain/total;
-      if ( ent_per < 5.0 ) {
+      if ( ent_per < 0.025 ) {
         other += entertain;
         entertain  = 0.0;
       }
       hlt_per = health/total;
-      if ( hlt_per < 5.0 ) {
+      if ( hlt_per < 0.025 ) {
         other += health;
         health  = 0.0;
       }
       wrk_per = work/total;
-      if ( wrk_per < 5.0 ) {
+      if ( wrk_per < 0.025 ) {
         other += work;
         work  = 0.0;
       }
 
       otr_per = other/total;
 
-      printf( "  inc_per = %4.2f hou_per = %4.2f foo_per = %4.2f tpr= %4.2f ent = %4.2f hlth = %4.2f wrk = %4.2f Other = %4.2f \n" ,
+      printf( "  inc_per = %4.2f hou_per = %4.2f foo_per = %4.2f tpr= %4.2f ent = %4.2f hlth = %4.2f wrk = %4.2f Other = %4.2f \n\n" ,
                                               inc_per , hou_per , foo_per, tpr_per, ent_per, hlt_per , wrk_per , otr_per );
+
 
       pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , inc_per, "#20f020", "Income");
       pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , hou_per, "#FF6484", "Housing");
+#ifdef OLD_COLORS
+      if ( util_per > 0.0 )    pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , foo_per, "#36A282", "Util");
       if ( foo_per > 0.0 )     pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , foo_per, "#FFC686", "Food");
-      //pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , tpr_per, "#36A282", "Tport");
+
       if ( tpr_per > 0.0 ) pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , tpr_per, "#f00000", "Tport");
       if ( ent_per > 0.0 ) pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , ent_per, "#1010A0", "Entertainment");
       if ( hlt_per > 0.0 ) pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , hlt_per, "#10A0A0", "Health");
       if ( wrk_per > 0.0 ) pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , wrk_per, "#A010A0", "Work");
 
       pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , otr_per, "#1010A0", "Other");
+#else
+      if ( util_per > 0.025 )    pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , foo_per, "#f0f080", "Util");
+      if ( foo_per  > 0.025 )    pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , foo_per, "#80f5f5", "Food");
+      if ( tpr_per  > 0.025 )    pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , tpr_per, "#fff0ac", "Tport");
+      if ( ent_per  > 0.025 )    pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , ent_per, "#ffa0a6", "Entertainment");
 
+      if ( hlt_per > 0.025 )     pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , hlt_per, "#10A0A0", "Health");
+      if ( wrk_per > 0.025 )     pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , wrk_per, "#A010A0", "Work");
+
+      pie_widget_add_slice_to_pie ( (PieWidget *) pall_hdls->vbx_hdls->cp_myPie , otr_per, "#303090", "Other");
+#endif
     }  // t_lst != NULL
   }
   else {

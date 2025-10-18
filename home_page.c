@@ -11,6 +11,8 @@
 #include "home_page.h"
 #include "setting_page.h"
 #include "start_screen.h"
+//#include "budget_page.h"
+
 
 static void hide_home_page( phdl_grp all_hdls ) {
   gtk_widget_hide( all_hdls->vbox_home_page );
@@ -60,6 +62,16 @@ GtkWidget* center_in_page(GtkWidget *child) {
     hide_home_page( all_hdls );
     create_start_screen( all_hdls );
  }
+
+/*
+static void budget_clicked (GtkButton *button , gpointer data) {
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  gtk_widget_hide(all_hdls->vbox_home_page);
+  //gtk_container_remove(GTK_CONTAINER(all_hdls->parentWin), all_hdls->vbox_home_page);
+  create_budget_page(all_hdls);
+}
+*/
 
 int create_home_screen ( phdl_grp pall_hdls ) {
  if (!pall_hdls) return -1;
@@ -126,6 +138,17 @@ int create_home_screen ( phdl_grp pall_hdls ) {
         g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), NULL);
         g_object_set(button, "tooltip-text", "Click to change app settings", NULL);
         gtk_box_pack_start(GTK_BOX(row3), button, FALSE, FALSE, 0);
+
+/*
+        GtkWidget *btn_budget = gtk_button_new_with_label("");
+        GtkWidget *img_budget = gtk_image_new_from_file("./resources/budget_64x64.png"); // choose your asset
+        gtk_button_set_always_show_image(GTK_BUTTON(btn_budget), TRUE);
+        gtk_button_set_image(GTK_BUTTON(btn_budget), img_budget);
+        gtk_widget_set_size_request(btn_budget, 200, 200);
+        g_object_set(btn_budget, "tooltip-text", "Click to set/view your budget", NULL);
+        g_signal_connect(btn_budget, "clicked", G_CALLBACK(budget_clicked), pall_hdls);
+        gtk_box_pack_start(GTK_BOX(row3), btn_budget, FALSE, FALSE, 0);
+*/
 
         gtk_box_pack_start(GTK_BOX(content), row3, FALSE, FALSE, 0);
 
