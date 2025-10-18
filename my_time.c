@@ -115,7 +115,13 @@ uint32_t get_n_month_start_ts( int Mth ) {
 
   if ( dbg ) printf( "  file=%s L%d Mth = %d now->tm_mon  = %d \n" , __FILE__ , __LINE__ , Mth , now->tm_mon );
 
-  mth_start = (time_t)timegm( now );
+  //mth_start = (time_t)timegm( now );
+#ifdef _WIN32
+    mth_start = (time_t)_mkgmtime(now);
+#else
+    mth_start = (time_t)timegm(now);
+#endif
+
   if ( mth_start == -1 ) printf( "  Failed to obtain start of month timestamp ! \n" );
 
   if ( dbg ) {
