@@ -4,7 +4,7 @@
 
 #include "link_list.h"
 
-int ll_dbg         = 1;
+int ll_dbg         = 0;
 
 #if 0
 int g_dbg_all_hdls = 1;
