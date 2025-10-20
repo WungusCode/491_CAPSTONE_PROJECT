@@ -6,7 +6,7 @@
 #include "base_defs.h"
 #include "data_types.h"
 
-GtkWidget* create_budget_window(void);
+GtkWidget* create_budget_page(void);
 
 extern long g_budget_value;
 extern char *g_budget_string;
