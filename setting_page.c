@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
+#include <stdlib.h>
 
 #include "setting_page.h"
 #include "home_page.h"
 #include "start_screen.h"
 #include "base_defs.h"
+
 
 // --- Callbacks ---
 
