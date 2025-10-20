@@ -7,7 +7,7 @@
 #include "start_screen.h"
 #include "transact_page.h"
 #include "pie_page.h"
-
+#include "budget.h"
 #include "transaction_list_view.h"
 #include "transaction_list_page.h"
 
@@ -19,6 +19,10 @@ static void hide_home_page( phdl_grp all_hdls ) {
 
   gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_home_page );
 
+}
+
+static void budget_clicked ( GtkButton *button , gpointer data ) {
+  create_budget_page();
 }
 
 static void chart_clicked ( GtkButton *button , gpointer data ) {
@@ -85,7 +89,11 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-    label = gtk_label_new (" $3,261 ");
+    if (g_budget_string == NULL) {
+      label = gtk_label_new ("$0");
+    } else {
+      label = gtk_label_new (g_budget_string);
+    }
 
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
 
@@ -151,11 +159,24 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox_spc );
 
     hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+// ---------
+    button = gtk_button_new_with_label ("");
+    button = gtk_button_new_with_label ("Budget Editor");
 
+    GtkWidget *image = gtk_image_new_from_file("./resources/budget_64x64.png");
+    gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
+    gtk_button_set_image( GTK_BUTTON( button ) , image);
+
+    pall_hdls->vbx_hdls->hp_budget_btn = button;
+    g_object_set ( button , "tooltip-text", "Click to edit your budget", NULL);
+    g_signal_connect (button, "clicked",  G_CALLBACK ( budget_clicked ), (gpointer) pall_hdls );
+
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+// ----------
     button = gtk_button_new_with_label ("");
     button = gtk_button_new_with_label ("Pie Chart");
 
-    GtkWidget *image = gtk_image_new_from_file("./resources/libreoffice-chart.png");
+    image = gtk_image_new_from_file("./resources/libreoffice-chart.png");
     gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
     gtk_button_set_image( GTK_BUTTON( button ) , image);
 

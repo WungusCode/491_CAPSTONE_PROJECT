@@ -42,6 +42,8 @@ typedef struct _okane_grp {
 
 typedef struct _uiHdl {
   // home page widgets
+  GtkWidget *hp_budget_btn;
+  
   GtkWidget *hp_plus_trans_btn;
 
   GtkWidget *hp_chart_btn;
@@ -98,6 +100,7 @@ typedef struct _hdl_grp {
   GtkWidget *vbox_transact_page;  // vbox container for 'transact_page'
   GtkWidget *vbox_chart_page;     // vbox container for 'pie_page'
   GtkWidget *vbox_t_history_page; // vbox container for 'transaction_history_page'
+  GtkWidget *vbox_budget_page;
 
   // collect hdls to widgets of vboxes here
   puiHdl vbx_hdls;
