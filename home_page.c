@@ -22,7 +22,7 @@ static void hide_home_page( phdl_grp all_hdls ) {
 }
 
 static void budget_clicked ( GtkButton *button , gpointer data ) {
-  create_budget_page();
+  create_budget_window();
 }
 
 static void chart_clicked ( GtkButton *button , gpointer data ) {

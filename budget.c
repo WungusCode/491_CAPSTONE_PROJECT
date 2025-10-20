@@ -33,7 +33,7 @@ void enter_budget(GtkWidget *button, gpointer data) {
     g_print("Budget set to: %ld\n", g_budget_value);
 }
 
-GtkWidget* create_budget_page(void) {
+GtkWidget* create_budget_window(void) {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Set Budget");
     gtk_window_set_default_size(GTK_WINDOW(window), WIN_W, WIN_H);
@@ -61,7 +61,7 @@ GtkWidget* create_budget_page(void) {
     GtkWidget *btn_close = gtk_button_new_with_label("Close");
     g_signal_connect_swapped(btn_close, "clicked", G_CALLBACK(on_close_clicked), window);
     gtk_box_pack_end(GTK_BOX(vbox), btn_close, FALSE, FALSE, 0);
-  
+
     gtk_widget_show_all(window);
 
     return window;
