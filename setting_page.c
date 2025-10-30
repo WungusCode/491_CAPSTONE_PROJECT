@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
-
+#include "report_problem_page.h"
 #include "setting_page.h"
 #include "home_page.h"
 #include "start_screen.h"
 #include "base_defs.h"
+
+
 
 // --- Callbacks ---
 
@@ -42,15 +44,9 @@ static void on_theme_light_clicked(GtkToggleButton *toggle, gpointer user_data) 
 }
 // used to report a problem 
 static void on_reportProblem_clicked(GtkButton *btn, gpointer user_data) {
-    g_print("[Settings] Report Problem clicked\n");
-    // Placeholder for actual report problem functionality
-    GtkWidget *report_dialog = gtk_message_dialog_new(GTK_WINDOW(user_data),
-                                                      GTK_DIALOG_MODAL,
-                                                      GTK_MESSAGE_INFO,
-                                                      GTK_BUTTONS_OK,
-                                                      "How to report problems here");
-    gtk_dialog_run(GTK_DIALOG(report_dialog));
-    gtk_widget_destroy(report_dialog);
+    GtkWindow *parent = GTK_WINDOW(user_data);
+    GtkWidget *report_page = create_report_problem_page(parent);
+    gtk_widget_show(report_page);
 }
 
 // --- Public API ---
