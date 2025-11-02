@@ -43,7 +43,9 @@ typedef struct _okane_grp {
 typedef struct _uiHdl {
   // home page widgets
   GtkWidget *hp_budget_btn;
-  
+ 
+  GtkWidget *hp_budget_label;
+ 
   GtkWidget *hp_plus_trans_btn;
 
   GtkWidget *hp_chart_btn;

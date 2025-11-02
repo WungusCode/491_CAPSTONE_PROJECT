@@ -21,8 +21,11 @@ static void hide_home_page( phdl_grp all_hdls ) {
 
 }
 
-static void budget_clicked ( GtkButton *button , gpointer data ) {
-  create_budget_page();
+static void budget_clicked (GtkButton *button, gpointer data) {
+  phdl_grp all_hdls = (phdl_grp)data;
+  gtk_widget_hide(all_hdls->vbox_home_page);
+  gtk_container_remove(GTK_CONTAINER(all_hdls->parentWin), all_hdls->vbox_home_page);
+  create_budget_page(all_hdls);
 }
 
 static void chart_clicked ( GtkButton *button , gpointer data ) {
