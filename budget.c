@@ -66,23 +66,59 @@ static void adopt_budget_value(long new_value, gboolean sync_entry, gboolean syn
 }
 
 // --- Navigation helper ---
+// single-child safe page switcher
 static void switch_to_vbox(phdl_grp h, GtkWidget *new_vbox) {
-    if (h->vbox_active) {
-        gtk_widget_hide(h->vbox_active);
-        gtk_container_remove(GTK_CONTAINER(h->parentWin), h->vbox_active);
+    if (!h || !h->parentWin || !GTK_IS_WIDGET(new_vbox)) return;
+
+    // If already showing this page, just show and return
+    GtkWidget *cur = gtk_bin_get_child(GTK_BIN(h->parentWin));
+    if (cur == new_vbox) {
+        h->vbox_active = new_vbox;
+        gtk_widget_show_all(new_vbox);
+        return;
     }
+
+    // Remove current child (if any)
+    if (cur) {
+        gtk_container_remove(GTK_CONTAINER(h->parentWin), cur);
+    }
+
+    // If new_vbox has a different parent, detach it first
+    GtkWidget *nv_parent = gtk_widget_get_parent(new_vbox);
+    if (nv_parent && nv_parent != h->parentWin) {
+        gtk_container_remove(GTK_CONTAINER(nv_parent), new_vbox);
+    }
+
+    // Add as the sole child and show
     gtk_container_add(GTK_CONTAINER(h->parentWin), new_vbox);
     h->vbox_active = new_vbox;
     gtk_widget_show_all(new_vbox);
 }
 
+
 // --- Callbacks ---
+// budget.c
+static void on_budget_done_clicked(GtkButton *btn, gpointer user_data) {
+    phdl_grp all_hdls = (phdl_grp)user_data;
+
+    // Optional: if you show "$<budget>" on Home, refresh it here:
+    // home_update_budget_display(all_hdls);
+
+    // Match Transactions/History/Pie flow:
+    gtk_container_remove(GTK_CONTAINER(all_hdls->parentWin), all_hdls->vbox_budget_page);
+    gtk_container_add  (GTK_CONTAINER(all_hdls->parentWin), all_hdls->vbox_home_page);
+    gtk_widget_show_all(all_hdls->parentWin);
+}
+
+/*
 static void on_budget_done_clicked(GtkButton *btn, gpointer data) {
     phdl_grp h = (phdl_grp)data;
     if (h->vbox_home_page) {
         switch_to_vbox(h, h->vbox_home_page);
     }
 }
+*/
+
 
 static void on_save_clicked(GtkButton *btn, gpointer data) {
     g_print("[Budget] SAVE clicked: %ld (add DB save later)\n", g_budget_value);
@@ -118,15 +154,22 @@ static void on_entry_changed(GtkEditable *editable, gpointer user_data) {
         update_budget_label();
     }
 }
-
-// --- Public API: create_budget_page ---
 int create_budget_page(phdl_grp pall_hdls) {
+    int rc = 0;
     if (!pall_hdls) return -1;
+
+    // If pointer exists but widget got finalized somehow, rebuild
+    if (pall_hdls->vbox_budget_page && !GTK_IS_WIDGET(pall_hdls->vbox_budget_page)) {
+        pall_hdls->vbox_budget_page = NULL;
+    }
 
     if (pall_hdls->vbox_budget_page == NULL) {
         GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16);
         gtk_container_set_border_width(GTK_CONTAINER(vbox), 16);
         pall_hdls->vbox_budget_page = vbox;
+
+        // Keep the vbox alive when removed from parent (prevents blank on 2nd open)
+        g_object_ref(pall_hdls->vbox_budget_page);
 
         // Label
         g_lbl_budget = gtk_label_new(NULL);
@@ -147,32 +190,38 @@ int create_budget_page(phdl_grp pall_hdls) {
         gtk_box_pack_start(GTK_BOX(box_budget), g_entry_budget, FALSE, FALSE, 0);
 
         // Slider
-        GtkAdjustment *adj = gtk_adjustment_new((gdouble)g_budget_value,(gdouble)BUDGET_MIN,(gdouble)BUDGET_MAX,(gdouble)BUDGET_STEP,(gdouble)(BUDGET_STEP * 10),0.0);
+        GtkAdjustment *adj = gtk_adjustment_new(
+            (gdouble)g_budget_value,
+            (gdouble)BUDGET_MIN,
+            (gdouble)BUDGET_MAX,
+            (gdouble)BUDGET_STEP,
+            (gdouble)(BUDGET_STEP * 10),
+            0.0
+        );
         g_scale_budget = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL, adj);
         gtk_scale_set_draw_value(GTK_SCALE(g_scale_budget), TRUE);
         gtk_box_pack_start(GTK_BOX(box_budget), g_scale_budget, FALSE, FALSE, 0);
 
         // Buttons
-        GtkWidget *btn_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-        gtk_box_pack_start(GTK_BOX(vbox), btn_row, FALSE, FALSE, 0);
-
+        GtkWidget *btn_row  = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
         GtkWidget *btn_save = gtk_button_new_with_label("Save");
         GtkWidget *btn_back = gtk_button_new_with_label("Back");
         gtk_box_pack_start(GTK_BOX(btn_row), btn_save, FALSE, FALSE, 0);
-        gtk_box_pack_end(GTK_BOX(btn_row), btn_back, FALSE, FALSE, 0);
+        gtk_box_pack_end  (GTK_BOX(btn_row), btn_back, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(vbox),   btn_row,  FALSE, FALSE, 0);
 
         // Signals
         g_signal_connect(g_scale_budget, "value-changed", G_CALLBACK(on_scale_value_changed), NULL);
         g_signal_connect(g_entry_budget, "activate",      G_CALLBACK(on_entry_activate), NULL);
         g_signal_connect(g_entry_budget, "changed",       G_CALLBACK(on_entry_changed),  NULL);
-        g_signal_connect(btn_save, "clicked", G_CALLBACK(on_save_clicked), NULL);
-        g_signal_connect(btn_back, "clicked", G_CALLBACK(on_budget_done_clicked), pall_hdls);
+        g_signal_connect(btn_save, "clicked",             G_CALLBACK(on_save_clicked),    pall_hdls);
+        g_signal_connect(btn_back, "clicked",             G_CALLBACK(on_budget_done_clicked), pall_hdls);
 
         // Initial sync
         adopt_budget_value(g_budget_value, TRUE, TRUE, FALSE);
     }
 
     switch_to_vbox(pall_hdls, pall_hdls->vbox_budget_page);
-    return 0;
+    return rc;
 }
 
