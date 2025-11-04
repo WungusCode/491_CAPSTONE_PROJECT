@@ -12,6 +12,7 @@
 #define WIN_H 480
 
 #define DB_DESCRIP_LEN 255
+#define NR_BUDGET_CHARS 7
 
 #define  RGB(R,G,B) {(R<<16)|(G<<8)|B,(R*65535)/255,(G*65535)/255,(B*65535)/255}
 
@@ -110,6 +111,12 @@ typedef struct _hdl_grp {
   papp_flags flg;
 
   pokane_grp t_lst;               // linked list of transactions
+
+  int budget_val;
+
+  int budget_val_tmp;
+
+  char budget_str[NR_BUDGET_CHARS];
 
 } hdl_grp, *phdl_grp;
 
