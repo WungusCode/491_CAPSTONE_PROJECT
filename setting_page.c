@@ -176,7 +176,7 @@ void settings_show(void) {
     } else {
         gtk_widget_show(settings_window);
     }
-    gtk_window_present(GTK_WINDOW(settings_window));
+    gtk_window_present(GTK_WINDOW(settings_window));    
 }
 
 void destroy_setting_page(GtkWidget *window) {
