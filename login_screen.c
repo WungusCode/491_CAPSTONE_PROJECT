@@ -64,7 +64,7 @@ static void on_submit_login ( GtkButton *button , gpointer data ) {
       GTK_DIALOG_MODAL,
       GTK_MESSAGE_WARNING,
       GTK_BUTTONS_OK,
-      "Username and password cannot be empty."
+      "Please enter your username and your password."
     );
 
     gtk_dialog_run(GTK_DIALOG(dlg));
