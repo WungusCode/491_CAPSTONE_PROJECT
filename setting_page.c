@@ -8,9 +8,16 @@
 
 // --- Callbacks ---
 
+static GtkWidget *settings_window = NULL;       // Caching the one settings window
+
 static void on_close_clicked(GtkButton *btn, gpointer user_data) {
     GtkWidget *window = GTK_WIDGET(user_data);
-    if (window) gtk_widget_destroy(window);
+    if (window) gtk_widget_hide(window);        // Now: only hiding it NOT destroying the window
+}
+
+static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+    gtk_widget_hide(widget);
+    return TRUE; // Prevent the window from being destroyed
 }
 
 static void on_notify_toggled(GtkToggleButton *toggle, gpointer user_data) {
@@ -56,8 +63,19 @@ static void on_reportProblem_clicked(GtkButton *btn, gpointer user_data) {
 // --- Public API ---
 
 GtkWidget* create_setting_page(void) {
+
+    if (settings_window) {
+        gtk_widget_show(settings_window);
+        gtk_window_present(GTK_WINDOW(settings_window));
+        return settings_window;
+    }
     // New Settings window
-    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    settings_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+    GtkWidget *window = settings_window;
+
+    g_signal_connect(window, "delete-event", G_CALLBACK(on_window_delete_event), NULL);
+
     gtk_window_set_title(GTK_WINDOW(window), "Settings");
     gtk_window_set_default_size(GTK_WINDOW(window), WIN_W / 2, WIN_H / 2);
 
@@ -150,6 +168,15 @@ GtkWidget* create_setting_page(void) {
 
     printf("[Settings] %s\n", __FUNCTION__);
     return window;
+}
+
+void settings_show(void) {
+    if (!settings_window) {
+        create_setting_page();
+    } else {
+        gtk_widget_show(settings_window);
+    }
+    gtk_window_present(GTK_WINDOW(settings_window));
 }
 
 void destroy_setting_page(GtkWidget *window) {
