@@ -15,7 +15,7 @@ static GtkWidget *g_lbl_budget = NULL;
 static GtkWidget *g_entry_budget = NULL;
 static GtkWidget *g_scale_budget = NULL;
 
-static app_flags flgs;
+//static app_flags flgs;
 
 static void update_budget_label(phdl_grp pall_hdls) {
   if (!g_lbl_budget) return;
@@ -132,7 +132,7 @@ static void on_entry_changed(GtkEditable *editable, gpointer user_data) {
 
 int create_budget_page(phdl_grp pall_hdls) {
   int rc  = 0;
-  pall_hdls->flg = &flgs;
+  //pall_hdls->flg = &flgs;
 
 pall_hdls->flg->dbg = 1;
 
@@ -230,7 +230,7 @@ pall_hdls->flg->dbg = 1;
 int create_budget_page_rtn(phdl_grp *all_hdls) {
   int rc  = 0;
   phdl_grp pall_hdls = *all_hdls;
-  pall_hdls->flg = &flgs;
+  //pall_hdls->flg = &flgs;
 
   if ( pall_hdls->flg->dbg ) LOG_BLOCK_START ( "  >> E %s L%4d \n" , __func__, __LINE__ );
 
