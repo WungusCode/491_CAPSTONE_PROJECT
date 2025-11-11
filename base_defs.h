@@ -88,6 +88,10 @@ typedef struct _uiHdl {
   GtkWidget *lp_submit_btn;  // subit  button , move to 'submit' screen
   GtkWidget *lp_back_btn;    // back   button  , leave app
 
+  GtkWidget    *tp_recent_treeView;
+  GtkTreeStore *tp_recent_treeStore;
+  void         *tp_recent_t_lst_store;
+
 } uiHdl, *puiHdl;
 
 // keep at bottom

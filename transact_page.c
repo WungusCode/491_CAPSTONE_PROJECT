@@ -233,6 +233,7 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
   // call update list transactions
 
   add_to_trans_list_treestore( all_hdls );
+  refresh_recent_trans_list( all_hdls , 5 );
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_record_btn );
   gtk_widget_set_sensitive(all_hdls->vbx_hdls->tp_add_dB_btn, TRUE);
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_dB_btn );
@@ -261,6 +262,9 @@ static void save_db_clicked ( GtkButton *button,  gpointer   user_data) {
   LOG_BLOCK_START ( "  >> E %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
   // SAVE TO DB !
   save_to_dB_transaction( head , 1 );
+ 
+  refresh_recent_trans_list( all_hdls , 5 );
+
   LOG_BLOCK_END ( "  << Lv %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
 }
 
@@ -303,6 +307,16 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 8);
     gtk_container_set_border_width (GTK_CONTAINER (vbox), 8);
     gtk_container_add (GTK_CONTAINER (frame), vbox);
+
+    GtkWidget *recent_frame    = gtk_frame_new("Most Recent (5)");
+    GtkWidget *recent_scrolled = gtk_scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), recent_frame, TRUE, TRUE, 0);
+    gtk_container_add(GTK_CONTAINER(recent_frame), recent_scrolled);
+    create_recent_trans_list_store(pall_hdls, 5, 0);
+    GtkWidget *recent_view = create_recent_trans_listview(pall_hdls, 5, 0);
+    gtk_container_add(GTK_CONTAINER(recent_scrolled), recent_view);
+
+    gtk_widget_set_size_request(recent_scrolled, -1, 150);
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
