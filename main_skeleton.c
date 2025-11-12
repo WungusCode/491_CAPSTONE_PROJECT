@@ -88,6 +88,8 @@ int main(int argc, char* argv[]) {
     gtk_window_set_title (GTK_WINDOW (window), "Window");
     gtk_window_set_default_size (GTK_WINDOW (window), WIN_W, WIN_H );
 
+    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+    
     if ( pall_hdls->flg->dbg ) {
       LOG_INDENTED ( "  window = %p \n" , window );
     }
