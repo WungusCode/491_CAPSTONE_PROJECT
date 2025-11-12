@@ -10,9 +10,9 @@
 #include "budget.h"
 #include "transaction_list_view.h"
 #include "transaction_list_page.h"
+#include "budget.h"
 
 #include "setting_page.h"
-
 
 static void hide_home_page( phdl_grp all_hdls ) {
   gtk_widget_hide( all_hdls->vbox_home_page );
@@ -21,8 +21,12 @@ static void hide_home_page( phdl_grp all_hdls ) {
 
 }
 
-static void budget_clicked ( GtkButton *button , gpointer data ) {
-  create_budget_page();
+static void budget_clicked (GtkButton *button, gpointer data) {
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  hide_home_page( all_hdls );
+
+  create_budget_page(all_hdls);
 }
 
 static void chart_clicked ( GtkButton *button , gpointer data ) {
@@ -89,11 +93,9 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-    if (g_budget_string == NULL) {
-      label = gtk_label_new ("$0");
-    } else {
-      label = gtk_label_new (g_budget_string);
-    }
+    label = gtk_label_new(pall_hdls->budget_str);
+
+    pall_hdls->vbx_hdls->hp_budget_label = label;
 
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
 
@@ -114,7 +116,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     GtkWidget *frame, *vbox_lst;
     GtkWidget *table, *scrolledwindow;
 
-    frame = gtk_frame_new ("X act List");
+    frame = gtk_frame_new ("Most Recent Transactions");
     gtk_widget_set_size_request( frame, WIN_W - 200, 200 );
     gtk_container_set_border_width (GTK_CONTAINER ( frame ), 1);
 
@@ -257,6 +259,22 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
   return rc;
 }  // create_home_screen
+
+void home_update_budget_display( phdl_grp pall_hdls ) {
+    if ( pall_hdls->flg->dbg ) LOG_BLOCK_START ( "  >> E %s L%4d \n" , __func__, __LINE__ );
+
+    if (!pall_hdls || !pall_hdls->vbx_hdls || !pall_hdls->vbx_hdls->hp_budget_label) {
+      if ( pall_hdls->flg->dbg ) LOG_BLOCK_END ( "  >> Lv %s L%4d \n" , __func__, __LINE__ );
+        return;
+      }
+
+    gtk_label_set_text(GTK_LABEL(pall_hdls->vbx_hdls->hp_budget_label), pall_hdls->budget_str);
+
+    if ( pall_hdls->flg->dbg ) LOG_BLOCK_END ( "  >> Lv %s L%4d \n" , __func__, __LINE__ );
+
+    return;
+
+}
 
 int create_home_screen_rtn( phdl_grp *all_hdls ) {
     int rc = 0;

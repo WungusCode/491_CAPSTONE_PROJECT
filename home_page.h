@@ -6,5 +6,6 @@
 #include "data_types.h"
 
 int create_home_screen ( phdl_grp all_hdls );
+void home_update_budget_display(phdl_grp h);
 extern int create_home_screen_rtn( phdl_grp *all_hdls );
 #endif

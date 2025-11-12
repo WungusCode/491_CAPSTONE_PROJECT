@@ -596,3 +596,155 @@ void * create_trans_list_store ( phdl_grp pall_hdls , int nrEntries , int dbg ) 
   return ( void * )store;
 } // create_trans_list_store
 
+static void fill_last_n_into_treestore(GtkTreeStore *treestore, pokane_grp head, int n) {
+  // count
+  int len = 0;
+  for (pokane_grp c=head; c; c=c->next) len++;
+  if (len==0) return;
+
+  // skip to tail start
+  int skip = (n < len) ? (len - n) : 0;
+  pokane_grp cur=head; while(cur && skip--) cur=cur->next;
+
+  // emit tail
+  GtkTreeIter it;
+  char time_str[31];
+  while (cur) {
+    convert_to_date_string(cur->entry_ts, time_str);
+    gtk_tree_store_append(treestore, &it, NULL);
+    gtk_tree_store_set(treestore, &it,
+      MODEL_ENTRY_NR   , cur->entry_nr,
+      MODEL_CATEGORY   , cur->category,
+      MODEL_ENTRY_TS   , cur->entry_ts,
+      MODEL_DATE_STR   , time_str,
+      MODEL_AMOUNT     , cur->amount,
+      MODEL_DESCRIPTION, cur->description,
+      MODEL_IS_IN_DB   , cur->in_dB,
+      MODEL_SHARE_END_LIST);
+    cur = cur->next;
+  }
+}
+
+void * create_recent_trans_list_store( phdl_grp pall_hdls , int max_recent , int dbg ) {
+  transact_lst_store *store = g_new0(transact_lst_store, 1);
+
+  store->t_act = gtk_tree_store_new ( MODEL_SHARE_NUM_COLS ,
+       G_TYPE_INT,     // MODEL_ENTRY_NR
+       G_TYPE_INT,     // MODEL_CATEGORY
+       G_TYPE_INT,     // MODEL_ENTRY_TS
+       G_TYPE_STRING,  // MODEL_DATE_STR
+       G_TYPE_FLOAT,   // MODEL_AMOUNT
+       G_TYPE_STRING,  // MODEL_DESCRIPTION
+       G_TYPE_INT      // MODEL_IS_IN_DB
+  );
+
+  // bind tp_* handles (separate from hp_/tlp_)
+  pall_hdls->vbx_hdls->tp_recent_t_lst_store = (void*)store;
+  pall_hdls->vbx_hdls->tp_recent_treeStore   = store->t_act;
+
+  // fill last N rows from linked list
+  fill_last_n_into_treestore(store->t_act, pall_hdls->t_lst, max_recent);
+
+  // filtered/sorted chain like your main builder
+  store->filtered = GTK_TREE_MODEL_FILTER(gtk_tree_model_filter_new(GTK_TREE_MODEL(store->t_act), NULL));
+  store->sorted   = GTK_TREE_MODEL_SORT(gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(store->filtered)));
+  gtk_tree_model_filter_set_visible_func(store->filtered, (GtkTreeModelFilterVisibleFunc) tlv_row_visible, store, NULL);
+
+  GtkWidget *view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store->sorted));
+  gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(view), GTK_TREE_VIEW_GRID_LINES_BOTH);
+
+  pall_hdls->vbx_hdls->tp_recent_treeView = view;
+  return (void*)store;
+}
+
+GtkWidget * create_recent_trans_listview ( phdl_grp pall_hdls , int max_recent , int dbg ) {
+  GtkWidget *view  = pall_hdls->vbx_hdls->tp_recent_treeView;
+  transact_lst_store *store = (transact_lst_store*)pall_hdls->vbx_hdls->tp_recent_t_lst_store;
+
+  // Reuse exact column setup you use in create_trans_listview()
+  GtkCellRenderer *renderer;
+  GtkTreeViewColumn *col;
+  int user_dat;
+
+  // Entry Nr
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Entry Nr");
+  gtk_tree_view_column_set_sort_column_id(col, MODEL_ENTRY_NR);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_ENTRY_NR);
+  user_dat = MODEL_ENTRY_NR;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list, (void*)(intptr_t)user_dat, NULL);
+
+  // Category
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Cat");
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_CATEGORY);
+  user_dat = MODEL_CATEGORY;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list, (void*)(intptr_t)user_dat, NULL);
+
+  // Date (unix ts)
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Date");
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_ENTRY_TS);
+  user_dat = MODEL_ENTRY_TS;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list, (void*)(intptr_t)user_dat, NULL);
+
+  // Date String
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Date");
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_DATE_STR);
+  user_dat = MODEL_ENTRY_TS;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list, (void*)(intptr_t)user_dat, NULL);
+
+  // Amount
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Amount");
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+  renderer = gtk_cell_renderer_text_new();
+  g_object_set(renderer, "xalign", 0.5, NULL);
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_AMOUNT);
+  user_dat = MODEL_AMOUNT;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list, (void*)(intptr_t)user_dat, NULL);
+
+  // Description
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Description");
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_DESCRIPTION);
+  user_dat = MODEL_DESCRIPTION;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list, (void*)(intptr_t)user_dat, NULL);
+
+  // in dB
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "in dB");
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(col, renderer, "text", MODEL_IS_IN_DB);
+  user_dat = MODEL_IS_IN_DB;
+  gtk_tree_view_column_set_cell_data_func(col, renderer, gen_renderer_func_trans_list, (void*)(intptr_t)user_dat, NULL);
+
+  return view;
+}  //create_recent_trans_listview
+
+void refresh_recent_trans_list ( phdl_grp pall_hdls , int max_recent ) {
+  transact_lst_store* store = (transact_lst_store*)pall_hdls->vbx_hdls->tp_recent_t_lst_store;
+  if (!store) return;
+  gtk_tree_store_clear(store->t_act);
+  fill_last_n_into_treestore(store->t_act, pall_hdls->t_lst, max_recent);
+}
+

@@ -37,4 +37,10 @@ extern void                 create_and_fill_trans_list ( phdl_grp pall_hdls , in
 extern GtkWidget          * create_trans_listview ( phdl_grp pall_hdls , int nrEntries , int dbg );
 
 extern void               * create_trans_list_store ( phdl_grp pall_hdls , int nrEntries , int dbg );
+
+GtkWidget * create_recent_trans_listview  ( phdl_grp pall_hdls , int max_recent , int dbg );
+
+void      * create_recent_trans_list_store( phdl_grp pall_hdls , int max_recent , int dbg );
+void        refresh_recent_trans_list     ( phdl_grp pall_hdls , int max_recent );
+
 #endif
