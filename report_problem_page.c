@@ -6,6 +6,11 @@
 static void on_submit_clicked(GtkButton *btn, gpointer user_data) {
     GtkWidget **entries = (GtkWidget **)user_data;
 
+    if (!entries || !entries[0] || !entries[1] || !entries[2]) {
+        g_printerr("ERROR: Invalid widget pointers passed to callback.\n");
+        return;
+    }
+
     const char *name = gtk_entry_get_text(GTK_ENTRY(entries[0]));
     const char *email = gtk_entry_get_text(GTK_ENTRY(entries[1]));
 
@@ -14,6 +19,11 @@ static void on_submit_clicked(GtkButton *btn, gpointer user_data) {
     gtk_text_buffer_get_start_iter(buffer, &start);
     gtk_text_buffer_get_end_iter(buffer, &end);
     char *message = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+
+    // NULL safety
+    if (!name) name = "";
+    if (!email) email = "";
+    if (!message) message = "";
 
     if (strlen(name) == 0 || strlen(email) == 0 || strlen(message) == 0) {
         GtkWidget *dialog = gtk_message_dialog_new(
@@ -87,8 +97,16 @@ GtkWidget* create_report_problem_page(GtkWindow *parent) {
 
     GtkWidget *btn_submit = gtk_button_new_with_label("Submit Report");
 
-    GtkWidget *entries[3] = { entry_name, entry_email, text_message };
-    g_signal_connect(btn_submit, "clicked", G_CALLBACK(on_submit_clicked), entries);
+    // FIX: allocate entries array on heap so it survives after function returns
+    GtkWidget **entries = g_malloc(sizeof(GtkWidget*) * 3);
+    entries[0] = entry_name;
+    entries[1] = entry_email;
+    entries[2] = text_message;
+
+    g_signal_connect(btn_submit, "clicked",
+                     G_CALLBACK(on_submit_clicked),
+                     entries);
+
     gtk_box_pack_start(GTK_BOX(vbox), btn_submit, FALSE, FALSE, 0);
 
     gtk_widget_show_all(window);
