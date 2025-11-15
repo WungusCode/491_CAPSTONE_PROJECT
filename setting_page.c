@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
+#include <stdlib.h>
 
 #include "setting_page.h"
 #include "home_page.h"
 #include "start_screen.h"
 #include "base_defs.h"
+
 
 // --- Callbacks ---
 
@@ -132,16 +134,16 @@ GtkWidget* create_setting_page(void) {
     gtk_container_set_border_width(GTK_CONTAINER(box_account), 10);
     gtk_container_add(GTK_CONTAINER(frame_account), box_account);
 
-    // Email entry
-    GtkWidget *enter_email = gtk_entry_new();  // was gtk_enter_new()
-    gtk_entry_set_placeholder_text(GTK_ENTRY(enter_email), "Email");
-    gtk_box_pack_start(GTK_BOX(box_account), enter_email, FALSE, FALSE, 0);
+    // Email  (change type of box)
+    GtkWidget *btn_email = gtk_entry_new();  // was gtk_enter_new()
+    gtk_entry_set_placeholder_text(GTK_ENTRY(btn_email), "Email");
+    gtk_box_pack_start(GTK_BOX(box_account), btn_email, FALSE, FALSE, 0);
 
-    // Password entry
-    GtkWidget *enter_password = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(enter_password), "Password");
-    gtk_entry_set_visibility(GTK_ENTRY(enter_password), TRUE);
-    gtk_box_pack_start(GTK_BOX(box_account), enter_password, FALSE, FALSE, 0); // missing ';' fixed
+    // Password entry (change type of box)
+    GtkWidget *btn_password = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(btn_password), "Password");
+    gtk_entry_set_visibility(GTK_ENTRY(btn_password), TRUE);
+    gtk_box_pack_start(GTK_BOX(box_account), btn_password, FALSE, FALSE, 0); // missing ';' fixed
 
     // add to main box
     gtk_box_pack_start(GTK_BOX(vbox), frame_account, FALSE, FALSE, 0);

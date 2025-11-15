@@ -12,6 +12,7 @@
 #define WIN_H 480
 
 #define DB_DESCRIP_LEN 255
+#define NR_BUDGET_CHARS 7
 
 #define  RGB(R,G,B) {(R<<16)|(G<<8)|B,(R*65535)/255,(G*65535)/255,(B*65535)/255}
 
@@ -42,6 +43,10 @@ typedef struct _okane_grp {
 
 typedef struct _uiHdl {
   // home page widgets
+  GtkWidget *hp_budget_btn;
+ 
+  GtkWidget *hp_budget_label;
+ 
   GtkWidget *hp_plus_trans_btn;
 
   GtkWidget *hp_chart_btn;
@@ -83,6 +88,10 @@ typedef struct _uiHdl {
   GtkWidget *lp_submit_btn;  // subit  button , move to 'submit' screen
   GtkWidget *lp_back_btn;    // back   button  , leave app
 
+  GtkWidget    *tp_recent_treeView;
+  GtkTreeStore *tp_recent_treeStore;
+  void         *tp_recent_t_lst_store;
+
 } uiHdl, *puiHdl;
 
 // keep at bottom
@@ -98,6 +107,7 @@ typedef struct _hdl_grp {
   GtkWidget *vbox_transact_page;  // vbox container for 'transact_page'
   GtkWidget *vbox_chart_page;     // vbox container for 'pie_page'
   GtkWidget *vbox_t_history_page; // vbox container for 'transaction_history_page'
+  GtkWidget *vbox_budget_page;
 
   // collect hdls to widgets of vboxes here
   puiHdl vbx_hdls;
@@ -105,6 +115,12 @@ typedef struct _hdl_grp {
   papp_flags flg;
 
   pokane_grp t_lst;               // linked list of transactions
+
+  int budget_val;
+
+  int budget_val_tmp;
+
+  char budget_str[NR_BUDGET_CHARS];
 
 } hdl_grp, *phdl_grp;
 

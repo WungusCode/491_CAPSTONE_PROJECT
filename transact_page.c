@@ -233,6 +233,7 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
   // call update list transactions
 
   add_to_trans_list_treestore( all_hdls );
+  refresh_recent_trans_list( all_hdls , 5 );
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_record_btn );
   gtk_widget_set_sensitive(all_hdls->vbx_hdls->tp_add_dB_btn, TRUE);
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_dB_btn );
@@ -261,6 +262,9 @@ static void save_db_clicked ( GtkButton *button,  gpointer   user_data) {
   LOG_BLOCK_START ( "  >> E %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
   // SAVE TO DB !
   save_to_dB_transaction( head , 1 );
+ 
+  refresh_recent_trans_list( all_hdls , 5 );
+
   LOG_BLOCK_END ( "  << Lv %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
 }
 
@@ -304,6 +308,16 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_container_set_border_width (GTK_CONTAINER (vbox), 8);
     gtk_container_add (GTK_CONTAINER (frame), vbox);
 
+    GtkWidget *recent_frame    = gtk_frame_new("Most Recent (5)");
+    GtkWidget *recent_scrolled = gtk_scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), recent_frame, TRUE, TRUE, 0);
+    gtk_container_add(GTK_CONTAINER(recent_frame), recent_scrolled);
+    create_recent_trans_list_store(pall_hdls, 5, 0);
+    GtkWidget *recent_view = create_recent_trans_listview(pall_hdls, 5, 0);
+    gtk_container_add(GTK_CONTAINER(recent_scrolled), recent_view);
+
+    gtk_widget_set_size_request(recent_scrolled, -1, 150);
+
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
@@ -314,6 +328,10 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_grid_set_row_spacing (GTK_GRID (table), 4);
     gtk_grid_set_column_spacing (GTK_GRID (table), 4);
     gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, FALSE, 0);
+
+    //------------- first line -------------
+    label = gtk_label_new_with_mnemonic ("Category:");
+    gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
 
     /* A combobox with string IDs */
     combo = gtk_combo_box_text_new ();
@@ -335,28 +353,32 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
     g_object_set ( combo, "tooltip-text", "Select category of item, eg wages = income, rent, electric = housing", NULL);
 
-    gtk_grid_attach ( GTK_GRID ( table ), combo , 0, 2 , 1 , 1);
+    gtk_grid_attach ( GTK_GRID ( table ), combo , 1, 2 , 1 , 1);
 
-    label = gtk_label_new_with_mnemonic ("D_escription");
-    gtk_grid_attach (GTK_GRID (table), label, 1, 2, 1, 1);
+    label = gtk_label_new_with_mnemonic ("D_escription:");
+    gtk_grid_attach (GTK_GRID (table), label, 2, 2, 1, 1);
 
     entry1 = gtk_entry_new ();
     g_object_set ( entry1, "tooltip-text", "Enter a description of the expense you are entering", NULL);
 
-    gtk_grid_attach (GTK_GRID (table), entry1, 2, 2, 1, 1);
+    gtk_grid_attach (GTK_GRID (table), entry1, 3, 2, 1, 1);
     pall_hdls->vbx_hdls->tp_w_description = entry1;
     g_signal_connect( entry1, "changed", G_CALLBACK( on_description_key_press ), (gpointer)pall_hdls );
     g_signal_connect( entry1, "key-press-event", G_CALLBACK(key_press_cb), (gpointer)pall_hdls );
+
+    label = gtk_label_new_with_mnemonic ("Amount:");
+    gtk_grid_attach (GTK_GRID (table), label, 4, 2, 1, 1);
 
     entry2 = gtk_entry_new ();
     pall_hdls->vbx_hdls->tp_w_amount = entry2;
 
     g_signal_connect( entry2, "key-press-event", G_CALLBACK(key_press_cb), (gpointer)pall_hdls );
 
-    gtk_grid_attach (GTK_GRID (table), entry2, 3, 2, 1, 1);
+    gtk_grid_attach (GTK_GRID (table), entry2, 5, 2, 1, 1);
     g_object_set ( entry2, "tooltip-text", "Enter amount of expense, or money received", NULL);
 //    gtk_widget_hide ( pall_hdls->vbx_hdls->tp_w_amount  );
 
+    //------------- second line -------------
     button = gtk_button_new_with_mnemonic ("D_one");
     pall_hdls->vbx_hdls->tp_cancel_btn = button;
 

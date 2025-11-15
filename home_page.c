@@ -7,18 +7,26 @@
 #include "start_screen.h"
 #include "transact_page.h"
 #include "pie_page.h"
-
+#include "budget.h"
 #include "transaction_list_view.h"
 #include "transaction_list_page.h"
+#include "budget.h"
 
 #include "setting_page.h"
-
 
 static void hide_home_page( phdl_grp all_hdls ) {
   gtk_widget_hide( all_hdls->vbox_home_page );
 
   gtk_container_remove ( GTK_CONTAINER ( all_hdls->parentWin ) , all_hdls->vbox_home_page );
 
+}
+
+static void budget_clicked (GtkButton *button, gpointer data) {
+  phdl_grp all_hdls = (phdl_grp)data;
+
+  hide_home_page( all_hdls );
+
+  create_budget_page(all_hdls);
 }
 
 static void chart_clicked ( GtkButton *button , gpointer data ) {
@@ -85,7 +93,9 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-    label = gtk_label_new (" $3,261 ");
+    label = gtk_label_new(pall_hdls->budget_str);
+
+    pall_hdls->vbx_hdls->hp_budget_label = label;
 
     gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, FALSE, 0);
 
@@ -106,7 +116,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     GtkWidget *frame, *vbox_lst;
     GtkWidget *table, *scrolledwindow;
 
-    frame = gtk_frame_new ("X act List");
+    frame = gtk_frame_new ("Most Recent Transactions");
     gtk_widget_set_size_request( frame, WIN_W - 200, 200 );
     gtk_container_set_border_width (GTK_CONTAINER ( frame ), 1);
 
@@ -151,11 +161,24 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_home_page ), hbox_spc );
 
     hbox3 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+// ---------
+    button = gtk_button_new_with_label ("");
+    button = gtk_button_new_with_label ("Budget Editor");
 
+    GtkWidget *image = gtk_image_new_from_file("./resources/budget_64x64.png");
+    gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
+    gtk_button_set_image( GTK_BUTTON( button ) , image);
+
+    pall_hdls->vbx_hdls->hp_budget_btn = button;
+    g_object_set ( button , "tooltip-text", "Click to edit your budget", NULL);
+    g_signal_connect (button, "clicked",  G_CALLBACK ( budget_clicked ), (gpointer) pall_hdls );
+
+    gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);
+// ----------
     button = gtk_button_new_with_label ("");
     button = gtk_button_new_with_label ("Pie Chart");
 
-    GtkWidget *image = gtk_image_new_from_file("./resources/libreoffice-chart.png");
+    image = gtk_image_new_from_file("./resources/libreoffice-chart.png");
     gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
     gtk_button_set_image( GTK_BUTTON( button ) , image);
 
@@ -236,6 +259,22 @@ int create_home_screen ( phdl_grp pall_hdls ) {
 
   return rc;
 }  // create_home_screen
+
+void home_update_budget_display( phdl_grp pall_hdls ) {
+    if ( pall_hdls->flg->dbg ) LOG_BLOCK_START ( "  >> E %s L%4d \n" , __func__, __LINE__ );
+
+    if (!pall_hdls || !pall_hdls->vbx_hdls || !pall_hdls->vbx_hdls->hp_budget_label) {
+      if ( pall_hdls->flg->dbg ) LOG_BLOCK_END ( "  >> Lv %s L%4d \n" , __func__, __LINE__ );
+        return;
+      }
+
+    gtk_label_set_text(GTK_LABEL(pall_hdls->vbx_hdls->hp_budget_label), pall_hdls->budget_str);
+
+    if ( pall_hdls->flg->dbg ) LOG_BLOCK_END ( "  >> Lv %s L%4d \n" , __func__, __LINE__ );
+
+    return;
+
+}
 
 int create_home_screen_rtn( phdl_grp *all_hdls ) {
     int rc = 0;
