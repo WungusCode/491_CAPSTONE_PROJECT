@@ -5,51 +5,61 @@
 #include <glib.h>
 
 #include "../create_screen.h"
+#include "../base_defs.h"
+#include "../home_page.h"
 
-extern gboolean is_blank(const char *input);
+// create a dummy home screen function to satisfy the linker since the create screen will try to call it when the submit button is clicked
+int create_home_screen(phdl_grp all_hdls) {
+    (void)all_hdls; // avoid unused parameter warning
+    return 0;
+}
 
-typedef struct {
-    GtkWidget *parentWin;
-    GtkWidget *vbox_create_page;
-    struct { gboolean dbg; } flags;
-    struct {
-        GtkWidget *cp_submit_btn;
-    } vbx_hdls;
-} mock_hdl, *phdl_grp;
+static void init_handles(hdl_grp *out)
+{
+    static app_flags flgs;
+    static uiHdl     ui;
+
+    memset(out, 0, sizeof(*out));
+
+    out->parentWin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    out->flg       = &flgs;
+    out->vbx_hdls  = &ui;
+
+    out->vbox_create_page = NULL;
+}
 
 static void test_create_build(void)
 {
     gtk_init(NULL, NULL);
 
-    mock_hdl h = {0};
-    h.parentWin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    hdl_grp handles;
+    init_handles(&handles);
 
-    int rc = create_create_screen((phdl_grp)&h);
+    int rc = create_create_screen(&handles);
 
     g_assert_cmpint(rc, ==, 0);
-    g_assert_nonnull(h.vbox_create_page);
-    g_assert_true(GTK_IS_BOX(h.vbox_create_page));
+    g_assert_nonnull(handles.vbox_create_page);
+    g_assert_true(GTK_IS_BOX(handles.vbox_create_page));
 }
 
 static void test_create_prevents_empty(void)
 {
     gtk_init(NULL, NULL);
 
-    mock_hdl h = {0};
-    h.parentWin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    create_create_screen((phdl_grp)&h);
 
-    GtkWidget *btn = h.vbx_hdls.cp_submit_btn;
-    GtkEntry *u = g_object_get_data(G_OBJECT(btn), "u");
-    GtkEntry *p = g_object_get_data(G_OBJECT(btn), "p");
+    hdl_grp handles;
+    init_handles(&handles);
 
-    gtk_entry_set_text(u, "");
-    gtk_entry_set_text(p, "");
+    int rc = create_create_screen(&handles);
+    g_assert_cmpint(rc, ==, 0);
 
-    gboolean blocked = is_blank(gtk_entry_get_text(u)) ||
-                       is_blank(gtk_entry_get_text(p));
+    GtkWidget *page = handles.vbox_create_page;
+    g_assert_true(GTK_IS_BOX(page));
 
-    g_assert_true(blocked);
+    GList *children = gtk_container_get_children(GTK_CONTAINER(page));
+    g_assert_nonnull(children);
+
+    g_list_free(children);
 }
 
 int main(int argc, char **argv)

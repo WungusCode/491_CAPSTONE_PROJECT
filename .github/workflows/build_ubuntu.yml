@@ -30,3 +30,14 @@ jobs:
       run: export DISPLAY=:99
     - name: Run UI tests with virtual display
       run: xvfb-run -a ./sekai -at
+
+    - name: Build test binaries
+      run: |
+        make -C test clean
+        make -C test
+
+    - name: Run tests with Xvfb
+      run: |
+        Xvfb :99 -screen 0 1024x768x16 &
+        export DISPLAY=:99
+        make -C test run
