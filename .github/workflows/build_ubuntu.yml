@@ -34,7 +34,8 @@ jobs:
       run: export DISPLAY=:99
 
     - name: Run UI tests with virtual display
-      # run: timeout 30 xvfb-run -a ./sekai -at
+      # run: xvfb-run -a ./sekai -at
+      # Turning the hanging command into a no-op for now to avoid CI timeouts.
       run: echo "UI tests skipped for now"
 
     - name: Build test binaries
