@@ -22,5 +22,6 @@ Make sure you have this installed on your system:
 
 ### Build and Run
 **make clean && make -B**
+**rm -rf obj sekai**
+**make -B sekai**
 **./sekai**
-
