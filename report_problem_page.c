@@ -1,3 +1,66 @@
+#include <curl/curl.h>
+
+struct upload_status {
+    int lines_read;
+};
+
+static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp) {
+    struct upload_status *upload_ctx = (struct upload_status *)userp;
+    const char *data = ((const char **)userp)[upload_ctx->lines_read];
+
+    if (!data)
+        return 0;
+
+    size_t len = strlen(data);
+    memcpy(ptr, data, len);
+    upload_ctx->lines_read++;
+    return len;
+}
+
+static int send_report_email(const char *name, const char *email, const char *message) {
+    CURL *curl = curl_easy_init();
+    if (!curl) return 1;
+
+    static const char *payload[6];
+    char subject[256];
+    char body[2048];
+
+    snprintf(subject, sizeof(subject), "Subject: Report from %s\r\n", name);
+    snprintf(body, sizeof(body),
+             "Name: %s\nEmail: %s\n\nMessage:\n%s\r\n",
+             name, email, message);
+
+    payload[0] = "To: RafaelMercadoEspinoza@gmail.com\r\n";
+    payload[1] = "From: App Reporter <YOUR_EMAIL@gmail.com>\r\n";
+    payload[2] = subject;
+    payload[3] = "\r\n";
+    payload[4] = body;
+    payload[5] = NULL;
+
+    struct upload_status upload_ctx = {0};
+
+    curl_easy_setopt(curl, CURLOPT_URL, "smtp://smtp.gmail.com:587");
+    curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+
+    curl_easy_setopt(curl, CURLOPT_USERNAME, "YOUR_EMAIL@gmail.com");
+    curl_easy_setopt(curl, CURLOPT_PASSWORD, "bqyh mqmd tdsq bnya");
+
+    curl_easy_setopt(curl, CURLOPT_MAIL_FROM, "<YOUR_EMAIL@gmail.com>");
+
+    struct curl_slist *recipients = NULL;
+    recipients = curl_slist_append(recipients, "<RafaelMercadoEspinoza@gmail.com>");
+    curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
+
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
+    curl_easy_setopt(curl, CURLOPT_READDATA, payload);
+    curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+
+    CURLcode res = curl_easy_perform(curl);
+
+    curl_slist_free_all(recipients);
+    curl_easy_cleanup(curl);
+    return (int)res;
+}
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,39 +98,23 @@ static void on_submit_clicked(GtkButton *btn, gpointer user_data) {
         return;
     }
 
-    // Build macOS Mail command
-    char cmd[4096];
-    char encoded_message[4096];
-
-    // Replace newline characters with %0A for URL encoding
-    int j = 0;
-    for (int i = 0; message[i] != '\0' && j < sizeof(encoded_message) - 4; i++) {
-        if (message[i] == '\n') {
-            encoded_message[j++] = '%';
-            encoded_message[j++] = '0';
-            encoded_message[j++] = 'A';
-        } else {
-            encoded_message[j++] = message[i];
-        }
+    int result = send_report_email(name, email, message);
+    if (result != 0) {
+        GtkWidget *dialog_err = gtk_message_dialog_new(
+            NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
+            GTK_BUTTONS_OK, "Failed to send email report.");
+        gtk_dialog_run(GTK_DIALOG(dialog_err));
+        gtk_widget_destroy(dialog_err);
+        g_free(message);
+        return;
     }
-    encoded_message[j] = '\0';
-
-    snprintf(cmd, sizeof(cmd),
-             "open \"mailto:%s?subject=Report%%20from%%20%s&body=Name:%%20%s%%0AEmail:%%20%s%%0A%%0AMessage:%%0A%s\"",
-             "RafaelMercadoEspinoza@gmail.com",
-             name,
-             name,
-             email,
-             encoded_message);
-
-    system(cmd);
-    g_free(message);
 
     GtkWidget *dialog = gtk_message_dialog_new(
         NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO,
         GTK_BUTTONS_OK, "Problem report sent!");
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
+    g_free(message);
 }
 
 GtkWidget* create_report_problem_page(GtkWindow *parent) {
