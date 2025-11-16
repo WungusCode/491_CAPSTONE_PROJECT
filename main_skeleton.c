@@ -25,7 +25,6 @@
 
 #include "auto_test.h"
 
-int current_indent = 0;
 
 static app_flags flgs;
 
