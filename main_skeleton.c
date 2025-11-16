@@ -98,6 +98,10 @@ int main(int argc, char* argv[]) {
     if ( pall_hdls->flg->dbg ) {
       LOG_INDENTED ( "  window = %p \n" , window );
     }
+
+    if (pall_hdls->flg->autoTest) {
+      g_timeout_add(1000, (GSourceFunc) gtk_main_quit, NULL);
+    }
     g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
     get_data_from_db ( &pall_hdls );
