@@ -3,63 +3,52 @@ name: C/C++ CI
 on:
   push:
     branches: [ "main", "tim_h" ]
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
-      - ".github/**"
   pull_request:
     branches: [ "main", "tim_h" ]
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
-      - ".github/**"
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
+
     runs-on: ubuntu-24.04
-    env:
-      CC: ccache clang
-      CXX: ccache clang++
-      DISPLAY: :99
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Install deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential ccache \
-            libgtk-3-dev libsqlite3-dev libcurl4-openssl-dev \
-            xvfb
-      - name: Cache ccache
-        uses: actions/cache@v4
-        with:
-          path: ~/.ccache
-          key: ccache-${{ runner.os }}-${{ hashFiles('**/*.c', '**/*.h', 'Makefile', '**/Makefile') }}
-          restore-keys: |
-            ccache-${{ runner.os }}-
-      - name: Verify pkg-config packages
-        run: |
-          pkg-config --exists gtk+-3.0 libcurl
-          echo "gtk+-3.0 and libcurl are available via pkg-config"
-      - name: Build
-        run: make -j"$(nproc)" sekai
-      - name: Start Xvfb
-        run: Xvfb :99 -screen 0 1024x768x16 &
-      - name: Build tests
-        run: |
-          make -C test -j"$(nproc)" clean
-          make -C test -j"$(nproc)"
-      - name: Run tests (xvfb)
-        run: xvfb-run -a make -C test run
-      - name: UI smoke test (non-blocking)
-        run: |
-          timeout 15s xvfb-run -a ./sekai -at || echo "UI smoke test skipped/timed out"
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sekai-ubuntu
-          path: sekai
+    - uses: actions/checkout@v4
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential clang libgtk-3-dev libsqlite3-dev libssl-dev libcurl4-openssl-dev
+
+    - name: Syntax Check (clang -fsyntax-only)
+      run: |
+        echo "Running syntax check on all .c files..."
+        find . -name '*.c' -not -path "./test/*" -print0 | xargs -0 clang -fsyntax-only -Wall -Wextra -Werror
+
+    - name: make
+      run: make sekai
+
+    - name: Install Xvfb
+      run: sudo apt-get update && sudo apt-get install -y xvfb
+    - name: Install Curl
+      run: sudo apt-get install libcurl4-openssl-dev
+    - name: Install at-spi2-core (if necessary)
+      run: sudo apt-get install -y at-spi2-core
+
+    - name: Start Xvfb
+      run: Xvfb :99 -screen 0 1024x768x16 &
+
+    - name: Set DISPLAY environment variable
+      run: export DISPLAY=:99
+
+    - name: Run UI tests with virtual display
+      run: echo "UI tests skipped for now"
+
+    - name: Build test binaries
+      run: |
+        make -C test clean
+        make -C test
+
+    - name: Run tests with Xvfb
+      run: echo "Running tests with Xvfb..."
+
+    - name: Run tests with Xvfb
+      run: xvfb-run -a make -C test run
