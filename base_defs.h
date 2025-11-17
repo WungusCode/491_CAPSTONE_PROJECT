@@ -8,10 +8,11 @@
 
 #include "data_types.h"
 
-#define WIN_W 720
+#define WIN_W 770
 #define WIN_H 480
 
 #define DB_DESCRIP_LEN 255
+#define NR_BUDGET_CHARS 7
 
 #define  RGB(R,G,B) {(R<<16)|(G<<8)|B,(R*65535)/255,(G*65535)/255,(B*65535)/255}
 
@@ -27,7 +28,7 @@
 #define COLOR_WHITE  "\033[0;37m"
 #define COLOR_RESET  "\033[0m"
 
-typedef enum { NO_SELECTION_ID=0 , INCOME_ID, HOUSING_ID, FOOD_ID, TRANSPORT_ID, ENTERTAIN_ID, HEALTH_ID, WORK_ID, OTHER_ID , MAX_ID=-1 } CATOG_ID;
+typedef enum { NO_SELECTION_ID=0 , INCOME_ID, HOUSING_ID, UTIL_ID ,FOOD_ID, TRANSPORT_ID, ENTERTAIN_ID, HEALTH_ID, WORK_ID, OTHER_ID , MAX_ID=-1 } CATOG_ID;
 
 typedef struct _okane_grp {
   struct _okane_grp  *next;                         // next entry in single linked list
@@ -42,11 +43,19 @@ typedef struct _okane_grp {
 
 typedef struct _uiHdl {
   // home page widgets
+  GtkWidget *hp_budget_btn;
+ 
+  GtkWidget *hp_budget_label;
+ 
   GtkWidget *hp_plus_trans_btn;
 
   GtkWidget *hp_chart_btn;
 
   GtkWidget *hp_list_trans_btn;
+
+  GtkWidget    *hp_treeView;
+  GtkTreeStore *hp_treeStore;    // void so can pass without headers
+  void         *hp_t_lst_store;  // void so can pass without headers, is transact_lst_store defined in transaction_list_view.h
 
   // transaction_page widgets
   GtkWidget *tp_w_is_income;
@@ -59,7 +68,11 @@ typedef struct _uiHdl {
 
   // transaction list page widgets
   // GtkWidget *thp_xx;
-  GtkWidget *tlp_list_trans_done_btn;
+  GtkWidget    *tlp_list_trans_done_btn;
+
+  GtkWidget    *tlp_treeView;
+  GtkTreeStore *tlp_treeStore;    // void so can pass without headers
+  void         *tlp_t_lst_store;  // void so can pass without headers, is transact_lst_store defined in transaction_list_view.h
 
   // chart_page widgets
   GtkWidget *cp_myPie;
@@ -74,6 +87,10 @@ typedef struct _uiHdl {
   GtkWidget *lp_create_btn;  // create button , move to 'create account' screen
   GtkWidget *lp_submit_btn;  // subit  button , move to 'submit' screen
   GtkWidget *lp_back_btn;    // back   button  , leave app
+
+  GtkWidget    *tp_recent_treeView;
+  GtkTreeStore *tp_recent_treeStore;
+  void         *tp_recent_t_lst_store;
 
 } uiHdl, *puiHdl;
 
@@ -90,6 +107,7 @@ typedef struct _hdl_grp {
   GtkWidget *vbox_transact_page;  // vbox container for 'transact_page'
   GtkWidget *vbox_chart_page;     // vbox container for 'pie_page'
   GtkWidget *vbox_t_history_page; // vbox container for 'transaction_history_page'
+  GtkWidget *vbox_budget_page;
 
   // collect hdls to widgets of vboxes here
   puiHdl vbx_hdls;
@@ -98,8 +116,12 @@ typedef struct _hdl_grp {
 
   pokane_grp t_lst;               // linked list of transactions
 
-} hdl_grp, *phdl_grp;
+  int budget_val;
 
-GtkWidget* center_in_page(GtkWidget *child);
+  int budget_val_tmp;
+
+  char budget_str[NR_BUDGET_CHARS];
+
+} hdl_grp, *phdl_grp;
 
 #endif

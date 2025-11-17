@@ -1,10 +1,11 @@
-#ifndef _TRANSACT_HISTORY_PAGE_H
+#ifndef _TRANSACT_LIST_PAGE_H
 
-#define _TRANSACT_HISTORY_PAGE_H 1
+#define _TRANSACT_LIST_PAGE_H 1
 
 #include "base_defs.h"
 #include "data_types.h"
 
+#if 0
 typedef enum { POPUP_MENU_0=0 , POPUP_MENU_1, POPUP_MENU_2 , POPUP_MENU_3 , MAX_POPUP_MENU } popup_menu_id;
 
 enum
@@ -23,6 +24,7 @@ enum
 
 extern int  add_to_trans_list_treestore ( pokane_grp head );
 extern void update_trans_list_treeview( pokane_grp head );
+#endif
 
 extern int create_transaction_history_page ( phdl_grp pall_hdls );
 extern int create_transaction_history_page_rtn( phdl_grp *all_hdls );
