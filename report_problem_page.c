@@ -1,6 +1,6 @@
 #include <string.h>
 #include <curl/curl.h>
-
+// fixed
 struct upload_status {
     int lines_read;
 };
