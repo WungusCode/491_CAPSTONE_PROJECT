@@ -53,7 +53,10 @@ static void run_gtk_events(void) {
 }
 
 // --- Test Cases ---
-static void test_scale_updates_entry(BudgetTestFixture *fixture, gconstpointer user_data) {
+static void test_scale_updates_entry(gconstpointer user_data) {
+    BudgetTestFixture *fixture = (BudgetTestFixture *)user_data;
+    (void)fixture;
+
     gtk_range_set_value(GTK_RANGE(g_scale_budget), 2500);
     
     run_gtk_events();
@@ -62,7 +65,10 @@ static void test_scale_updates_entry(BudgetTestFixture *fixture, gconstpointer u
     g_assert_cmpstr(entry_text, ==, "2500");
 }
 
-static void test_entry_updates_scale(BudgetTestFixture *fixture, gconstpointer user_data) {
+static void test_entry_updates_scale(gconstpointer user_data) {
+    BudgetTestFixture *fixture = (BudgetTestFixture *)user_data;
+    (void)fixture;
+
     gtk_entry_set_text(GTK_ENTRY(g_entry_budget), "7000");
     g_signal_emit_by_name(g_entry_budget, "activate", NULL);
     
@@ -72,7 +78,8 @@ static void test_entry_updates_scale(BudgetTestFixture *fixture, gconstpointer u
     g_assert_cmpfloat(scale_val, ==, 7000.0);
 }
 
-static void test_save_updates_model(BudgetTestFixture *fixture, gconstpointer user_data) {
+static void test_save_updates_model(gconstpointer user_data) {
+    BudgetTestFixture *fixture = (BudgetTestFixture *)user_data;
     phdl_grp pall_hdls = fixture->pall_hdls;
     
     gtk_range_set_value(GTK_RANGE(g_scale_budget), 1200);
