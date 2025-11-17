@@ -12,7 +12,7 @@ INCS := $(wildcard $(INCS_FOLDER)/*.h)
 
 DB_SRC = $(DB_SRCS_FOLDER)/my_sql.c
 
-SRCS := $(notdir $(wildcard $(SRCS_FOLDER)/*.c $(DB_SRC) $(GUI_SRCS_FOLDER)/*.c))
+SRCS := $(notdir $(wildcard $(SRCS_FOLDER)/*.c) $(DB_SRC))
 
 OBJS := $(patsubst %.c, $(OBJS_FOLDER)/%.o, $(SRCS))
 
@@ -22,8 +22,11 @@ CFLAGS = -Wall -g -Wno-deprecated-declarations
 
 GTK_FLAGS = `pkg-config --cflags gtk+-3.0`
 GTK_LIBS_FLAGS = `pkg-config --libs gtk+-3.0`
-
-LIB_FLAGS = -lm -lsqlite3
+CURL_FLAGS = `pkg-config --cflags libcurl 2>/dev/null || echo -I/opt/homebrew/opt/curl/include`
+CURL_LIBS = `pkg-config --libs libcurl 2>/dev/null || echo -L/opt/homebrew/opt/curl/lib -lcurl`
+CURL_FLAGS = `pkg-config --cflags libcurl`
+CURL_LIBS = ` pkg-config --libs libcurl`
+LIB_FLAGS = -lm -lsqlite3 -lcurl
 
 test:
 	$(MAKE) -C test run
@@ -36,23 +39,18 @@ install: $(NAME)
 
 $(NAME): $(OBJS_FOLDER) $(OBJS)
 	echo " LINK object files "
-	$(CC) $(CFLAGS) $(OBJS) $(LIB_FLAGS) $(GTK_LIBS_FLAGS) -o $@
+	$(CC) $(CFLAGS) $(OBJS) $(LIB_FLAGS) $(GTK_LIBS_FLAGS)  $(CURL_LIBS) -o $@
 
 $(OBJS_FOLDER):
 	mkdir $(OBJS_FOLDER)
 
 $(OBJS_FOLDER)/%.o:$(SRCS_FOLDER)/%.c $(INCS)
-	@$(CC) $(CFLAGS) $(GTK_FLAGS) \
+	@$(CC) $(CFLAGS) $(GTK_FLAGS) $(CURL_LIBS) $(CFLAGS) \
 					-I $(INCS_FOLDER) \
 					-c $< -o $@
 
 $(OBJS_FOLDER)/%.o:$(DB_SRCS_FOLDER)/%.c $(INCS)
-	@$(CC) $(CFLAGS) $(GTK_FLAGS) \
-					-I $(INCS_FOLDER) \
-					-c $< -o $@
-
-$(OBJS_FOLDER)/%.o:$(GUI_SRCS_FOLDER)/%.c $(INCS)
-	@$(CC) $(CFLAGS) $(GTK_FLAGS) \
+	@$(CC) $(CFLAGS) $(GTK_FLAGS) $(CURL_LIBS) $(CURL_FLAGS) \
 					-I $(INCS_FOLDER) \
 					-c $< -o $@
 
