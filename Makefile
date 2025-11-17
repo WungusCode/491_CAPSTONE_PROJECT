@@ -22,8 +22,8 @@ CFLAGS = -Wall -g -Wno-deprecated-declarations
 
 GTK_FLAGS = `pkg-config --cflags gtk+-3.0`
 GTK_LIBS_FLAGS = `pkg-config --libs gtk+-3.0`
-CURL_FLAGS = `pkg-config --cflags libcurl`
-CURL_LIBS = `pkg-config --libs libcurl`
+CURL_FLAGS = `pkg-config --cflags libcurl 2>/dev/null || echo -I/opt/homebrew/opt/curl/include`
+CURL_LIBS = `pkg-config --libs libcurl 2>/dev/null || echo -L/opt/homebrew/opt/curl/lib -lcurl`
 
 LIB_FLAGS = -lm -lsqlite3
 
