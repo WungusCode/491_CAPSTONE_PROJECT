@@ -24,8 +24,8 @@ GTK_FLAGS = `pkg-config --cflags gtk+-3.0`
 GTK_LIBS_FLAGS = `pkg-config --libs gtk+-3.0`
 CURL_FLAGS = `pkg-config --cflags libcurl 2>/dev/null || echo -I/opt/homebrew/opt/curl/include`
 CURL_LIBS = `pkg-config --libs libcurl 2>/dev/null || echo -L/opt/homebrew/opt/curl/lib -lcurl`
-
-LIB_FLAGS = -lm -lsqlite3
+CFLAGS += $(shell pkg-config --cflags libcurl)
+LIB_FLAGS = -lm -lsqlite3 -lcurl
 
 .PHONY: all tags install clean uninstall reinstall
 
@@ -35,13 +35,13 @@ install: $(NAME)
 
 $(NAME): $(OBJS_FOLDER) $(OBJS)
 	echo " LINK object files "
-	$(CC) $(CFLAGS) $(OBJS) $(LIB_FLAGS) $(GTK_LIBS_FLAGS) $(CURL_LIBS) -o $@
+	$(CC) $(CFLAGS) $(OBJS) $(LIB_FLAGS) $(GTK_LIBS_FLAGS)  -o $@
 
 $(OBJS_FOLDER):
 	mkdir $(OBJS_FOLDER)
 
 $(OBJS_FOLDER)/%.o:$(SRCS_FOLDER)/%.c $(INCS)
-	@$(CC) $(CFLAGS) $(GTK_FLAGS) $(CURL_FLAGS) \
+	@$(CC) $(CFLAGS) $(GTK_FLAGS) $(CFLAGS) \
 					-I $(INCS_FOLDER) \
 					-c $< -o $@
 
