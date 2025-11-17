@@ -28,7 +28,10 @@ CURL_FLAGS = `pkg-config --cflags libcurl`
 CURL_LIBS = ` pkg-config --libs libcurl`
 LIB_FLAGS = -lm -lsqlite3 -lcurl
 
-.PHONY: all tags install clean uninstall reinstall
+test:
+	$(MAKE) -C test run
+
+.PHONY: all tags install clean uninstall reinstall test
 
 all: install
 

@@ -53,6 +53,12 @@ int create_start_screen ( phdl_grp pall_hdls ) {
 
   if ( pall_hdls->vbox_start_page == NULL ) {
     pall_hdls->vbox_start_page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+
+    gtk_widget_set_halign (pall_hdls->vbox_start_page, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign (pall_hdls->vbox_start_page, GTK_ALIGN_CENTER);
+    gtk_widget_set_hexpand(pall_hdls->vbox_start_page, TRUE);
+    gtk_widget_set_vexpand(pall_hdls->vbox_start_page, TRUE);
+
     gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_start_page );
 
     pall_hdls->vbox_active = pall_hdls->vbox_start_page;
@@ -64,6 +70,7 @@ int create_start_screen ( phdl_grp pall_hdls ) {
     gtk_container_add (GTK_CONTAINER ( pall_hdls->vbox_start_page ), hbox );
 
     hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+    gtk_box_set_homogeneous (GTK_BOX (hbox2), TRUE);
 
     // Exit
     button = gtk_button_new_with_label ("Exit");
