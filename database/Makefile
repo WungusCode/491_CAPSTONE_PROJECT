@@ -33,7 +33,7 @@ OBJ11_FILES = $(patsubst $(SRC1),$(OBJ_DIR)/%.o,$(SRC1))
 
 OBJ1_FILES = obj/main_test.o obj/my_sql.o link_list.o my_time.o transactions.o
 
-OBJ11_RULE = $(SRC11:.c
+OBJ11_RULE = $(SRC11:.c)
 
 OBJ1 =$(SRC1:.c=.o)
 
