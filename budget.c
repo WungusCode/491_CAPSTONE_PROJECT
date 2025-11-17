@@ -11,9 +11,9 @@
 #define BUDGET_MAX   10000
 #define BUDGET_STEP  100
 
-static GtkWidget *g_lbl_budget = NULL;
-static GtkWidget *g_entry_budget = NULL;
-static GtkWidget *g_scale_budget = NULL;
+GtkWidget *g_lbl_budget = NULL;
+GtkWidget *g_entry_budget = NULL;
+GtkWidget *g_scale_budget = NULL;
 
 //static app_flags flgs;
 
