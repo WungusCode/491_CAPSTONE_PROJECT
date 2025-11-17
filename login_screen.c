@@ -72,6 +72,12 @@ static void on_submit_login ( GtkButton *button , gpointer data ) {
     return;
   }
 
+  g_free(all_hdls->current_username);
+  g_free(all_hdls->current_password);
+
+  all_hdls->current_username = g_strdup(user);
+  all_hdls->current_password = g_strdup(pass);
+
   l_goto_home(button, data);
 
   g_print("[Login] username='%s' password='%s'\n", user, pass);
@@ -165,4 +171,3 @@ int create_login_screen_rtn( phdl_grp *all_hdls ) {
   *all_hdls = pall_hdls;
   return rc;
 }
-

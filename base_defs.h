@@ -122,6 +122,9 @@ typedef struct _hdl_grp {
 
   char budget_str[NR_BUDGET_CHARS];
 
+  gchar *current_username;
+  gchar *current_password;
+
 } hdl_grp, *phdl_grp;
 
 #endif

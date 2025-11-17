@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include<gtk/gtk.h>
+#include <gtk/gtk.h>
 
 #include "base_defs.h"
 #include "data_types.h"
@@ -58,6 +58,9 @@ int main(int argc, char* argv[]) {
     pall_hdls->vbox_t_history_page = NULL;
     pall_hdls->vbox_budget_page    = NULL;
 
+    pall_hdls->current_username = NULL;
+    pall_hdls->current_password = NULL;
+    
     pall_hdls->vbx_hdls = malloc ( sizeof ( uiHdl ) );
     if( pall_hdls->flg->dbg ) LOG_BLOCK_START( "  pall_hdls->vbx_hdls = %p , %s L%4d \n" , pall_hdls->vbx_hdls , __func__ , __LINE__ );
     memset( pall_hdls->vbx_hdls, 0 , sizeof ( uiHdl ) );
