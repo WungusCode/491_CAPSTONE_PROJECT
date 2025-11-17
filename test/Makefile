@@ -4,7 +4,7 @@
 CC      = gcc
 PKG     = pkg-config
 CFLAGS  = -Wall -g $(shell $(PKG) --cflags gtk+-3.0 glib-2.0)
-LIBS    = $(shell $(PKG) --libs gtk+-3.0 glib-2.0 libcurl sqlite3)
+LIBS    = $(shell $(PKG) --libs gtk+-3.0 glib-2.0 libcurl sqlite3) -lm
 
 TESTS = test_login_screen test_create_screen test_budget_setter
 
