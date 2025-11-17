@@ -4,6 +4,7 @@
 
 #include "base_defs.h"
 #include "start_screen.h"
+#include "indent_print.h"
 #include "login_screen.h"   // for cross-nav
 #include "home_page.h"
 #include "create_screen.h"
@@ -27,6 +28,14 @@ static void goto_login ( GtkButton *button , gpointer data ) {
   create_login_screen ( all_hdls );
 }
 
+/*
+static void c_goto_home( GtkButton *button , gpointer data ) {
+  phdl_grp all_hdls = (phdl_grp)data;
+  hide_create_screen( all_hdls );
+  LOG_BLOCK_START ( "   CALL create_home_screen !\n" );
+  create_home_screen ( all_hdls );
+  LOG_BLOCK_END ( "   rtn create_home_screen !\n" );
+*/
 // static void c_goto_home( GtkButton *button , gpointer data ) {
 //   phdl_grp all_hdls = (phdl_grp)data;
 //   hide_create_screen( all_hdls );
@@ -146,6 +155,8 @@ int create_create_screen ( phdl_grp pall_hdls ) {
 
     // Submit
     button = gtk_button_new_with_label ("Submit");
+    pall_hdls->vbx_hdls->lp_submit_btn = button;
+
     g_object_set_data(G_OBJECT(button), "u", user_entry);
     g_object_set_data(G_OBJECT(button), "p", pass_entry);
     // g_signal_connect (button, "clicked",  G_CALLBACK ( c_goto_home ), (gpointer) pall_hdls );

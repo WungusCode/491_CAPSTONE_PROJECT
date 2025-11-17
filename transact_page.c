@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <glib/gi18n.h>
 #include<gtk/gtk.h>
+#include <time.h>
+#include <string.h>
+#include <stdint.h>
 
 #include <gdk/gdkkeysyms.h> // for key press
 
@@ -15,6 +18,10 @@
 
 static GtkWidget *entry1 = NULL;                 // TODO make stack passed
 static GtkWidget *entry2 = NULL;
+
+static uint32_t parse_iso_date_to_unix(const char *s);
+static void     set_date_entry_today(GtkWidget *entry);
+static void     on_today_date_clicked(GtkButton *btn, gpointer user_data);
 
 GtkTreeStore  *g_transact_list_treestore=NULL;   // TODO make stack passed
 GtkWidget     *g_transact_list_treeview=NULL;    // TODO make stack passed
@@ -196,6 +203,9 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
   int   category = -1;
   float amount   = 0.0;
   static okane_grp this_entry;
+  uint32_t entry_ts = 0;
+  const char *date_txt = NULL;
+  //long entry_ts = -1;
 
   phdl_grp all_hdls = (phdl_grp)user_data;
   pokane_grp head  = (all_hdls->t_lst);
@@ -233,10 +243,38 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
   // call update list transactions
 
   add_to_trans_list_treestore( all_hdls );
+
+  if ( all_hdls->vbx_hdls->tp_w_date ) {
+    date_txt = gtk_entry_get_text(GTK_ENTRY(all_hdls->vbx_hdls->tp_w_date));
+  }
+
+  if (date_txt && *date_txt) {
+    entry_ts = parse_iso_date_to_unix(date_txt);
+  } else {
+    entry_ts = (uint32_t)time(NULL);
+    if (all_hdls->vbx_hdls->tp_w_date) {
+      set_date_entry_today(all_hdls->vbx_hdls->tp_w_date);
+    }
+  }
+
+  //long parse_iso_date_to_unix(const char *s);
+  uint32_t ts = parse_iso_date_to_unix(date_txt);
+  if (ts <= 0) {
+    // last-resort: now
+    ts = (uint32_t)time(NULL);
+  }
+  this_entry.entry_ts = ts;
+
   refresh_recent_trans_list( all_hdls , 5 );
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_record_btn );
   gtk_widget_set_sensitive(all_hdls->vbx_hdls->tp_add_dB_btn, TRUE);
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_dB_btn );
+
+#if 0
+  if (entry_ts < 0) {
+    entry_ts = (long)time(NULL);
+  }
+#endif
 
   LOG_BLOCK_END ( "  << Lv %s L%4d ,  pall_hdls =%p \n" , __func__ , __LINE__ , all_hdls );
 } // add_record_clicked
@@ -266,6 +304,39 @@ static void save_db_clicked ( GtkButton *button,  gpointer   user_data) {
   refresh_recent_trans_list( all_hdls , 5 );
 
   LOG_BLOCK_END ( "  << Lv %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
+}
+
+// --- Date helpers -----------------------------------------------------------
+static void set_date_entry_today(GtkWidget *entry) {
+  time_t now = time(NULL);
+  struct tm tmv;
+  localtime_r(&now, &tmv);
+  char buf[16];
+  strftime(buf, sizeof(buf), "%Y-%m-%d", &tmv);
+  gtk_entry_set_text(GTK_ENTRY(entry), buf);
+}
+
+// signal: "clicked" for the Today button
+static void on_today_date_clicked(GtkButton *btn, gpointer user_data) {
+  phdl_grp pall_hdls = (phdl_grp)user_data;
+  if (!pall_hdls || !pall_hdls->vbx_hdls || !pall_hdls->vbx_hdls->tp_w_date) return;
+  set_date_entry_today(pall_hdls->vbx_hdls->tp_w_date);
+}
+
+static uint32_t parse_iso_date_to_unix(const char *s) {
+  if (!s || !*s) return -1;
+  struct tm tmv;
+  memset(&tmv, 0, sizeof(tmv));
+  // Accept exactly YYYY-MM-DD
+  if (sscanf(s, "%4d-%2d-%2d", &tmv.tm_year, &tmv.tm_mon, &tmv.tm_mday) != 3) return -1;
+  tmv.tm_year -= 1900;         // struct tm years since 1900
+  tmv.tm_mon  -= 1;            // struct tm months 0–11
+  tmv.tm_hour  = 0;
+  tmv.tm_min   = 0;
+  tmv.tm_sec   = 0;
+  time_t t = mktime(&tmv);     // local time → epoch
+  if (t == (time_t)-1) return 0;
+  return (uint32_t)t;
 }
 
 int create_transaction_page( phdl_grp pall_hdls ) {
@@ -339,6 +410,21 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     pall_hdls->vbx_hdls->tp_w_category = combo;
 
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "never"       , "No selection");
+
+    // ------------- date row (under the first line) -------------
+    GtkWidget *date_label = gtk_label_new_with_mnemonic("Date (YYYY-MM-DD):");
+    gtk_grid_attach(GTK_GRID(table), date_label, 0, 3, 1, 1);
+
+    GtkWidget *date_entry = gtk_entry_new();
+    pall_hdls->vbx_hdls->tp_w_date = date_entry;
+    set_date_entry_today(date_entry);
+    g_object_set(date_entry, "tooltip-text", "Optional. Use YYYY-MM-DD. Leave blank for today.", NULL);
+    gtk_grid_attach(GTK_GRID(table), date_entry, 1, 3, 1, 1);
+
+    // convenience: a button that fills today's date
+    GtkWidget *today_btn = gtk_button_new_with_mnemonic("_Today");
+    g_signal_connect(today_btn, "clicked", G_CALLBACK(on_today_date_clicked), (gpointer)pall_hdls);
+    gtk_grid_attach(GTK_GRID(table), today_btn, 2, 3, 1, 1);
 
     // UPDATE when CATOG_ID changes
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "+ Income");

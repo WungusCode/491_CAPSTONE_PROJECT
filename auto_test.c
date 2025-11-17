@@ -77,7 +77,7 @@ gboolean do_test_sequence( gpointer data ) {
   return FALSE;
 }
 
-gboolean do_test_sequence_b( gpointer data ) {
+gboolean do_test_sequence_c( gpointer data ) {
   phdl_grp pall_hdls = (phdl_grp)data;
 
   LOG_BLOCK_START ( "  >> E %s , L%4d \n" , __func__, __LINE__ );
@@ -91,6 +91,22 @@ gboolean do_test_sequence_b( gpointer data ) {
 
   return FALSE;
 }
+
+gboolean do_test_sequence_b( gpointer data ) {
+  phdl_grp pall_hdls = (phdl_grp)data;
+
+  LOG_BLOCK_START ( "  >> E %s , L%4d \n" , __func__, __LINE__ );
+
+  LOG_INDENTED ("    Injecting 'clicked' signal into the button...\n");
+  g_signal_emit_by_name( pall_hdls->vbx_hdls->lp_create_btn, "clicked", NULL);
+
+  g_timeout_add ( 1000, (GSourceFunc) do_test_sequence_c, data );
+
+  LOG_BLOCK_END ( "  << Lv %s , L%4d \n\n" , __func__, __LINE__ );
+
+  return FALSE;
+}
+
 
 gboolean do_test_sequence_a( gpointer data ) {
   phdl_grp pall_hdls = (phdl_grp)data;

@@ -60,6 +60,7 @@ typedef struct _uiHdl {
   // transaction_page widgets
   GtkWidget *tp_w_is_income;
   GtkWidget *tp_w_amount;
+  GtkWidget *tp_w_date;
   GtkWidget *tp_w_description;
   GtkWidget *tp_w_category;
   GtkWidget *tp_cancel_btn;       // cancel or go back button
@@ -91,6 +92,8 @@ typedef struct _uiHdl {
   GtkWidget    *tp_recent_treeView;
   GtkTreeStore *tp_recent_treeStore;
   void         *tp_recent_t_lst_store;
+
+  GtkWidget *tp_date_today_btn;  // "Today" helper button
 
 } uiHdl, *puiHdl;
 

@@ -659,7 +659,6 @@ void * create_recent_trans_list_store( phdl_grp pall_hdls , int max_recent , int
 
 GtkWidget * create_recent_trans_listview ( phdl_grp pall_hdls , int max_recent , int dbg ) {
   GtkWidget *view  = pall_hdls->vbx_hdls->tp_recent_treeView;
-  transact_lst_store *store = (transact_lst_store*)pall_hdls->vbx_hdls->tp_recent_t_lst_store;
 
   // Reuse exact column setup you use in create_trans_listview()
   GtkCellRenderer *renderer;
