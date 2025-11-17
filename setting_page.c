@@ -1,18 +1,25 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include <stdlib.h>
-
+#include "report_problem_page.h"
 #include "setting_page.h"
 #include "home_page.h"
 #include "start_screen.h"
 #include "base_defs.h"
 
 
+
 // --- Callbacks ---
+
+static GtkWidget *settings_window = NULL;       // Caching the one settings window
 
 static void on_close_clicked(GtkButton *btn, gpointer user_data) {
     GtkWidget *window = GTK_WIDGET(user_data);
-    if (window) gtk_widget_destroy(window);
+    if (window) gtk_widget_hide(window);        // Now: only hiding it NOT destroying the window
+}
+
+static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+    gtk_widget_hide(widget);
+    return TRUE; // Prevent the window from being destroyed
 }
 
 static void on_notify_toggled(GtkToggleButton *toggle, gpointer user_data) {
@@ -44,22 +51,27 @@ static void on_theme_light_clicked(GtkToggleButton *toggle, gpointer user_data) 
 }
 // used to report a problem 
 static void on_reportProblem_clicked(GtkButton *btn, gpointer user_data) {
-    g_print("[Settings] Report Problem clicked\n");
-    // Placeholder for actual report problem functionality
-    GtkWidget *report_dialog = gtk_message_dialog_new(GTK_WINDOW(user_data),
-                                                      GTK_DIALOG_MODAL,
-                                                      GTK_MESSAGE_INFO,
-                                                      GTK_BUTTONS_OK,
-                                                      "How to report problems here");
-    gtk_dialog_run(GTK_DIALOG(report_dialog));
-    gtk_widget_destroy(report_dialog);
+    GtkWindow *parent = GTK_WINDOW(user_data);
+    GtkWidget *report_page = create_report_problem_page(parent);
+    gtk_widget_show(report_page);
 }
 
 // --- Public API ---
 
 GtkWidget* create_setting_page(void) {
+
+    if (settings_window) {
+        gtk_widget_show(settings_window);
+        gtk_window_present(GTK_WINDOW(settings_window));
+        return settings_window;
+    }
     // New Settings window
-    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    settings_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+    GtkWidget *window = settings_window;
+
+    g_signal_connect(window, "delete-event", G_CALLBACK(on_window_delete_event), NULL);
+
     gtk_window_set_title(GTK_WINDOW(window), "Settings");
     gtk_window_set_default_size(GTK_WINDOW(window), WIN_W / 2, WIN_H / 2);
 
@@ -152,6 +164,15 @@ GtkWidget* create_setting_page(void) {
 
     printf("[Settings] %s\n", __FUNCTION__);
     return window;
+}
+
+void settings_show(void) {
+    if (!settings_window) {
+        create_setting_page();
+    } else {
+        gtk_widget_show(settings_window);
+    }
+    gtk_window_present(GTK_WINDOW(settings_window));    
 }
 
 void destroy_setting_page(GtkWidget *window) {
