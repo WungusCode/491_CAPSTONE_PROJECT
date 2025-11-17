@@ -21,6 +21,8 @@
 #include "transactions.h"
 #include "transaction_list_page.h"
 
+#include "budget.h"
+
 #include "auto_test.h"
 
 int current_indent = 0;
@@ -55,25 +57,36 @@ int main(int argc, char* argv[]) {
     pall_hdls->vbox_transact_page  = NULL;
     pall_hdls->vbox_chart_page     = NULL;
     pall_hdls->vbox_t_history_page = NULL;
+    pall_hdls->vbox_budget_page    = NULL;
 
     pall_hdls->vbx_hdls = malloc ( sizeof ( uiHdl ) );
-    LOG_BLOCK_START( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls );
+    if( pall_hdls->flg->dbg ) LOG_BLOCK_START( "  pall_hdls->vbx_hdls = %p , %s L%4d \n" , pall_hdls->vbx_hdls , __func__ , __LINE__ );
     memset( pall_hdls->vbx_hdls, 0 , sizeof ( uiHdl ) );
-    LOG_INDENTED ( "  pall_hdls->vbx_hdls = %p \n" , pall_hdls->vbx_hdls ); // RM
+    if( pall_hdls->flg->dbg ) LOG_INDENTED ( "  pall_hdls->vbx_hdls = %p , %s L%4d \n" , pall_hdls->vbx_hdls , __func__ , __LINE__ ); // RM
 
     pall_hdls->vbx_hdls->hp_chart_btn      = NULL;
     pall_hdls->vbx_hdls->hp_plus_trans_btn = NULL;
     pall_hdls->vbx_hdls->hp_list_trans_btn = NULL;
 
+    pall_hdls->vbx_hdls->hp_treeView       = NULL;
+    pall_hdls->vbx_hdls->hp_treeStore      = NULL;
+    pall_hdls->vbx_hdls->hp_t_lst_store    = NULL;
+
     pall_hdls->vbx_hdls->tp_w_is_income   = NULL;
     pall_hdls->vbx_hdls->tp_w_amount      = NULL;
     pall_hdls->vbx_hdls->tp_w_description = NULL;
-    pall_hdls->vbx_hdls->tp_cancel_btn    = NULL;
 
     pall_hdls->vbx_hdls->tlp_list_trans_done_btn  = NULL;
 
+    pall_hdls->vbx_hdls->tlp_treeView             = NULL;
+    pall_hdls->vbx_hdls->tlp_treeStore            = NULL;
+    pall_hdls->vbx_hdls->tlp_t_lst_store          = NULL;
+
     pall_hdls->vbx_hdls->cp_myPie                 = NULL;
     pall_hdls->vbx_hdls->cp_pie_done_btn          = NULL;
+
+    pall_hdls->budget_val                         = 0;
+    strcpy( pall_hdls->budget_str, "0" );
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     pall_hdls->parentWin = window;
@@ -98,6 +111,8 @@ int main(int argc, char* argv[]) {
 
     LOG_INDENTED ( "  pall_hdls = %p pall_hdls->flg = %p pall_hdls->flg->dbg = %d \n" , pall_hdls, pall_hdls->flg, pall_hdls->flg->dbg );
     create_transaction_history_page_rtn (  &pall_hdls );
+
+    create_budget_page_rtn              (  &pall_hdls   );
 
     gtk_widget_show_all ( window );
 

@@ -11,7 +11,7 @@
 #include "link_list.h"
 #include "transact_page.h"
 #include "transactions.h"
-#include "transaction_list_page.h"
+#include "transaction_list_view.h"
 
 static GtkWidget *entry1 = NULL;                 // TODO make stack passed
 static GtkWidget *entry2 = NULL;
@@ -66,6 +66,7 @@ int lookup_text( const char *txt_to_lookup ) {
   int ii=0;
   int cat_id=-1;
   int len;
+  int dbg = 0;
 
   for ( ii=0; ii < NR_ENTRIES; ii++ ) {
     len = strlen( txt_to_lookup );
@@ -77,7 +78,7 @@ int lookup_text( const char *txt_to_lookup ) {
       goto end_of_list;
     }
     else {
-      printf( "  ii=%d , COULDN'T find match for %s \n" , ii, txt_to_lookup );
+      if ( dbg ) printf( "  ii=%d , COULDN'T find match for %s \n" , ii, txt_to_lookup );
     }
   }
 
@@ -101,31 +102,36 @@ static gboolean key_press_cb(GtkWidget *w, GdkEvent *ev, gpointer data)
 {
     GdkEventKey *key = (GdkEventKey*)ev;
     phdl_grp all_hdls = (phdl_grp)data;
+    int key_dbg = 0;
 
     if(key) /* Extra check maybe redundant */
     {
       switch( key->keyval ) {
         case GDK_KEY_Tab:
-          printf(" Tab pressed\n");
-          printf(" Enter pressed w=%p  tp_w_amount=%p \n" , w , all_hdls->vbx_hdls->tp_w_amount );
+          if ( key_dbg ) {
+            printf(" Tab pressed\n");
+            printf(" Enter pressed w=%p  tp_w_amount=%p \n" , w , all_hdls->vbx_hdls->tp_w_amount );
+          }
           if ( w == all_hdls->vbx_hdls->tp_w_amount ) {
             // make save record visible, also need to check other items are populated and within range !!
             if ( gtk_widget_get_sensitive(  all_hdls->vbx_hdls->tp_add_record_btn ) == 0 ) {
               //set visible
               gtk_widget_set_sensitive(  all_hdls->vbx_hdls->tp_add_record_btn , TRUE);
-              g_print("Button ENABLED.\n");
+              if ( key_dbg ) g_print("Button ENABLED.\n");
             }
           }  // if tp_w_amount
           break;
         case GDK_KEY_Return :
-          printf(" Enter pressed w=%p  tp_w_amount=%p \n" , w , all_hdls->vbx_hdls->tp_w_amount );
+          if ( key_dbg ) {
+            printf(" Enter pressed w=%p  tp_w_amount=%p \n" , w , all_hdls->vbx_hdls->tp_w_amount );
+          }
           // set focus to amount widget
           if ( w == all_hdls->vbx_hdls->tp_w_amount ) {
             // make save record visible, also need to check other items are populated and within range !!
             if ( gtk_widget_get_sensitive(  all_hdls->vbx_hdls->tp_add_record_btn ) == 0 ) {
               //set visible
               gtk_widget_set_sensitive(  all_hdls->vbx_hdls->tp_add_record_btn , TRUE);
-              g_print("Button ENABLED.\n");
+              if ( key_dbg ) g_print("Button ENABLED.\n");
             }
           }  // if tp_w_amount
           break;
@@ -158,7 +164,7 @@ static void clear_ALL ( gpointer *data )
 void on_description_key_press ( GtkWidget *widget, gpointer *data) {
   phdl_grp all_hdls = (phdl_grp)data;
 
-  int dbg=1;
+  int dbg=0;
   int match_id = -1;
 
   if ( dbg ) {
@@ -168,10 +174,10 @@ void on_description_key_press ( GtkWidget *widget, gpointer *data) {
   // get text, lookup description
   const gchar *description_txt;
   description_txt = gtk_entry_get_text( GTK_ENTRY( widget ) );
-  LOG_INDENTED ( "   %s  got text : ->%s<- \n" , __func__ , description_txt);
+  if( dbg ) LOG_INDENTED ( "   %s  got text : ->%s<- \n" , __func__ , description_txt);
 
   match_id = lookup_text( description_txt );
-  LOG_INDENTED ( "  for str %s , match_id=%2d \n" , description_txt , match_id );
+  if ( dbg ) LOG_INDENTED ( "  for str %s , match_id=%2d \n" , description_txt , match_id );
 #if 0
 	if ( match_id != -1 ) {
     // set category
@@ -181,7 +187,7 @@ void on_description_key_press ( GtkWidget *widget, gpointer *data) {
     }
   }
 #endif
-  LOG_BLOCK_END ( "  << Lv %s \n" , __func__ );
+  if ( dbg ) LOG_BLOCK_END ( "  << Lv %s \n" , __func__ );
 }  // on_description_key_press
 
 static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
@@ -194,14 +200,14 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
   phdl_grp all_hdls = (phdl_grp)user_data;
   pokane_grp head  = (all_hdls->t_lst);
 
-  printf( "  >> E    all_hdls =%p \n" , all_hdls );
+  LOG_BLOCK_START ( "  >> E  %s L%4d   all_hdls =%p \n" , __func__ , __LINE__ , all_hdls );
 
   // get the data
   amount_txt      = gtk_entry_get_text( GTK_ENTRY( all_hdls->vbx_hdls->tp_w_amount ) );
   description_txt = gtk_entry_get_text( GTK_ENTRY( all_hdls->vbx_hdls->tp_w_description ) );
 
   category = gtk_combo_box_get_active ( GTK_COMBO_BOX ( all_hdls->vbx_hdls->tp_w_category ) );
-  printf( "   category = %d \n" , category);
+  LOG_INDENTED ( "   category = %d \n" , category );
 
   amount = atof ( amount_txt );
 
@@ -213,25 +219,26 @@ static void add_record_clicked ( GtkButton *button,  gpointer   user_data) {
 
   strcpy( this_entry.description , description_txt );
 
-  printf( "   Got from entry boxes : \n" );
-  printf( "     category  = %d  \n" , category );
-  printf( "     amount    = %f  \n" , amount );
-  printf( "     descr     = %s  \n" , description_txt );
+  LOG_INDENTED ( "   Got from entry boxes : \n" );
+  LOG_INDENTED ( "     category  = %d  \n" , category );
+  LOG_INDENTED ( "     amount    = %f  \n" , amount );
+  LOG_INDENTED ( "     descr     = %s  \n" , description_txt );
 
   add_transaction ( &head , &this_entry, 1 );
 
-  if ( 1 ) {
+  if ( 0 ) {
     linked_list_print_okane_grp ( head );
     //getchar();
   }
   // call update list transactions
 
-  add_to_trans_list_treestore( all_hdls->t_lst );
+  add_to_trans_list_treestore( all_hdls );
+  refresh_recent_trans_list( all_hdls , 5 );
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_record_btn );
   gtk_widget_set_sensitive(all_hdls->vbx_hdls->tp_add_dB_btn, TRUE);
   gtk_widget_show ( all_hdls->vbx_hdls->tp_add_dB_btn );
 
-  printf( "  << Lv   pall_hdls =%p \n" , all_hdls );
+  LOG_BLOCK_END ( "  << Lv %s L%4d ,  pall_hdls =%p \n" , __func__ , __LINE__ , all_hdls );
 } // add_record_clicked
 
 static void done_clicked ( GtkButton *button,  gpointer   user_data) {
@@ -255,6 +262,9 @@ static void save_db_clicked ( GtkButton *button,  gpointer   user_data) {
   LOG_BLOCK_START ( "  >> E %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
   // SAVE TO DB !
   save_to_dB_transaction( head , 1 );
+ 
+  refresh_recent_trans_list( all_hdls , 5 );
+
   LOG_BLOCK_END ( "  << Lv %s , all_hdls->vbox_transact_page = %p \n" , __func__ , all_hdls->vbox_transact_page );
 }
 
@@ -262,14 +272,12 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
   int rc = 0;
 
-//  phdl_grp pall_hdls = *all_hdls;
-
   if ( pall_hdls != NULL ) {
     if ( pall_hdls->flg->dbg ) {
       LOG_BLOCK_START ( "  >> E %s \n" , __FUNCTION__ );
-      LOG_INDENTED ( "    flgs->dbg     = %d \n" , pall_hdls->flg->dbg );
-      LOG_INDENTED ( "    parentWin     = %p \n" , pall_hdls->parentWin );
-      LOG_INDENTED ( "    vbox_transact = %p \n" , pall_hdls->vbox_transact_page );
+      LOG_INDENTED ( "    flgs->dbg     = %d \n"   , pall_hdls->flg->dbg );
+      LOG_INDENTED ( "    parentWin     = %p \n"   , pall_hdls->parentWin );
+      LOG_INDENTED ( "    vbox_transact = %p \n\n" , pall_hdls->vbox_transact_page );
     }
   }
   else {
@@ -289,6 +297,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     if ( pall_hdls->vbox_active == NULL ) {
       // only attach, if no vbox active !
       gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_transact_page );
+      pall_hdls->vbox_active = pall_hdls->vbox_transact_page;
     }
     LOG_INDENTED ( "    vbox = %p   , %s L%4d \n" , pall_hdls->vbox_transact_page , __FILE__ , __LINE__ );
 
@@ -298,6 +307,16 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 8);
     gtk_container_set_border_width (GTK_CONTAINER (vbox), 8);
     gtk_container_add (GTK_CONTAINER (frame), vbox);
+
+    GtkWidget *recent_frame    = gtk_frame_new("Most Recent (5)");
+    GtkWidget *recent_scrolled = gtk_scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), recent_frame, TRUE, TRUE, 0);
+    gtk_container_add(GTK_CONTAINER(recent_frame), recent_scrolled);
+    create_recent_trans_list_store(pall_hdls, 5, 0);
+    GtkWidget *recent_view = create_recent_trans_listview(pall_hdls, 5, 0);
+    gtk_container_add(GTK_CONTAINER(recent_scrolled), recent_view);
+
+    gtk_widget_set_size_request(recent_scrolled, -1, 150);
 
     hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
@@ -310,6 +329,10 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_grid_set_column_spacing (GTK_GRID (table), 4);
     gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, FALSE, 0);
 
+    //------------- first line -------------
+    label = gtk_label_new_with_mnemonic ("Category:");
+    gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
+
     /* A combobox with string IDs */
     combo = gtk_combo_box_text_new ();
     g_object_set ( combo, "tooltip-text", "Category of item added - will auto complete if previously entered", NULL);
@@ -317,8 +340,10 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "never"       , "No selection");
 
+    // UPDATE when CATOG_ID changes
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "+ Income");
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "- Housing");
+    gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "- Utilities");
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "- Food");
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "- Transport");
     gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (combo), "always" , "- Entertainment");
@@ -328,28 +353,32 @@ int create_transaction_page( phdl_grp pall_hdls ) {
 
     g_object_set ( combo, "tooltip-text", "Select category of item, eg wages = income, rent, electric = housing", NULL);
 
-    gtk_grid_attach ( GTK_GRID ( table ), combo , 0, 2 , 1 , 1);
+    gtk_grid_attach ( GTK_GRID ( table ), combo , 1, 2 , 1 , 1);
 
-    label = gtk_label_new_with_mnemonic ("D_escription");
-    gtk_grid_attach (GTK_GRID (table), label, 1, 2, 1, 1);
+    label = gtk_label_new_with_mnemonic ("D_escription:");
+    gtk_grid_attach (GTK_GRID (table), label, 2, 2, 1, 1);
 
     entry1 = gtk_entry_new ();
     g_object_set ( entry1, "tooltip-text", "Enter a description of the expense you are entering", NULL);
 
-    gtk_grid_attach (GTK_GRID (table), entry1, 2, 2, 1, 1);
+    gtk_grid_attach (GTK_GRID (table), entry1, 3, 2, 1, 1);
     pall_hdls->vbx_hdls->tp_w_description = entry1;
     g_signal_connect( entry1, "changed", G_CALLBACK( on_description_key_press ), (gpointer)pall_hdls );
     g_signal_connect( entry1, "key-press-event", G_CALLBACK(key_press_cb), (gpointer)pall_hdls );
+
+    label = gtk_label_new_with_mnemonic ("Amount:");
+    gtk_grid_attach (GTK_GRID (table), label, 4, 2, 1, 1);
 
     entry2 = gtk_entry_new ();
     pall_hdls->vbx_hdls->tp_w_amount = entry2;
 
     g_signal_connect( entry2, "key-press-event", G_CALLBACK(key_press_cb), (gpointer)pall_hdls );
 
-    gtk_grid_attach (GTK_GRID (table), entry2, 3, 2, 1, 1);
+    gtk_grid_attach (GTK_GRID (table), entry2, 5, 2, 1, 1);
     g_object_set ( entry2, "tooltip-text", "Enter amount of expense, or money received", NULL);
 //    gtk_widget_hide ( pall_hdls->vbx_hdls->tp_w_amount  );
 
+    //------------- second line -------------
     button = gtk_button_new_with_mnemonic ("D_one");
     pall_hdls->vbx_hdls->tp_cancel_btn = button;
 
@@ -364,14 +393,10 @@ int create_transaction_page( phdl_grp pall_hdls ) {
     gtk_box_pack_start (GTK_BOX (hbox2), button, FALSE, FALSE, 0);
 
     pall_hdls->vbx_hdls->tp_add_dB_btn = gtk_button_new_with_mnemonic ("SAVE to dB");
-    //button = gtk_button_new_with_mnemonic ("SAVE to dB");
     gtk_widget_set_sensitive( pall_hdls->vbx_hdls->tp_add_dB_btn , FALSE);     // grey it out
-    //gtk_widget_set_sensitive( button , FALSE);     // grey it out
 
     g_signal_connect ( pall_hdls->vbx_hdls->tp_add_dB_btn , "clicked", G_CALLBACK ( save_db_clicked ), (gpointer) pall_hdls  );
     gtk_box_pack_start (GTK_BOX (hbox2), pall_hdls->vbx_hdls->tp_add_dB_btn, FALSE, FALSE, 0);
-    //g_signal_connect ( button , "clicked", G_CALLBACK ( save_db_clicked ), (gpointer) pall_hdls  );
-    //gtk_box_pack_start (GTK_BOX (hbox2), button, FALSE, FALSE, 0);
 
     // add ref to widget so it doesn't get destroyed on container_remove !
     g_object_ref ( pall_hdls->vbox_transact_page );
@@ -383,6 +408,7 @@ int create_transaction_page( phdl_grp pall_hdls ) {
   } // !if ( pall_hdls->vbox_transact_page == NULL
   else {
     gtk_container_add (GTK_CONTAINER ( pall_hdls->parentWin ), pall_hdls->vbox_transact_page );
+    pall_hdls->vbox_active = pall_hdls->vbox_transact_page;
     gtk_widget_show_all ( pall_hdls->vbox_transact_page );
   }
 

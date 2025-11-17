@@ -43,9 +43,9 @@ static void on_submit_create ( GtkButton *button , gpointer data ) {
 #endif
 
 int create_create_screen ( phdl_grp pall_hdls ) {
-  GtkWidget *hbox , *hbox2 ;
+  GtkWidget *hbox , *hbox2;
   GtkWidget *label, *button;
-  GtkWidget *user_entry, *pass_entry;
+  GtkWidget *name_entry, *email_entry, *user_entry, *pass_entry, *phone_entry;
 
   if ( pall_hdls == NULL ) {
     printf( "  >> E %s  , all_hdls = NULL !!! \n" , __FUNCTION__ );
@@ -71,6 +71,14 @@ int create_create_screen ( phdl_grp pall_hdls ) {
     GtkWidget *v = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
     gtk_container_set_border_width(GTK_CONTAINER(v), 12);
 
+    name_entry = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(name_entry), "Full Name");
+    gtk_box_pack_start(GTK_BOX(v), name_entry, FALSE, FALSE, 0);
+
+    email_entry = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(email_entry), "Email");
+    gtk_box_pack_start(GTK_BOX(v), email_entry, FALSE, FALSE, 0);
+    
     user_entry = gtk_entry_new();
     gtk_entry_set_placeholder_text(GTK_ENTRY(user_entry), "Username");
     gtk_box_pack_start(GTK_BOX(v), user_entry, FALSE, FALSE, 0);
@@ -80,6 +88,10 @@ int create_create_screen ( phdl_grp pall_hdls ) {
     gtk_entry_set_visibility(GTK_ENTRY(pass_entry), FALSE);
     gtk_entry_set_invisible_char(GTK_ENTRY(pass_entry), 0x2022);
     gtk_box_pack_start(GTK_BOX(v), pass_entry, FALSE, FALSE, 0);
+
+    phone_entry = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(phone_entry), "Phone Number");
+    gtk_box_pack_start(GTK_BOX(v), phone_entry, FALSE, FALSE, 0);
 
     gtk_container_add(GTK_CONTAINER(pall_hdls->vbox_create_page), v);
 

@@ -14,7 +14,7 @@
 */
 
 int log_sql_access = 0;
-int sql_log_dbg    = 1;
+int sql_log_dbg    = 0;
 
 void set_log_sql_access ( int logit ) {
   log_sql_access = logit;
@@ -180,6 +180,7 @@ int db_add_entry( sqlite3 *db_hdl , pokane_grp data_lst , int dbg ) {
           getchar();
         }
       }
+      data_lst->in_dB = 1;
     }  // if NOT in_db
 
     data_lst = data_lst->next;
@@ -306,13 +307,11 @@ int db_read_in_all_transactions( sqlite3 *db_hdl , pokane_grp *data_lst, int dbg
 
   } // while
   if ( dbg ) printf( "  val_i=%d val_d=%g  ( %s L%d ) \n" , val_i, val_d , __FILE__ , __LINE__ );
-//  if ( dbg ) getchar();
 
   rc = sqlite3_finalize( stmt );
   if ( log_sql_access || rc ) printf( "     SQL_LOG: %s L%d called sqlite3_finalize rc=%d\n" , __FUNCTION__ , __LINE__  , rc );
 
   *data_lst = head;
 
-// end
   return nrTkr;
 }  // db_read_in_all_transactions
