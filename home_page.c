@@ -54,8 +54,9 @@ static void list_transact_clicked ( GtkButton *button , gpointer data ) {
 }
 
 static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
-    (void)btn; (void)user_data; // unused
-    settings_show();
+    (void)btn;
+    phdl_grp all_hdls = (phdl_grp)user_data; // unused
+    settings_show(all_hdls);
 }
 
 static void on_LogOut_clicked(GtkButton *button, gpointer user_data) {
@@ -223,7 +224,7 @@ int create_home_screen ( phdl_grp pall_hdls ) {
     gtk_button_set_always_show_image (GTK_BUTTON (button), TRUE);  // needed for GTK on macOS
     gtk_button_set_image( GTK_BUTTON( button ) , image);
 
-    g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), NULL);
+    g_signal_connect(button, "clicked", G_CALLBACK(on_settings_clicked), (gpointer)pall_hdls);
     g_object_set ( button , "tooltip-text", "Click to change app settings", NULL);
 
     gtk_box_pack_start (GTK_BOX ( hbox3 ), button, TRUE, FALSE, 0);

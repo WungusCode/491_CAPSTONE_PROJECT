@@ -65,6 +65,13 @@ static void on_submit_create ( GtkButton *button , gpointer data ) {
     gtk_widget_destroy(dlg);
     return;
   } 
+
+  g_free(all_hdls->current_username);
+  g_free(all_hdls->current_password);
+
+  all_hdls->current_username = g_strdup(user);
+  all_hdls->current_password = g_strdup(pass);
+
   hide_create_screen(all_hdls);
   create_home_screen(all_hdls);
 
@@ -162,4 +169,3 @@ int create_create_screen_rtn( phdl_grp *all_hdls ) {
   *all_hdls = pall_hdls;
   return rc;
 }
-

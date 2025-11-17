@@ -58,7 +58,7 @@ static void on_reportProblem_clicked(GtkButton *btn, gpointer user_data) {
 
 // --- Public API ---
 
-GtkWidget* create_setting_page(void) {
+GtkWidget* create_setting_page(phdl_grp pall_hdls) {
 
     if (settings_window) {
         gtk_widget_show(settings_window);
@@ -129,14 +129,20 @@ GtkWidget* create_setting_page(void) {
     gtk_container_add(GTK_CONTAINER(frame_account), box_account);
 
     // Email  (change type of box)
-    GtkWidget *btn_email = gtk_entry_new();  // was gtk_enter_new()
-    gtk_entry_set_placeholder_text(GTK_ENTRY(btn_email), "Email");
+    GtkWidget *btn_email = gtk_label_new(NULL);  // was gtk_enter_new()
+    // gtk_entry_set_placeholder_text(GTK_ENTRY(btn_email), "Email");
+    if (pall_hdls && pall_hdls->current_username) {
+        gtk_label_set_text(GTK_LABEL(btn_email), pall_hdls->current_username);
+    }
     gtk_box_pack_start(GTK_BOX(box_account), btn_email, FALSE, FALSE, 0);
 
     // Password entry (change type of box)
-    GtkWidget *btn_password = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(btn_password), "Password");
-    gtk_entry_set_visibility(GTK_ENTRY(btn_password), TRUE);
+    GtkWidget *btn_password = gtk_label_new(NULL);
+    // gtk_entry_set_placeholder_text(GTK_ENTRY(btn_password), "Password");
+    // gtk_entry_set_visibility(GTK_ENTRY(btn_password), TRUE);
+    if (pall_hdls && pall_hdls->current_password) {
+        gtk_label_set_text(GTK_LABEL(btn_password), pall_hdls->current_password);
+    }
     gtk_box_pack_start(GTK_BOX(box_account), btn_password, FALSE, FALSE, 0); // missing ';' fixed
 
     // add to main box
@@ -166,9 +172,9 @@ GtkWidget* create_setting_page(void) {
     return window;
 }
 
-void settings_show(void) {
+void settings_show(phdl_grp pall_hdls) {
     if (!settings_window) {
-        create_setting_page();
+        create_setting_page(pall_hdls);
     } else {
         gtk_widget_show(settings_window);
     }
@@ -181,4 +187,3 @@ void destroy_setting_page(GtkWidget *window) {
     }
     printf("[Settings] window destroyed\n");
 }
-
