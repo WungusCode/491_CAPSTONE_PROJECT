@@ -12,7 +12,7 @@ INCS := $(wildcard $(INCS_FOLDER)/*.h)
 
 DB_SRC = $(DB_SRCS_FOLDER)/my_sql.c
 
-SRCS := $(notdir $(wildcard $(SRCS_FOLDER)/*.c $(DB_SRC) $(GUI_SRCS_FOLDER)/*.c))
+SRCS := $(notdir $(wildcard $(SRCS_FOLDER)/*.c) $(DB_SRC))
 
 OBJS := $(patsubst %.c, $(OBJS_FOLDER)/%.o, $(SRCS))
 
@@ -46,11 +46,6 @@ $(OBJS_FOLDER)/%.o:$(SRCS_FOLDER)/%.c $(INCS)
 					-c $< -o $@
 
 $(OBJS_FOLDER)/%.o:$(DB_SRCS_FOLDER)/%.c $(INCS)
-	@$(CC) $(CFLAGS) $(GTK_FLAGS) $(CURL_FLAGS) \
-					-I $(INCS_FOLDER) \
-					-c $< -o $@
-
-$(OBJS_FOLDER)/%.o:$(GUI_SRCS_FOLDER)/%.c $(INCS)
 	@$(CC) $(CFLAGS) $(GTK_FLAGS) $(CURL_FLAGS) \
 					-I $(INCS_FOLDER) \
 					-c $< -o $@

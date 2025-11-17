@@ -1,3 +1,4 @@
+#include <string.h>
 #include <curl/curl.h>
 
 struct upload_status {
