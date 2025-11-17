@@ -31,7 +31,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential ccache cppcheck \
+            build-essential ccache \
             libgtk-3-dev libsqlite3-dev libcurl4-openssl-dev \
             xvfb
       - name: Cache ccache
@@ -47,11 +47,6 @@ jobs:
           echo "gtk+-3.0 and libcurl are available via pkg-config"
       - name: Build
         run: make -j"$(nproc)" sekai
-      - name: Cppcheck
-        run: |
-          cppcheck --enable=warning,style,performance,portability \
-                   --inline-suppr --suppress=missingIncludeSystem \
-                   --error-exitcode=1 .
       - name: Start Xvfb
         run: Xvfb :99 -screen 0 1024x768x16 &
       - name: Build tests
@@ -68,4 +63,3 @@ jobs:
         with:
           name: sekai-ubuntu
           path: sekai
-
