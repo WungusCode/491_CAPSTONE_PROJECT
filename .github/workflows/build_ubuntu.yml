@@ -20,13 +20,16 @@ jobs:
 
     - name: Dependency probe (GTK+ and libcurl)
       run: |
-        cat > probe.c <<'EOF'
+        cat > /tmp/probe.c <<'EOF'
         #include <gtk/gtk.h>
         #include <curl/curl.h>
         int main(void){ gtk_init(NULL, NULL); return 0; }
         EOF
-        clang probe.c $(pkg-config --cflags --libs gtk+-3.0 libcurl) -o /tmp/probe
+        clang /tmp/probe.c $(pkg-config --cflags --libs gtk+-3.0 libcurl) -o /tmp/probe
         /tmp/probe || true
+
+    - name: Clean
+      run: make clean || true
 
     - name: make
       run: make sekai
