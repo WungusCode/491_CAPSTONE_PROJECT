@@ -28,8 +28,10 @@ jobs:
         clang /tmp/probe.c $(pkg-config --cflags --libs gtk+-3.0 libcurl) -o /tmp/probe
         /tmp/probe || true
 
-    - name: Clean
-      run: make clean || true
+    - name: Clean check
+      run: |
+        echo "Testing make clean..."
+        make clean || echo "make clean had no effect (expected if first build)"
 
     - name: make
       run: make sekai
