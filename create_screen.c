@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
+#include <glib.h>
 
 #include "base_defs.h"
 #include "start_screen.h"
@@ -26,21 +27,49 @@ static void goto_login ( GtkButton *button , gpointer data ) {
   create_login_screen ( all_hdls );
 }
 
-static void c_goto_home( GtkButton *button , gpointer data ) {
-  phdl_grp all_hdls = (phdl_grp)data;
-  hide_create_screen( all_hdls );
-  create_home_screen ( all_hdls );
+// static void c_goto_home( GtkButton *button , gpointer data ) {
+//   phdl_grp all_hdls = (phdl_grp)data;
+//   hide_create_screen( all_hdls );
+//   create_home_screen ( all_hdls );
+// }
+
+static gboolean is_blank(const char *input) {
+    if (!input) return TRUE;
+    while (*input) {
+        if (!g_ascii_isspace((guchar)*input)) 
+        return FALSE;
+        input++;
+    }
+    return TRUE;
 }
 
-#if 0
 static void on_submit_create ( GtkButton *button , gpointer data ) {
+ 
+  phdl_grp all_hdls = (phdl_grp)data;
+
   GtkEntry *u = g_object_get_data(G_OBJECT(button), "u");
   GtkEntry *p = g_object_get_data(G_OBJECT(button), "p");
+
   const char *user = gtk_entry_get_text(GTK_ENTRY(u));
   const char *pass = gtk_entry_get_text(GTK_ENTRY(p));
+  
+  if (is_blank(user) || is_blank(pass)) {
+    GtkWidget *dlg = gtk_message_dialog_new (
+      GTK_WINDOW(all_hdls->parentWin),
+      GTK_DIALOG_MODAL,
+      GTK_MESSAGE_WARNING,
+      GTK_BUTTONS_OK,  
+      "Please enter a username and a password to create account."
+    );
+    gtk_dialog_run(GTK_DIALOG(dlg));
+    gtk_widget_destroy(dlg);
+    return;
+  } 
+  hide_create_screen(all_hdls);
+  create_home_screen(all_hdls);
+
   g_print("[Create] username='%s' password='%s'\n", user, pass);
 }
-#endif
 
 int create_create_screen ( phdl_grp pall_hdls ) {
   GtkWidget *hbox , *hbox2;
@@ -112,7 +141,8 @@ int create_create_screen ( phdl_grp pall_hdls ) {
     button = gtk_button_new_with_label ("Submit");
     g_object_set_data(G_OBJECT(button), "u", user_entry);
     g_object_set_data(G_OBJECT(button), "p", pass_entry);
-    g_signal_connect (button, "clicked",  G_CALLBACK ( c_goto_home ), (gpointer) pall_hdls );
+    // g_signal_connect (button, "clicked",  G_CALLBACK ( c_goto_home ), (gpointer) pall_hdls );
+    g_signal_connect (button, "clicked", G_CALLBACK(on_submit_create), (gpointer)pall_hdls);
     gtk_box_pack_start (GTK_BOX ( hbox2 ), button, TRUE, FALSE, 0);
 
     g_object_ref ( pall_hdls->vbox_create_page );

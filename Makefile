@@ -25,7 +25,10 @@ GTK_LIBS_FLAGS = `pkg-config --libs gtk+-3.0`
 
 LIB_FLAGS = -lm -lsqlite3
 
-.PHONY: all tags install clean uninstall reinstall
+test:
+	$(MAKE) -C test run
+
+.PHONY: all tags install clean uninstall reinstall test
 
 all: install
 

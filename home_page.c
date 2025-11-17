@@ -55,7 +55,7 @@ static void list_transact_clicked ( GtkButton *button , gpointer data ) {
 
 static void on_settings_clicked(GtkButton *btn, gpointer user_data) {
     (void)btn; (void)user_data; // unused
-    create_setting_page();
+    settings_show();
 }
 
 static void on_LogOut_clicked(GtkButton *button, gpointer user_data) {

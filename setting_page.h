@@ -7,6 +7,7 @@
 
 GtkWidget* create_setting_page(void);
 
+void settings_show(void);           // New "show" function so callers don't rebuild a window
 void destroy_setting_page(GtkWidget *window);
 
 #endif // _SETTING_PAGE_H_
